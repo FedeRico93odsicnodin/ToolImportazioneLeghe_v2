@@ -12,6 +12,23 @@ namespace ToolImportazioneLeghe_Console.Excel
     /// </summary>
     public static class Constants_Excel
     {
+        #region PARAMETRI COMUNI AI 2 FOGLI 
+
+        /// <summary>
+        /// Mappatura dei possibili casi per quanto riguarda la creazione di un nuovo wrapper di proprieta
+        /// per la tipologia di foglio corrente
+        /// </summary>
+        public enum TipologiaPropertiesFoglio
+        {
+            Format1_Foglio1_Leghe = 1,
+            Format1_Foglio2_Concentrazioni = 2,
+            Format2_Leghe = 3,
+            Format2_ConcentrazioniElemento = 4
+        }
+
+        #endregion
+
+
         #region PARAMETRI PER LA LETTURA DEL FORMATO 1 PRESO DAL DATABASE DI LEGHE
 
         /// <summary>
@@ -38,6 +55,58 @@ namespace ToolImportazioneLeghe_Console.Excel
             LetturaParziale = 2,
             NessunaCorrispondenza = 3
         }
+
+
+        /// <summary>
+        /// Proprietà obbligatorie per la lettura delle informazioni dal primo foglio (FORMAT1)
+        /// </summary>
+        public static string[] PROPRIETAOBBLIGATORIE_FORMAT1_SHEET1 = { "MATERIALE", "TIPO" };
+
+
+        /// <summary>
+        /// Proprietà opzionali per la lettura delle informazioni dal primo foglio (FORMAT1)
+        /// </summary>
+        public static string[] PROPRIETAOPZIONALI_FORMAT1_SHEET1 = { "#", "PAESE / PRODUTTORE" };
+
+
+        /// <summary>
+        /// Proprietà obbligatorie per la lettura delle informazioni dal secondo foglio (FORMAT1)
+        /// </summary>
+        public static string[] PROPRIETAOBBLIGATORIE_FORMAT1_SHEET2 = { "CRITERI", "MIN", "MAX" };
+
+
+        /// <summary>
+        /// Proprietà opzionali per la lettura delle informazioni per il seconto foglio (FORMAT1)
+        /// </summary>
+        public static string[] PROPRIETAOPZIONALI_FORMAT1_SHEET2 = { "APPROSS", "COMMENTO" };
+
+        #endregion
+
+
+        #region PARAMETRI PER LA LETTURA DEL FORMATO 2 CLIENTE
+
+        /// <summary>
+        /// Proprieta obbligatorie per la lettura delle informazioni di base e per il formato 2
+        /// </summary>
+        public static string[] PROPRIETAOBBLIGATORIE_FORMAT2 = { "NORMATIVA", "BASE", "MAT. NO.", "ALLOY NAME" };
+
+
+        /// <summary>
+        /// Proprieta opzionali per la lettura delle inforamzioni di base e per il formato 2
+        /// </summary>
+        public static string[] PROPRIETAOPZIONALI_FORMAT2 = { "CATEGORIA", "DESCRIZIONE", "TRATTAMENTO" };
+
+
+        /// <summary>
+        /// Proprieta obbligatorie per la lettura delle informazioni di elemento e per il formato 2
+        /// </summary>
+        public static string[] PROPRIETAOBBLIGATORIE_ELEM_FORMAT2 = { "MIN.", "MAX." };
+
+
+        /// <summary>
+        /// Proprieta opzionali per la lettura delle informazioni di elemento e per il formato 2
+        /// </summary>
+        public static string[] PROPRIETAOPZIONALI_ELEM_FORMAT2 = { "DEROGAMIN.", "DEROGAMAX.", "OBIETTIVO" };
 
         #endregion
     }

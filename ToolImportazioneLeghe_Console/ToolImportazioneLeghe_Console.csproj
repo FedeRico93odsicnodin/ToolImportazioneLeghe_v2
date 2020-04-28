@@ -69,6 +69,7 @@
     <Compile Include="Excel\Model_Excel\Excel_Format1_Sheet2_ConcQuadrant.cs" />
     <Compile Include="Excel\Model_Excel\Excel_Format2_Row.cs" />
     <Compile Include="Excel\Model_Excel\Excel_Format2_Sheet.cs" />
+    <Compile Include="Excel\Model_Excel\Excel_PropertyWrapper.cs" />
     <Compile Include="Logging\LoggingService.cs" />
     <Compile Include="Messaging_Console\ConsoleService.cs" />
     <Compile Include="Program.cs" />
@@ -83,7 +84,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="ConsoleMessaging\" />
     <Folder Include="Database\" />
     <Folder Include="XML\" />
   </ItemGroup>

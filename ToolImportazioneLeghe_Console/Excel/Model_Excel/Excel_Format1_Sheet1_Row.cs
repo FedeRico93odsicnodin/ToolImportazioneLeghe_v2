@@ -12,5 +12,9 @@ namespace ToolImportazioneLeghe_Console.Excel.Model_Excel
     /// </summary>
     public class Excel_Format1_Sheet1_Row
     {
+        /// <summary>
+        /// Lista di tutte le proprieta settate attraverso la definizione del property wrapper
+        /// </summary>
+        public List<Excel_PropertyWrapper> ExcelSheet1_LegheProperties { get; set; }
     }
 }

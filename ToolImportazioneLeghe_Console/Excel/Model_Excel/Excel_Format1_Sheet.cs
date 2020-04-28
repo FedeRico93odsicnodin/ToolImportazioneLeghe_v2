@@ -45,8 +45,7 @@ namespace ToolImportazioneLeghe_Console.Excel.Model_Excel
 
         #endregion
 
-
-
+        
         #region COSTRUTTORE 
 
         /// <summary>

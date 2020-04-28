@@ -87,6 +87,18 @@ namespace ToolImportazioneLeghe_Console.Utils
         /// </summary>
         public static string EXCEL_FILENOTINMEMORY = "il file excel per l'analisi non è stato correttamente caricato in memoria";
 
+
+        /// <summary>
+        /// Eccezione utilizzata a livello di creazione e inserimento proprietà excel in lettura all'interno del wrapper
+        /// </summary>
+        public static string EXCEL_READINGPROPERTIES = "si è verificato un errore di implementazione durante la creazione istanza di proprieta excel";
+
+
+        /// <summary>
+        /// Ricerca per proprieta contenuta nel wrapper non andata a buon fine 
+        /// </summary>
+        public static string EXCEL_PROPERTYNOTDEFINED = "la proprieta ricercata durante la fase di analisi non è stata definita all'interno del wrapper per '{0}'";
+
         #endregion
     }
 }
