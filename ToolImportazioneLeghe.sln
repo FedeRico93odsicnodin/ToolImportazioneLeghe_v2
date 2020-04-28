@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.438
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ToolImportazioneLeghe_Console", "ToolImportazioneLeghe_Console\ToolImportazioneLeghe_Console.csproj", "{97D3C4A0-05B3-4608-AAC0-9470A48FEFF4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ToolImportazioneLeghe_App", "ToolImportazioneLeghe_App\ToolImportazioneLeghe_App.csproj", "{5C2F7069-F686-4C82-8D12-D229F6B90D23}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{97D3C4A0-05B3-4608-AAC0-9470A48FEFF4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{97D3C4A0-05B3-4608-AAC0-9470A48FEFF4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{97D3C4A0-05B3-4608-AAC0-9470A48FEFF4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{97D3C4A0-05B3-4608-AAC0-9470A48FEFF4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5C2F7069-F686-4C82-8D12-D229F6B90D23}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C2F7069-F686-4C82-8D12-D229F6B90D23}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C2F7069-F686-4C82-8D12-D229F6B90D23}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C2F7069-F686-4C82-8D12-D229F6B90D23}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {EF80C405-663F-48CE-A8E6-C3A4A361374B}
+	EndGlobalSection
+EndGlobal
