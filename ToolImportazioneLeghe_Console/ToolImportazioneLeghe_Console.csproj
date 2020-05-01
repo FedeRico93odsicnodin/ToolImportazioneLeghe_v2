@@ -64,6 +64,7 @@
   <ItemGroup>
     <Compile Include="Excel\Constants_Excel.cs" />
     <Compile Include="Excel\ExcelService.cs" />
+    <Compile Include="Excel\Excel_Algorithms\ExcelRecognizers.cs" />
     <Compile Include="Excel\Model_Excel\Excel_Format1_Sheet.cs" />
     <Compile Include="Excel\Model_Excel\Excel_Format1_Sheet1_Row.cs" />
     <Compile Include="Excel\Model_Excel\Excel_Format1_Sheet2_ConcQuadrant.cs" />

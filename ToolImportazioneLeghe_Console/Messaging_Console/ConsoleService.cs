@@ -105,7 +105,7 @@ namespace ToolImportazioneLeghe_Console.Messaging_Console
         /// <param name="targetLogFile"></param>
         public void RicreazioneFolder(string analyzedFolder, string targetLogFile)
         {
-            string currentMessage = String.Format(utilityFunctions_Marker + "ho appena creato la seguente cartella '{0}' per l'inserimneto del log '{1}'");
+            string currentMessage = String.Format(utilityFunctions_Marker + "ho appena creato la seguente cartella '{0}' per l'inserimneto del log '{1}'", analyzedFolder, targetLogFile);
             ConsoleService.FormatMessageConsole(currentMessage, false);
         }
 
@@ -116,7 +116,7 @@ namespace ToolImportazioneLeghe_Console.Messaging_Console
         /// <param name="targetLogFile"></param>
         public void RicreazioneLogFile(string targetLogFile)
         {
-            string currentMessage = String.Format(utilityFunctions_Marker + "ho appena ricreato il seguente file di log '{0}', la procedura verrà loggata da 0 in questo file");
+            string currentMessage = String.Format(utilityFunctions_Marker + "ho appena ricreato il seguente file di log '{0}', la procedura verrà loggata da 0 in questo file", targetLogFile);
             ConsoleService.FormatMessageConsole(currentMessage, false);
         }
     }
@@ -127,6 +127,76 @@ namespace ToolImportazioneLeghe_Console.Messaging_Console
     /// </summary>
     public class ConsoleService_Excel
     {
-        
+        #region ATTRIBUTI CREAZIONE INTESTAZIONE MESSAGGIO
+
+        /// <summary>
+        /// Excel per il marker principale per i servizi excel
+        /// </summary>
+        private const string excelService_Marker = "EXCEL - ";
+
+
+        /// <summary>
+        /// Marker per i reader di inserimento excel 
+        /// </summary>
+        private const string readerExcel_Marker = "READER: ";
+
+
+        /// <summary>
+        /// Marker per identificare il formato 1 proveniente dal database di leghe 
+        /// </summary>
+        private const string intestazioneFormat1 = "FORMAT 1 (DATABASE LEGHE) - ";
+
+
+        /// <summary>
+        /// Marker per identificare il formato 2 proveninete dal cliente 
+        /// </summary>
+        private const string intestazioneFormat2 = "FORMAT 2 (CLIENTE) - ";
+
+        #endregion
+
+
+        /// <summary>
+        /// Segnalazione che il foglio è stato trovato di una certa tipologia per l'istanza di reader corrente e per il formato corrente
+        /// questo metodo è riferito al primo formato proveniente dal database di tutte le leghe
+        /// </summary>
+        /// <param name="currentFoglio"></param>
+        /// <param name="currentPosizione"></param>
+        /// <param name="currentTipologia"></param>
+        public void ExcelReaders_Message_RiconoscimentoSeguenteTipologia_Format1(string currentFoglio, int currentPosizione, string currentTipologia)
+        {
+            string currentMessage = String.Format(excelService_Marker + intestazioneFormat1 + readerExcel_Marker + "il foglio di nome '{0}' in posizione in excel {1} è stato riconosciuto come {2}", currentFoglio, currentPosizione, currentTipologia);
+            ConsoleService.FormatMessageConsole(currentMessage, true);
+        }
+
+
+        /// <summary>
+        /// Segnalazione che il foglio è stato trovato come contenente delle informazioni valide per la lettura di leghe e concentrazioni 
+        /// inerentemente la seconda tipologia di foglio
+        /// </summary>
+        /// <param name="currentFoglio"></param>
+        /// <param name="currentPosizione"></param>
+        public void ExcelReaders_Message_RiconoscimentoSeguenteTipologia_Format2(string currentFoglio, int currentPosizione)
+        {
+            string currentMessage = String.Format(excelService_Marker + intestazioneFormat2 + readerExcel_Marker + "il foglio di nome '{0}' in posizione excel {1} è stato riconosciuto come contenere delle informazioni valide", currentFoglio, currentPosizione);
+            ConsoleService.FormatMessageConsole(currentMessage, true);
+        }
+
+
+        /// <summary>
+        /// Segnalazione che il foglio non è stato riconosciuto come contenere delle informazioni valide per il file corrente e per le informazioni 
+        /// di lega o di concentrazione
+        /// </summary>
+        /// <param name="currentFoglio"></param>
+        /// <param name="currentPosizione"></param>
+        public void ExcelReaders_Message_FoglioNonRiconosciuto(string currentFoglio, int currentPosizione)
+        {
+            string currentMessage = String.Format(excelService_Marker + readerExcel_Marker + "il seguente foglio '{0}' in posizione {1} non è stato riconosciuto come foglio di informazioni valide, si prega di controllarne nuovamente il contenuto", currentFoglio, currentPosizione);
+            ConsoleService.FormatMessageConsole(currentMessage, true);
+        }
+
+
+
+
+
     }
 }

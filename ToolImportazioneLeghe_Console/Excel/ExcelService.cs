@@ -6,7 +6,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ToolImportazioneLeghe_Console.Excel.Excel_Algorithms;
 using ToolImportazioneLeghe_Console.Excel.Model_Excel;
+using ToolImportazioneLeghe_Console.Messaging_Console;
 using ToolImportazioneLeghe_Console.Utils;
 
 namespace ToolImportazioneLeghe_Console.Excel
@@ -192,7 +194,17 @@ namespace ToolImportazioneLeghe_Console.Excel
 
                 foreach(ExcelWorksheet currentWorksheet in _openedExcel.Workbook.Worksheets)
                 {
+                    // riconoscimento della tipologia foglio per il primo formato
+                    Constants_Excel.TipologiaFoglio_Format1 tipologiaRiconoscita = RecognizeTipoFoglio_Format1(currentWorksheet);
+                    if (!(tipologiaRiconoscita == Constants_Excel.TipologiaFoglio_Format1.NotDefined))
+                    {
+                        ConsoleService.ConsoleExcel.ExcelReaders_Message_RiconoscimentoSeguenteTipologia_Format1(currentWorksheet.Name, currentSheetPosition, tipologiaRiconoscita.ToString());
 
+                        Excel_Format1_Sheet foglioExcelCorrenteInfo = new Excel_Format1_Sheet(currentWorksheet.Name, tipologiaRiconoscita, currentSheetPosition);
+                        _sheetsLetturaFormat_1.Add(foglioExcelCorrenteInfo);
+                    }
+                    else
+                        ConsoleService.ConsoleExcel.ExcelReaders_Message_FoglioNonRiconosciuto(currentWorksheet.Name, currentSheetPosition);
                 }
             }
             else if(_formatoExcel == Constants.FormatFileExcel.Cliente)
@@ -201,7 +213,19 @@ namespace ToolImportazioneLeghe_Console.Excel
 
                 foreach (ExcelWorksheet currentWorksheet in _openedExcel.Workbook.Worksheets)
                 {
+                    object[] parametriRiconosciutiDaAnalisi;
 
+
+                    bool hoRiconosciutoSecondaTipologia = RecognizeTipoFoglio_Format2(currentWorksheet, out parametriRiconosciutiDaAnalisi);
+                    if(hoRiconosciutoSecondaTipologia)
+                    {
+                        ConsoleService.ConsoleExcel.ExcelReaders_Message_RiconoscimentoSeguenteTipologia_Format2(currentWorksheet.Name, currentSheetPosition);
+
+                        Excel_Format2_Sheet foglioExcelCorrenteInfo = new Excel_Format2_Sheet(currentWorksheet.Name, currentSheetPosition);
+                        _sheetsLetturaFormat_2.Add(foglioExcelCorrenteInfo);
+                    }
+                    else
+                        ConsoleService.ConsoleExcel.ExcelReaders_Message_FoglioNonRiconosciuto(currentWorksheet.Name, currentSheetPosition);
                 }
             }
 
@@ -247,8 +271,11 @@ namespace ToolImportazioneLeghe_Console.Excel
         /// </summary>
         /// <param name="currentSheet"></param>
         /// <returns></returns>
-        private Constants_Excel.TipologiaFoglio_Format1 RecognizeTipoFoglio_Format1(ref ExcelWorksheet currentSheet)
+        private Constants_Excel.TipologiaFoglio_Format1 RecognizeTipoFoglio_Format1(ExcelWorksheet currentSheet)
         {
+
+
+
             return Constants_Excel.TipologiaFoglio_Format1.NotDefined;
         }
 
@@ -256,11 +283,30 @@ namespace ToolImportazioneLeghe_Console.Excel
         /// <summary>
         /// Riconoscimento se il formato usato per la seconda tipologia per il foglio corrente è effettivamente valida per 
         /// il riconoscimento del foglio corrente come formato 2
+        /// Viene quindi restituito l'array dei parametri che viene eventualmente riconosciuto dall'analisi
         /// </summary>
         /// <param name="currentSheet"></param>
+        /// <param name="listaParametriRiconosciuti"></param>
         /// <returns></returns>
-        private bool RecognizeTipoFoglio_Format2(ref ExcelWorksheet currentSheet)
+        private bool RecognizeTipoFoglio_Format2(ExcelWorksheet currentSheet, out object[] listaParametriRiconosciuti)
         {
+            int startingRow = 0;
+            int startingCol = 0;
+            
+
+            bool riconoscimrentoCorrente = ExcelRecognizers.Recognize_Format1_InfoLeghe(ref currentSheet, out startingRow, out startingCol);
+
+            // sono riuscito ad inviduare una prima congruenza per il riconoscimento del foglio delle leghe
+            if (riconoscimrentoCorrente)
+            {
+                object[] currentParams = { startingRow, startingCol };
+
+                listaParametriRiconosciuti = currentParams;
+                
+                return true;
+            }
+
+            listaParametriRiconosciuti = null;
             return false;
         }
 
