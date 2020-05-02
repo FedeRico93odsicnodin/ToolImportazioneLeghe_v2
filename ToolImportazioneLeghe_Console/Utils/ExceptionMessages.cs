@@ -99,6 +99,13 @@ namespace ToolImportazioneLeghe_Console.Utils
         /// </summary>
         public static string EXCEL_PROPERTYNOTDEFINED = "la proprieta ricercata durante la fase di analisi non è stata definita all'interno del wrapper per '{0}'";
 
+
+        /// <summary>
+        /// Eccezione relativa al fatto che manca l'header di colonna nelle definizioni obbligatorie e sulla quale andare a riconoscere la presenza di eventuali 
+        /// elementi sottostanti
+        /// </summary>
+        public static string EXCEL_COLCRITERINONPRESENTE = "non posso proseguire l'analisi per individuare se il foglio corrente è di concentrazioni: manca la definizione della colonna su cui distinguere gli elementi (CRITERI)";
+
         #endregion
     }
 }

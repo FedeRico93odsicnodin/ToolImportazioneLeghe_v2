@@ -23,7 +23,47 @@ namespace ToolImportazioneLeghe_Console.Excel.Model_Excel
         /// </summary>
         public string NomeLega { get; set; }
 
-        
+
+        #region COORDINATE EXCEL
+
+        /// <summary>
+        /// Indica la posizione di riga iniziale dalla quale si legge per il quadrante corrente 
+        /// </summary>
+        public int StartingRow_Title { get; set; }
+
+
+        /// <summary>
+        /// Indica la posizione di colonna iniziale dalla quale si legge per il quadrante corrente 
+        /// </summary>
+        public int StartigCol { get; set; }
+
+
+        /// <summary>
+        /// Indica la posizione di riga per la lettura degli headers
+        /// </summary>
+        public int StartingRow_Headers { get; set; }
+
+
+        /// <summary>
+        /// Inidica la posizione di riga per la lettura delle concentrazioni
+        /// </summary>
+        public int StartingRow_Concentrations { get; set; }
+
+
+        /// <summary>
+        /// Indica la posizione di riga per riga di fine lettura delle concentrazioni per il quadrante corrente
+        /// </summary>
+        public int EndingRow_Concentrations { get; set; }
+
+
+        /// <summary>
+        /// Indica la posizione di riga finale per il quadrante excel corrente
+        /// </summary>
+        public int EndingCol { get; set; }
+                
+        #endregion
+
+
         /// <summary>
         /// Set delle concentrazioni lette per il quadrante corrente 
         /// </summary>

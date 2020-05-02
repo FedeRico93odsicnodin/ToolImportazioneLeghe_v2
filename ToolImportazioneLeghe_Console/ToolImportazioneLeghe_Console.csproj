@@ -78,6 +78,7 @@
     <Compile Include="ServiceLocator.cs" />
     <Compile Include="Utils\Constants.cs" />
     <Compile Include="Utils\ExceptionMessages.cs" />
+    <Compile Include="Utils\PeriodicTable.cs" />
     <Compile Include="Utils\UtilityFunctions.cs" />
   </ItemGroup>
   <ItemGroup>

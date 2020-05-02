@@ -270,11 +270,44 @@ namespace ToolImportazioneLeghe_Console.Excel
         /// quindi si puo trattare di un foglio di informazioni di lega o di concentrazioni per queste 
         /// </summary>
         /// <param name="currentSheet"></param>
+        /// <param name="listaParametriRiconosciuti"></param>
         /// <returns></returns>
-        private Constants_Excel.TipologiaFoglio_Format1 RecognizeTipoFoglio_Format1(ExcelWorksheet currentSheet)
+        private Constants_Excel.TipologiaFoglio_Format1 RecognizeTipoFoglio_Format1(ExcelWorksheet currentSheet, out object[] listaParametriRiconosciuti)
         {
+            int startingRow = 0;
+            int startingCol = 0;
 
 
+            bool riconoscimrentoCorrente = ExcelRecognizers.Recognize_Format1_InfoLeghe(ref currentSheet, out startingRow, out startingCol);
+
+            // sono riuscito ad inviduare una prima congruenza per il riconoscimento del foglio delle leghe
+            if (riconoscimrentoCorrente)
+            {
+                object[] currentParams = { startingRow, startingCol };
+
+                listaParametriRiconosciuti = currentParams;
+
+                return Constants_Excel.TipologiaFoglio_Format1.FoglioLeghe;
+            }
+
+            List<Excel_Format1_Sheet2_ConcQuadrant> concentrationsQuadrants;
+
+            // tentativo di riconoscimento foglio concentrazioni
+            bool riconoscimentoFoglioConcentrazioni = ExcelRecognizers.Recognize_Format1_InfoConcentrations(ref currentSheet, out concentrationsQuadrants);
+
+            // sono riuscito a riconoscere il foglio per le concentrazioni correnti
+            if(riconoscimentoFoglioConcentrazioni)
+            {
+                object[] currentParams = { concentrationsQuadrants };
+
+                listaParametriRiconosciuti =? currentParams;
+
+                return Constants_Excel.TipologiaFoglio_Format1.FoglioConcentrazioni;
+            }
+
+
+            // non sono riuscito a riconoscere nessuna tipologia
+            listaParametriRiconosciuti = null;
 
             return Constants_Excel.TipologiaFoglio_Format1.NotDefined;
         }
@@ -290,21 +323,8 @@ namespace ToolImportazioneLeghe_Console.Excel
         /// <returns></returns>
         private bool RecognizeTipoFoglio_Format2(ExcelWorksheet currentSheet, out object[] listaParametriRiconosciuti)
         {
-            int startingRow = 0;
-            int startingCol = 0;
-            
+            // TODO : creazione del metodo per il riconoscimento della terza tipologia di foglio e il formato 2
 
-            bool riconoscimrentoCorrente = ExcelRecognizers.Recognize_Format1_InfoLeghe(ref currentSheet, out startingRow, out startingCol);
-
-            // sono riuscito ad inviduare una prima congruenza per il riconoscimento del foglio delle leghe
-            if (riconoscimrentoCorrente)
-            {
-                object[] currentParams = { startingRow, startingCol };
-
-                listaParametriRiconosciuti = currentParams;
-                
-                return true;
-            }
 
             listaParametriRiconosciuti = null;
             return false;
