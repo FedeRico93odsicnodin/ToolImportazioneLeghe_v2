@@ -18,6 +18,8 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
     {
         #region ATTRIBUTI PRIVATI
 
+        #region RICONOSCIMENTO DEI PRIMI 2 FOGLI PER LA PRIMA TIPOLOGIA DI FORMATO
+
         /// <summary>
         /// Attribuzione al momenti di richiamo di uno dei diversi metodi in analisi, mappatura di tutte le informazioni per il foglio 
         /// excel correntemente in analisi
@@ -100,6 +102,55 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
         /// Traccia del nome di colonna criteri per l'eventuale lettura delle definizioni degli elementi sottostanti
         /// </summary>
         private const string COLCRITERI_HEADER = "CRITERI";
+
+        #endregion
+
+
+        #region RICONOSCIMENTO DELLA TERZA TIPOLOGIA DI FOGLIO PER IL FORMATO 2 NEL QUALE SONO PRESENTI SIA LE INFORMAZIONI DI LEGHE CHE DI CONCENTRAZIONI
+
+        /// <summary>
+        /// Mi darà indicazione finale rispetto a dove iniziare a leggere le proprieta per la lega 
+        /// </summary>
+        private static int _startReadingProperties_row = 0;
+
+
+        /// <summary>
+        /// Indicazione della colonna di partenza dalla quale iniziare a leggere per le proprieta di lega
+        /// </summary>
+        private static int _startReadingLegheProperties_col = 0;
+
+
+        /// <summary>
+        /// Indicazione degli oggetti di concentrazione da riempire rispetto alle posizioni excel individuate per questi
+        /// in questa fases
+        /// </summary>
+        private static List<Excel_Format2_ConcColumns> _currentConcentrations;
+
+
+        /// <summary>
+        /// Proprieta obbligatorie leghe per il secondo formato excel
+        /// </summary>
+        private static List<string> _mandatoryInfo_Leghe_Format2 = Constants_Excel.PROPRIETAOBBLIGATORIE_FORMAT2.ToList();
+
+
+        /// <summary>
+        /// Proprieta opzionali leghe per il secondo formato excel
+        /// </summary>
+        private static List<string> _optionalInfo_Leghe_Format2 = Constants_Excel.PROPRIETAOPZIONALI_FORMAT2.ToList();
+
+
+        /// <summary>
+        /// Proprieta obbligatorie di elemento per la seconda tipologia di formato excel 
+        /// </summary>
+        private static List<string> _mandatoryInfo_Concentrations_Format2 = Constants_Excel.PROPRIETAOBBLIGATORIE_ELEM_FORMAT2.ToList();
+
+
+        /// <summary>
+        /// Proprieta opzionali di elemento per la seconda tipologia di formato excel 
+        /// </summary>
+        private static List<string> _optionalInfo_Concentrations_Format2 = Constants_Excel.PROPRIETAOPZIONALI_ELEM_FORMAT2.ToList();
+
+        #endregion
 
         #endregion
 
@@ -447,15 +498,189 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
 
         
 
+
+        public static bool Recognize_Format2_InfoLegheConcentrazioni(ref ExcelWorksheet currentWorksheet, out int startingRow, out int leghe_start_col, out List<Excel_Format2_ConcColumns> colonneElementi)
+        {
+            // validazioni di partenza 
+            if (currentWorksheet == null)
+                throw new Exception(ExceptionMessages.EXCEL_FILENOTINMEMORY);
+
+            _foglioExcelCorrente = currentWorksheet;
+            
+            int indexRow_Max = 1;
+            int intexCol_Max = 1;
+
+            _currentRowIndex = 0;
+            _currentColIndex = 0;
+
+            startingRow = 0;
+            leghe_start_col = 0;
+            colonneElementi = null;
+
+            // inserimento dei valori per il limite massimo di riga / colonna entro il quale devo riconoscere l'informazione 
+            indexRow_Max = (currentWorksheet.Dimension.End.Row <= LIMIT_ROW) ? currentWorksheet.Dimension.End.Row : LIMIT_ROW;
+            intexCol_Max = (currentWorksheet.Dimension.End.Column <= LIMIT_COL) ? currentWorksheet.Dimension.End.Column : LIMIT_COL;
+
+            do
+            {
+                _currentColIndex++;
+
+                do
+                {
+                    _currentRowIndex++;
+
+                    // riconoscimento delle prime informazioni di lega 
+                    if (RiconosciQuadrante_SecondoFormato())
+                    {
+                        // attribuzione dei primi parametri conosciuti
+                        startingRow = _startReadingProperties_row;
+                        leghe_start_col = _startReadingLegheProperties_col;
+
+                        if (RiconoscimentoColonneConcentrazioni_SecondoFormato())
+                        {
+                            if (RiconoscimentoColonneConcentrazioni_SecondoFormato())
+                            {
+                                colonneElementi = _currentConcentrations;
+                                return true;
+                            }
+                                
+                        }
+                    }
+
+                }
+                while (_currentRowIndex <= indexRow_Max);
+
+            }
+            while (_currentColIndex <= intexCol_Max);
+            
+
+            return false;
+        }
+
+
         /// <summary>
-        /// Mi permette di riconoscere se il foglio corrente appartiene alla categoria relativa alle informazioni per concentrazioni leghe 
-        /// in lettura dal secondo formato excel disponibile
+        /// Riconoscimento del quadrante complessivo per il secondo formato excel 
         /// </summary>
         /// <param name="currentWorksheet"></param>
         /// <returns></returns>
-        public static bool Recognize_Format2_InfoLegheConcentrazioni(ExcelWorksheet currentWorksheet)
+        private static bool RiconosciQuadrante_SecondoFormato()
         {
+            List<string> readMandatoryProperties_Leghe = new List<string>();
+
+            int currentColCopy = _currentColIndex;
+
+            while(readMandatoryProperties_Leghe.Count() < _mandatoryInfo_Leghe_Format2.Count())
+            {
+
+                if (_foglioExcelCorrente.Cells[_currentRowIndex, _currentColIndex].Value != null)
+                {
+                    if (_mandatoryInfo_Leghe_Format2.Contains(_foglioExcelCorrente.Cells[_currentRowIndex, _currentColIndex].Value.ToString().ToUpper()) && _foglioExcelCorrente.Cells[_currentRowIndex, _colCriteriIndex + 1].Merge == true)
+                        readMandatoryProperties_Leghe.Add(_foglioExcelCorrente.Cells[_currentRowIndex, _currentColIndex].Value.ToString().ToUpper());
+
+                    _currentColIndex++;
+                }
+                else
+                    break;
+            }
+
+            if(readMandatoryProperties_Leghe.Count() == _mandatoryInfo_format1_sheet2.Count())
+            {
+                _startReadingProperties_row = _currentRowIndex;
+                _startReadingLegheProperties_col = currentColCopy;
+
+                return true;
+            }
+            
             return false;
+        }
+
+
+        /// <summary>
+        /// Permette di riconoscere le colonne relative alle concentrazioni per il secondo formato 
+        /// </summary>
+        /// <returns></returns>
+        private static bool RiconoscimentoColonneConcentrazioni_SecondoFormato()
+        {
+            // header nel quale si trovano le eventuali proprieta in lettura per gli elementi
+            int rowHeadersProperty = _currentRowIndex + 1;
+
+            // istanza del quadrante di concentrazioni sul quale andare a inserire le proprieta lette 
+            Excel_Format2_ConcColumns currentColumnsConcentrations = new Excel_Format2_ConcColumns();
+
+            // non posso continuare l'analisi
+            if (_foglioExcelCorrente.Cells[_currentRowIndex, _currentColIndex].Value == null)
+                return false;
+
+            // definizione per il primo elemento
+            string currentElem = _foglioExcelCorrente.Cells[_currentRowIndex, _currentColIndex].Value.ToString();
+
+            string nextElem = String.Empty;
+
+            if (_foglioExcelCorrente.Cells[_currentRowIndex, _currentColIndex + 1].Value != null)
+                nextElem = _foglioExcelCorrente.Cells[_currentRowIndex, _currentColIndex + 1].Value.ToString();
+
+            // lista che alla fine conterrà tutte le proprieta obbligatorie per l'elemento
+            List<string> readMandatoryProperties = new List<string>();
+            // lista che alla fine conterrà tutte le proprieta opzionali per l'elemento
+            List<string> readOptionalProperties = new List<string>();
+
+
+            bool primaLetturaHeader = true;
+            
+            while(currentElem != String.Empty)
+            {
+                while(currentElem == nextElem)
+                {
+                    if (_foglioExcelCorrente.Cells[rowHeadersProperty, _currentColIndex].Value != null)
+                    {
+                        if (_mandatoryInfo_Concentrations_Format2.Contains(_foglioExcelCorrente.Cells[rowHeadersProperty, _currentColIndex].Value.ToString().ToUpper()))
+                        {
+                            if (primaLetturaHeader)
+                            {
+                                // attribuzione dei parametri per le concentrazioni correnti di elemento
+                                currentColumnsConcentrations.startingCol_Header = _currentColIndex;
+                                currentColumnsConcentrations.startingRow_Header = rowHeadersProperty;
+                                currentColumnsConcentrations.startingRow_Elemento = _currentRowIndex;
+                                currentColumnsConcentrations.NomeElemento = currentElem;
+                                primaLetturaHeader = false;
+                            }
+                                
+
+                            readMandatoryProperties.Add(_foglioExcelCorrente.Cells[rowHeadersProperty, _currentColIndex].Value.ToString().ToUpper());
+                            _currentColIndex++;
+
+                        }
+                    }
+
+                    if (_foglioExcelCorrente.Cells[_currentRowIndex, _currentColIndex].Value != null)
+                    {
+                        nextElem = _foglioExcelCorrente.Cells[_currentRowIndex, _currentColIndex].Value.ToString();
+                        currentColumnsConcentrations.endingCol_Header = _currentColIndex;
+                       
+                    }
+                    else
+                        nextElem = String.Empty;
+                }
+
+                // se non riconosco le parole chiave anche per un solo elemento di concentrazione ritorno false
+                if (readMandatoryProperties.Count() != _mandatoryInfo_Concentrations_Format2.Count())
+                    return false;
+
+                // aggiungo le concentrazioni
+                _currentConcentrations.Add(currentColumnsConcentrations);
+
+                // azzero variabile corrente
+                currentColumnsConcentrations = new Excel_Format2_ConcColumns();
+
+                currentElem = nextElem;
+
+                if (_foglioExcelCorrente.Cells[_currentRowIndex, _currentColIndex + 1].Value != null)
+                    nextElem = _foglioExcelCorrente.Cells[_currentRowIndex, _currentColIndex + 1].Value.ToString();
+                else
+                    nextElem = String.Empty;
+            }
+
+            return true;
         }
     }
 }

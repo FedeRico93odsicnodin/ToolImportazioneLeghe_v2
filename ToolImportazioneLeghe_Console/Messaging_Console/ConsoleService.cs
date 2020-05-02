@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using ToolImportazioneLeghe_Console.Utils;
 
@@ -22,6 +23,13 @@ namespace ToolImportazioneLeghe_Console.Messaging_Console
         /// </summary>
         private static ConsoleService_Excel _consoleService_Excel;
 
+
+        /// <summary>
+        /// Servizio corrente con tutti i messaggi relativi alla segnalazione sui vari steps per le diverse importazione 
+        /// in esecuzione
+        /// </summary>
+        private static STEPS_FromExcelToDatabase_ConsoleServices _steps_ConsoleMessages;
+
         #endregion
 
 
@@ -35,9 +43,40 @@ namespace ToolImportazioneLeghe_Console.Messaging_Console
         /// <param name="logMessage"></param>
         public static void FormatMessageConsole(string currentMessage, bool logMessage)
         {
+            Console.WriteLine(currentMessage);
+
             if (logMessage)
                 ServiceLocator.GetLoggingService.LogMessage(currentMessage, Constants.GlobalLoggingPath);
         }
+
+
+        /// <summary>
+        /// Servie per ottenere il separatore delle diverse attivita (ad esempio per i diversi steps legati all'importazione 
+        /// </summary>
+        public static void GetSeparatoreAttivita()
+        {
+            string currentMessage = "----------------------------------------";
+
+            Console.WriteLine(currentMessage);
+            ServiceLocator.GetLoggingService.LogMessage(currentMessage, Constants.GlobalLoggingPath);
+        }
+
+
+        /// <summary>
+        /// Permette di fare passare un po di tempo all'interno della console
+        /// </summary>
+       public static void GetSomeTimeOnConsole()
+        {
+
+            for (int i = 0; i < 3; i++)
+            {
+                Thread.Sleep(1000);
+                Console.Write(".");
+            }
+
+            Console.WriteLine("\n");
+        }
+
 
         #endregion
 
@@ -69,6 +108,22 @@ namespace ToolImportazioneLeghe_Console.Messaging_Console
                 return _consoleService_Excel;
             }
         }
+
+
+        /// <summary>
+        /// Getter per messaging console per i vari steps di importazione
+        /// </summary>
+        public static STEPS_FromExcelToDatabase_ConsoleServices ConsoleStepsMessages
+        {
+            get
+            {
+                if (_steps_ConsoleMessages == null)
+                    _steps_ConsoleMessages = new STEPS_FromExcelToDatabase_ConsoleServices();
+
+                return _steps_ConsoleMessages;
+            }
+        }
+
 
         #endregion
     }
@@ -156,6 +211,17 @@ namespace ToolImportazioneLeghe_Console.Messaging_Console
 
 
         /// <summary>
+        /// Segnalazione esistenza per il file excel corrente 
+        /// </summary>
+        /// <param name="logFilePath"></param>
+        public void EsistenzaFileExcel_Message(string logFilePath)
+        {
+            string currentMessage = String.Format(excelService_Marker + "ho appena aperto il file excel '{0}'", logFilePath);
+            ConsoleService.FormatMessageConsole(currentMessage, false);
+        }
+
+
+        /// <summary>
         /// Segnalazione che il foglio è stato trovato di una certa tipologia per l'istanza di reader corrente e per il formato corrente
         /// questo metodo è riferito al primo formato proveniente dal database di tutte le leghe
         /// </summary>
@@ -198,5 +264,33 @@ namespace ToolImportazioneLeghe_Console.Messaging_Console
 
 
 
+    }
+
+
+    /// <summary>
+    /// Tutti i messaggi per l'esecuzione di un import dal file excel sorgente aperto
+    /// al database (inserito come destinazione)
+    /// </summary>
+    public class STEPS_FromExcelToDatabase_ConsoleServices
+    {
+        /// <summary>
+        /// Inizio apertura foglio excel sorgente di cui viene passato il nome in input
+        /// </summary>
+        /// <param name="foglioExcelSorgente"></param>
+        public void STEP1_InizioAperturaFoglioExcelSorgente(string foglioExcelSorgente)
+        {
+            string currentMessage = String.Format("sto aprendo il file excel '{0}' in modalita LETTURA", foglioExcelSorgente);
+            ConsoleService.FormatMessageConsole(currentMessage, true);
+        }
+
+
+        /// <summary>
+        /// Indicazione che il file excel sorgente è stato aperto correttamente 
+        /// </summary>
+        public void STEP1_FileExcelSorgenteApertoCorrettamente()
+        {
+            string currentMessage = String.Format("l'apertura è avvenuta correttamente");
+            ConsoleService.FormatMessageConsole(currentMessage, true);
+        }
     }
 }

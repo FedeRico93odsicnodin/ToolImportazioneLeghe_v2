@@ -31,7 +31,13 @@ namespace ToolImportazioneLeghe_Console.Logging
         /// <param name="logFilePath"></param>
         private void BuildLogFilePath(string logFilePath)
         {
-            ServiceLocator.GetUtilityFunctions.BuildFilePath(logFilePath);
+            bool esistenza = false;
+
+
+            ServiceLocator.GetUtilityFunctions.BuildFilePath(logFilePath, out esistenza);
+
+            if(esistenza)
+                ConsoleService.ConsoleLogging.EsistenzaFileLog_Message(logFilePath);
         }
 
 

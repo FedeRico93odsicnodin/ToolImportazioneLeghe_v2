@@ -75,6 +75,25 @@ namespace ToolImportazioneLeghe_Console.Excel.Model_Excel
         /// </summary>
         public int GetPosSheet { get { return _posInExcel; } }
 
+
+        /// <summary>
+        /// Informazione riga di inizio per la lettura delle concentrazioni
+        /// </summary>
+        public int StartingRow_Leghe { get; set; }
+
+
+        /// <summary>
+        /// Informazione colonna di inizio per la lettura delle concentrazioni
+        /// </summary>
+        public int StartingCol_Leghe { get; set; }
+
+
+        /// <summary>
+        /// Informazione delle colonne nelle quali sono contenute le diverse informazioni
+        /// di concentrazione per le leghe in lettura corrente 
+        /// </summary>
+        public List<Excel_Format2_ConcColumns> ColonneConcentrazioni { get; set; }
+
         #endregion
     }
 }

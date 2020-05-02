@@ -45,10 +45,18 @@ namespace ToolImportazioneLeghe_Console.Utils
         }
 
 
-        public void BuildFilePath(string filePath)
+        /// <summary>
+        /// Permette di capile se il path passato è valido e nel caso viene validato creando le giuste directory
+        /// e poi il file 
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <param name="esistenza"></param>
+        public void BuildFilePath(string filePath, out bool esistenza)
         {
             try
             {
+                esistenza = false;
+
 
                 // inizializzazione del log 
                 string[] logFilePathParts = filePath.Split('\\');
@@ -82,7 +90,11 @@ namespace ToolImportazioneLeghe_Console.Utils
                     {
                         validatedPath = pathRecostrunction += "\\" + pathPart;
                         if (File.Exists(validatedPath))
-                            ConsoleService.ConsoleLogging.EsistenzaFileLog_Message(validatedPath);
+                        {
+                            
+                            esistenza = true;
+                        }
+                            
                         else
                         {
                             File.Create(validatedPath);

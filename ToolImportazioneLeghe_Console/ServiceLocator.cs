@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ToolImportazioneLeghe_Console.Excel;
 using ToolImportazioneLeghe_Console.Logging;
 using ToolImportazioneLeghe_Console.Utils;
 
@@ -25,6 +26,12 @@ namespace ToolImportazioneLeghe_Console
         /// Servizio di log per il tool
         /// </summary>
         private static LoggingService _loggingService;
+
+
+        /// <summary>
+        /// Serizio corrente excel 
+        /// </summary>
+        private static ExcelService _excelService;
 
         #endregion
 
@@ -57,6 +64,18 @@ namespace ToolImportazioneLeghe_Console
                     _loggingService = new LoggingService();
 
                 return _loggingService;
+            }
+        }
+
+
+        public static ExcelService GetExcelService
+        {
+            get
+            {
+                if (_excelService == null)
+                    _excelService = new ExcelService();
+
+                return _excelService;
             }
         }
 

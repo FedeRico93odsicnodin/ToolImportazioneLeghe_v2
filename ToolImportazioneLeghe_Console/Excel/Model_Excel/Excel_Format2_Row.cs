@@ -17,6 +17,6 @@ namespace ToolImportazioneLeghe_Console.Excel.Model_Excel
         /// <summary>
         /// Lista degli elementi relativi alle concentrazioni
         /// </summary>
-        public List<Excel_PropertyWrapper> ReadConcentrations { get; set; }
+        public List<Excel_Format2_ConcColumns> ReadConcentrations { get; set; }
     }
 }

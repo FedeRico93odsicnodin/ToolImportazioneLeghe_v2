@@ -72,8 +72,14 @@ namespace ToolImportazioneLeghe_Console.Excel
                     throw new Exception(ExceptionMessages.EXCEL_SOURCENOTEXISTING);
                 else
                 {
+                    bool esistenza = false;
+
                     // ricreazione del file 
-                    ServiceLocator.GetUtilityFunctions.BuildFilePath(excelPath);
+                    ServiceLocator.GetUtilityFunctions.BuildFilePath(excelPath, out esistenza);
+
+                    if (esistenza)
+                        ConsoleService.ConsoleExcel.EsistenzaFileExcel_Message(excelPath);
+
                 }
 
                 // set licenza corrente
@@ -90,13 +96,14 @@ namespace ToolImportazioneLeghe_Console.Excel
                     _excelReaders = new ExcelReaders(ref _openedExcel, formatoExcel);
                 else if (modalitaApertura == Constants.ModalitaAperturaExcel.Scrittura)
                     _excelWriters = new ExcelWriters(ref _openedExcel, formatoExcel);
+
+                return true;
             }
             catch (Exception e)
             {
                 throw new Exception(String.Format(ExceptionMessages.EXCEL_PROBLEMAAPERTURAFILE, ServiceLocator.GetUtilityFunctions.GetFileName(excelPath), e.Message));
             }
             
-            return false;
         }
 
         #endregion
@@ -151,6 +158,43 @@ namespace ToolImportazioneLeghe_Console.Excel
         /// </summary>
         private List<Excel_Format2_Sheet> _sheetsLetturaFormat_2;
 
+
+        /// <summary>
+        /// Traccia delle concentrazioni in lettura corrente per il foglio delle concentrazioni e la prima tipologia
+        /// di formato excel
+        /// </summary>
+        private List<Excel_Format1_Sheet2_ConcQuadrant> _quadrantiConcentrazioneLetturaCorrente;
+
+
+        /// <summary>
+        /// Inizio lettura leghe all'interno del primo foglio di leghe per il primo formato excel disponibile
+        /// </summary>
+        private int _startingPosLeghe_row_format1 = 0;
+
+
+        /// <summary>
+        /// Inizio lettura leghe all'interno del primo foglio di leghe per il primo formato excel disponibile
+        /// </summary>
+        private int _startingPosLeghe_col_format1 = 0;
+
+
+        /// <summary>
+        /// Traccia della lettura delle concentrazioni per il secondo formato excel disponibile
+        /// </summary>
+        private List<Excel_Format2_ConcColumns> _colonneConcentrazioniSecondoFormato;
+
+
+        /// <summary>
+        /// Inzio riga di lettura leghe per il secondo formato excel  
+        /// </summary>
+        private int _startingPosLeghe_row_format2 = 0;
+
+
+        /// <summary>
+        /// Inizio colonna lettura leghe per il secondo formato excel
+        /// </summary>
+        private int _startingPosLeghe_col_format2 = 0;
+
         #endregion
 
 
@@ -201,6 +245,18 @@ namespace ToolImportazioneLeghe_Console.Excel
                         ConsoleService.ConsoleExcel.ExcelReaders_Message_RiconoscimentoSeguenteTipologia_Format1(currentWorksheet.Name, currentSheetPosition, tipologiaRiconoscita.ToString());
 
                         Excel_Format1_Sheet foglioExcelCorrenteInfo = new Excel_Format1_Sheet(currentWorksheet.Name, tipologiaRiconoscita, currentSheetPosition);
+
+                        // vedo se inserire per posizione iniziale per la lettura delle leghe oppure per i quadranti riconosciuti
+                        if(tipologiaRiconoscita == Constants_Excel.TipologiaFoglio_Format1.FoglioLeghe)
+                        {
+                            foglioExcelCorrenteInfo.StartingRow_letturaLeghe = _startingPosLeghe_row_format1;
+                            foglioExcelCorrenteInfo.StartingCol_letturaLeghe = _startingPosLeghe_col_format1;
+                        }
+                        else if(tipologiaRiconoscita == Constants_Excel.TipologiaFoglio_Format1.FoglioConcentrazioni)
+                        {
+                            foglioExcelCorrenteInfo.GetConcQuadrants_Type2 = _quadrantiConcentrazioneLetturaCorrente;
+                        }
+
                         _sheetsLetturaFormat_1.Add(foglioExcelCorrenteInfo);
                     }
                     else
@@ -213,15 +269,17 @@ namespace ToolImportazioneLeghe_Console.Excel
 
                 foreach (ExcelWorksheet currentWorksheet in _openedExcel.Workbook.Worksheets)
                 {
-                    object[] parametriRiconosciutiDaAnalisi;
-
-
-                    bool hoRiconosciutoSecondaTipologia = RecognizeTipoFoglio_Format2(currentWorksheet, out parametriRiconosciutiDaAnalisi);
+                    bool hoRiconosciutoSecondaTipologia = RecognizeTipoFoglio_Format2(currentWorksheet);
                     if(hoRiconosciutoSecondaTipologia)
                     {
                         ConsoleService.ConsoleExcel.ExcelReaders_Message_RiconoscimentoSeguenteTipologia_Format2(currentWorksheet.Name, currentSheetPosition);
 
                         Excel_Format2_Sheet foglioExcelCorrenteInfo = new Excel_Format2_Sheet(currentWorksheet.Name, currentSheetPosition);
+
+                        foglioExcelCorrenteInfo.StartingRow_Leghe = _startingPosLeghe_row_format2;
+                        foglioExcelCorrenteInfo.StartingCol_Leghe = _startingPosLeghe_col_format2;
+                        foglioExcelCorrenteInfo.ColonneConcentrazioni = _colonneConcentrazioniSecondoFormato;
+
                         _sheetsLetturaFormat_2.Add(foglioExcelCorrenteInfo);
                     }
                     else
@@ -272,7 +330,7 @@ namespace ToolImportazioneLeghe_Console.Excel
         /// <param name="currentSheet"></param>
         /// <param name="listaParametriRiconosciuti"></param>
         /// <returns></returns>
-        private Constants_Excel.TipologiaFoglio_Format1 RecognizeTipoFoglio_Format1(ExcelWorksheet currentSheet, out object[] listaParametriRiconosciuti)
+        private Constants_Excel.TipologiaFoglio_Format1 RecognizeTipoFoglio_Format1(ExcelWorksheet currentSheet)
         {
             int startingRow = 0;
             int startingCol = 0;
@@ -283,10 +341,9 @@ namespace ToolImportazioneLeghe_Console.Excel
             // sono riuscito ad inviduare una prima congruenza per il riconoscimento del foglio delle leghe
             if (riconoscimrentoCorrente)
             {
-                object[] currentParams = { startingRow, startingCol };
-
-                listaParametriRiconosciuti = currentParams;
-
+                // attribuzione parametri privati di riga / colonna di lettura per le leghe
+                _startingPosLeghe_row_format1 = startingRow;
+                _startingPosLeghe_col_format1 = startingCol;
                 return Constants_Excel.TipologiaFoglio_Format1.FoglioLeghe;
             }
 
@@ -298,17 +355,10 @@ namespace ToolImportazioneLeghe_Console.Excel
             // sono riuscito a riconoscere il foglio per le concentrazioni correnti
             if(riconoscimentoFoglioConcentrazioni)
             {
-                object[] currentParams = { concentrationsQuadrants };
-
-                listaParametriRiconosciuti =? currentParams;
-
+                _quadrantiConcentrazioneLetturaCorrente = concentrationsQuadrants;
                 return Constants_Excel.TipologiaFoglio_Format1.FoglioConcentrazioni;
             }
-
-
-            // non sono riuscito a riconoscere nessuna tipologia
-            listaParametriRiconosciuti = null;
-
+            
             return Constants_Excel.TipologiaFoglio_Format1.NotDefined;
         }
 
@@ -321,12 +371,23 @@ namespace ToolImportazioneLeghe_Console.Excel
         /// <param name="currentSheet"></param>
         /// <param name="listaParametriRiconosciuti"></param>
         /// <returns></returns>
-        private bool RecognizeTipoFoglio_Format2(ExcelWorksheet currentSheet, out object[] listaParametriRiconosciuti)
+        private bool RecognizeTipoFoglio_Format2(ExcelWorksheet currentSheet)
         {
-            // TODO : creazione del metodo per il riconoscimento della terza tipologia di foglio e il formato 2
+            int startingRow = 0;
+            int startingCol = 0;
+
+            List<Excel_Format2_ConcColumns> listaConcentrations;
 
 
-            listaParametriRiconosciuti = null;
+            if (ExcelRecognizers.Recognize_Format2_InfoLegheConcentrazioni(ref currentSheet, out startingRow, out startingCol, out listaConcentrations))
+            {
+                _startingPosLeghe_row_format2 = startingRow;
+                _startingPosLeghe_col_format2 = startingCol;
+                _colonneConcentrazioniSecondoFormato = listaConcentrations;
+
+                return false;
+            }
+
             return false;
         }
 

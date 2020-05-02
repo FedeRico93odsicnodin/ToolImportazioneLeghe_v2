@@ -13,7 +13,7 @@ namespace ToolImportazioneLeghe_Console.Excel.Model_Excel
     public class Excel_Format1_Sheet
     {
         #region ATTRIBUTI PRIVATI
-
+        
         /// <summary>
         /// lista di tutte le informazioni di lega che vengono lette dalla prima tipologia di foglio per il formato 1
         /// </summary>
@@ -108,6 +108,20 @@ namespace ToolImportazioneLeghe_Console.Excel.Model_Excel
         /// Posizione nel file per il foglio corrente 
         /// </summary>
         public int GetPosSheet { get { return _posInExcel; } }
+
+
+        /// <summary>
+        /// Posizione iniziale di riga per la lettura delle leghe, nel caso in cui si trattasse 
+        /// di un foglio per la lettura delle informazioni principali di lega 
+        /// </summary>
+        public int StartingRow_letturaLeghe { get; set; }
+
+
+        /// <summary>
+        /// Posizione iniziale di colonna per la lettura delle leghe, nel caso in cui si trattasse
+        /// di un foglio per la lettura delle informazioni principali di lega
+        /// </summary>
+        public int StartingCol_letturaLeghe { get; set; }
 
         #endregion
 
