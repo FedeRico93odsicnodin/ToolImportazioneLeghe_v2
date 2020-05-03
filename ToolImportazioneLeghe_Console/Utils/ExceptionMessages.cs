@@ -107,5 +107,21 @@ namespace ToolImportazioneLeghe_Console.Utils
         public static string EXCEL_COLCRITERINONPRESENTE = "non posso proseguire l'analisi per individuare se il foglio corrente è di concentrazioni: manca la definizione della colonna su cui distinguere gli elementi (CRITERI)";
 
         #endregion
+
+
+        #region STEPS FROM EXCEL TO DATABASE
+
+        /// <summary>
+        /// Eccezione su STEP 1 nel caso in cui il file excel non sia stato aperto correttamente per la lettura successiva delle informazioni
+        /// </summary>
+        public static string ERRORESTEP1_APERTURAFILEEXCEL = "STEPS: non posso continuare con lo STEP 2 di validazione fogli da EXCEL perché questo non è stato aperto correttamente";
+
+
+        /// <summary>
+        /// Eccezione su STEP 2 nel caso in cui i fogli per il file excel corrente non siano stati validati correttamente per la lettura di certe informazioni da questi
+        /// </summary>
+        public static string ERRORESTEP2_VALIDAZIONEFOGLIEXCEL = "STEPS: non posso continuare con lo STEP 3 di lettura informazioni da EXCEL perché i fogli non sono stati validati correttamente";
+
+        #endregion
     }
 }

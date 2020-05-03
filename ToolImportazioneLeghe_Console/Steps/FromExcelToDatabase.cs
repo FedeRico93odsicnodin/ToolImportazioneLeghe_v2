@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ToolImportazioneLeghe_Console.Messaging_Console;
+using ToolImportazioneLeghe_Console.Utils;
 
 namespace ToolImportazioneLeghe_Console.Steps
 {
@@ -18,7 +20,42 @@ namespace ToolImportazioneLeghe_Console.Steps
         /// <returns></returns>
         public static bool STEP1_OpenSourceExcel()
         {
-            return false;
+            ConsoleService.GetSeparatoreAttivita();
+
+            // segnalazione inizio STEP 1 di apertura excel 
+            ConsoleService.STEPS_FromExcelToDatabase.STEP1_InizioAperturaFoglioExcelSorgente(ServiceLocator.GetUtilityFunctions.GetFileName(Constants.ExcelSourcePath));
+
+            if (ServiceLocator.GetExcelService.OpenFileExcel(Constants.ExcelSourcePath, Constants.format_foglio_origin, Constants.ModalitaAperturaExcel.Lettura))
+            {
+                ConsoleService.STEPS_FromExcelToDatabase.STEP1_FileExcelSorgenteApertoCorrettamente();
+                return true;
+            }
+            else
+            {
+                throw new Exception(ExceptionMessages.ERRORESTEP1_APERTURAFILEEXCEL);
+            }
+
+        }
+
+
+        /// <summary>
+        /// Processo di validazione dei diversi fogli excel presenti all'interno del file in base al formato deciso all'interno del file di configurazioni
+        /// </summary>
+        /// <returns></returns>
+        public static bool STEP2_ValidateSheetOnExcel()
+        {
+            ConsoleService.GetSeparatoreAttivita();
+
+            // segnalazione inizio STEP 2 di validazione fogli excel
+            ConsoleService.STEPS_FromExcelToDatabase.STEP2_InizioValidazioneFogliContenutiInExcel(ServiceLocator.GetUtilityFunctions.GetFileName(Constants.ExcelSourcePath));
+
+            if (ServiceLocator.GetExcelService.GetExcelReaders.RecognizeSheetsOnExcel())
+            {
+                ConsoleService.STEPS_FromExcelToDatabase.STEP2_FineSorgenteValidatoCorrettamente();
+                return true;
+            }
+            else
+                throw new Exception(ExceptionMessages.ERRORESTEP2_VALIDAZIONEFOGLIEXCEL);
         }
     }
 }

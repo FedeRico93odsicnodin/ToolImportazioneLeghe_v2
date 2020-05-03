@@ -125,6 +125,22 @@ namespace ToolImportazioneLeghe_Console.Messaging_Console
         }
 
 
+        /// <summary>
+        /// Getter per messaging console relativa agli STEPS eseguiti per l'importazione da excel a database
+        /// </summary>
+        public static STEPS_FromExcelToDatabase_ConsoleServices STEPS_FromExcelToDatabase
+        {
+            get
+            {
+                if (_steps_ConsoleMessages == null)
+                    _steps_ConsoleMessages = new STEPS_FromExcelToDatabase_ConsoleServices();
+
+                return _steps_ConsoleMessages;
+            }
+                
+        }
+
+
         #endregion
     }
 
@@ -273,13 +289,30 @@ namespace ToolImportazioneLeghe_Console.Messaging_Console
     /// </summary>
     public class STEPS_FromExcelToDatabase_ConsoleServices
     {
+        #region MARKERS
+
+        /// <summary>
+        /// Marker per step 1 messages
+        /// </summary>
+        private const string STEP1 = "STEP1 : ";
+
+
+        /// <summary>
+        /// Marker per step 2 messages
+        /// </summary>
+        private const string STEP2 = "STEP2 : ";
+
+        #endregion
+
+
+
         /// <summary>
         /// Inizio apertura foglio excel sorgente di cui viene passato il nome in input
         /// </summary>
         /// <param name="foglioExcelSorgente"></param>
         public void STEP1_InizioAperturaFoglioExcelSorgente(string foglioExcelSorgente)
         {
-            string currentMessage = String.Format("sto aprendo il file excel '{0}' in modalita LETTURA", foglioExcelSorgente);
+            string currentMessage = String.Format(STEP1 + "sto aprendo il file excel '{0}' in modalita LETTURA", foglioExcelSorgente);
             ConsoleService.FormatMessageConsole(currentMessage, true);
         }
 
@@ -289,7 +322,28 @@ namespace ToolImportazioneLeghe_Console.Messaging_Console
         /// </summary>
         public void STEP1_FileExcelSorgenteApertoCorrettamente()
         {
-            string currentMessage = String.Format("l'apertura è avvenuta correttamente");
+            string currentMessage = String.Format(STEP1 + "l'apertura è avvenuta correttamente");
+            ConsoleService.FormatMessageConsole(currentMessage, true);
+        }
+
+
+        /// <summary>
+        /// Inizio di validazione dei diversi fogli contenuti all'interno del file excel corrente 
+        /// </summary>
+        /// <param name="foglioExcelSorgente"></param>
+        public void STEP2_InizioValidazioneFogliContenutiInExcel(string foglioExcelSorgente)
+        {
+            string currentMessage = String.Format(STEP2 + "sto VALIDANDO i fogli contenuti nel file excel '{0}' in base al formato impostato", foglioExcelSorgente);
+            ConsoleService.FormatMessageConsole(currentMessage, true);
+        }
+
+
+        /// <summary>
+        /// Indicazione di fine validazione in maniera corretta per i fogli excel contenuti all'interno del file
+        /// </summary>
+        public void STEP2_FineSorgenteValidatoCorrettamente()
+        {
+            string currentMessage = String.Format(STEP2 + "la validazione dei diversi fogli excel è avvenuta correttamente");
             ConsoleService.FormatMessageConsole(currentMessage, true);
         }
     }

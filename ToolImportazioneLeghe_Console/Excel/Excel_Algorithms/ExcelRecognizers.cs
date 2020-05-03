@@ -189,6 +189,9 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
             {
                 _currentColIndex++;
 
+                // azzero nuovamente indice di riga per la nuova iterazione su colonna
+                _currentRowIndex = 0;
+
                 do
                 {
                     _currentRowIndex++;
@@ -222,15 +225,18 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
         private static bool HoRiconosciutoHeader_Format1_Leghe()
         {
            
-            List<string> recognizedMandatoryProperties = new List<string>(); ;
+            List<string> recognizedMandatoryProperties = new List<string>(); 
+
+            // tiene traccia delle proprieta che sto leggendo
+            int nextColIndex = _currentColIndex;
            
 
-            while (!(_foglioExcelCorrente.Cells[_currentRowIndex, _currentColIndex].Value == null))
+            while (!(_foglioExcelCorrente.Cells[_currentRowIndex, nextColIndex].Value == null))
             {
-                if (_mandatoryInfo_format1_sheet1.Contains(_foglioExcelCorrente.Cells[_currentRowIndex, _currentColIndex].Value) && !(recognizedMandatoryProperties.Contains(_foglioExcelCorrente.Cells[_currentRowIndex, _currentColIndex].Value)))
-                    recognizedMandatoryProperties.Add(_foglioExcelCorrente.Cells[_currentRowIndex, _currentColIndex].Value.ToString());
+                if (_mandatoryInfo_format1_sheet1.Contains(_foglioExcelCorrente.Cells[_currentRowIndex, nextColIndex].Value) && !(recognizedMandatoryProperties.Contains(_foglioExcelCorrente.Cells[_currentRowIndex, nextColIndex].Value)))
+                    recognizedMandatoryProperties.Add(_foglioExcelCorrente.Cells[_currentRowIndex, nextColIndex].Value.ToString());
 
-                _currentColIndex++;
+                nextColIndex++;
             }
 
             if (recognizedMandatoryProperties.Count() == _mandatoryInfo_format1_sheet1.Count())
@@ -293,6 +299,9 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
 
                 // ricalcolo il limite per la lettura su colonna 
                 indexCol_Max = (currentWorksheet.Dimension.End.Column <= _currentColIndex + LIMIT_COL) ? currentWorksheet.Dimension.End.Column : _currentColIndex + LIMIT_COL;
+
+                // riazzero indice di riga 
+                _currentRowIndex = 0;
             }
             while (_currentColIndex <= indexCol_Max);
 
@@ -342,7 +351,7 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
             // indice di colonna massimo per il quadrante di concentrazioni corrente (corrispondente a ultima lettura header)
             int maxColIndex = 0;
 
-            while((!riconoscimentoHeader) || _currentRowIndex <= maxHeader_rowIndex)
+            while((!riconoscimentoHeader))
             {
                 riconoscimentoHeader = RecognizeHeaderConcentrations(out maxColIndex);
                 if (riconoscimentoHeader)
@@ -355,6 +364,9 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
 
                 // incremento per questa iterazione solamente nel caso in cui non abbia ancora riconosciuto l'header corrente di concentrazioni
                 _currentRowIndex++;
+
+                if (_currentRowIndex > maxHeader_rowIndex)
+                    return false;
             }
 
             // se non ho riconosciuto l'header allora esco senza aver riconosciuto il quadrante 
@@ -379,7 +391,7 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
                 if (riconoscimentoConcentrationi)
                 {
                     riconoscimentoQuadranteCorrente.StartingRow_Concentrations = startingPosConc;
-                    riconoscimentoQuadranteCorrente.EndingRow_Concentrations = _currentRowIndex;
+                    riconoscimentoQuadranteCorrente.EndingRow_Concentrations = _currentRowIndex - 1;
                     break;
                 }
                     
@@ -441,6 +453,7 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
 
                 // incremento indice di colonna relativo agli headers
                 maxColIndex++;
+                currentColIndexCopy++;
             }
 
             if (recognizedMandatoryProperties.Count() == _mandatoryInfo_format1_sheet2.Count())
@@ -487,7 +500,7 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
         /// <returns></returns>
         private static int RicalcolaIndiceColonna()
         {
-            int newColIndex = _currentColIndex++;
+            int newColIndex = _currentColIndex;
 
             if (_listaQuadrantiConcentrazioni != null)
                 if (_listaQuadrantiConcentrazioni.Count() > 0)

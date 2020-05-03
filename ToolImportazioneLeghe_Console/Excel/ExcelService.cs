@@ -238,6 +238,8 @@ namespace ToolImportazioneLeghe_Console.Excel
 
                 foreach(ExcelWorksheet currentWorksheet in _openedExcel.Workbook.Worksheets)
                 {
+                    currentSheetPosition++;
+
                     // riconoscimento della tipologia foglio per il primo formato
                     Constants_Excel.TipologiaFoglio_Format1 tipologiaRiconoscita = RecognizeTipoFoglio_Format1(currentWorksheet);
                     if (!(tipologiaRiconoscita == Constants_Excel.TipologiaFoglio_Format1.NotDefined))
@@ -262,6 +264,15 @@ namespace ToolImportazioneLeghe_Console.Excel
                     else
                         ConsoleService.ConsoleExcel.ExcelReaders_Message_FoglioNonRiconosciuto(currentWorksheet.Name, currentSheetPosition);
                 }
+
+                // non è presente nessun foglio sul quale eseguire la lettura delle informazioni
+                if (_sheetsLetturaFormat_1.Count() == 0)
+                    return false;
+
+                // TODO: capire se discriminare anche a questo livello le informazioni 
+                // (ad esempio aggiungendo una variante per la quale ci deve essere almeno un match per foglio concentrazioni / materiali)
+                return true;
+
             }
             else if(_formatoExcel == Constants.FormatFileExcel.Cliente)
             {
@@ -269,6 +280,8 @@ namespace ToolImportazioneLeghe_Console.Excel
 
                 foreach (ExcelWorksheet currentWorksheet in _openedExcel.Workbook.Worksheets)
                 {
+                    currentSheetPosition++;
+
                     bool hoRiconosciutoSecondaTipologia = RecognizeTipoFoglio_Format2(currentWorksheet);
                     if(hoRiconosciutoSecondaTipologia)
                     {
@@ -287,7 +300,11 @@ namespace ToolImportazioneLeghe_Console.Excel
                 }
             }
 
-            return false;
+            // come il caso precedente 
+            if (_sheetsLetturaFormat_2.Count() == 0)
+                return false;
+
+            return true;
         }
 
 

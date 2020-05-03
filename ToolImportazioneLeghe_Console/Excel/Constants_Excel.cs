@@ -60,7 +60,7 @@ namespace ToolImportazioneLeghe_Console.Excel
         /// <summary>
         /// Proprietà obbligatorie per la lettura delle informazioni dal primo foglio (FORMAT1)
         /// </summary>
-        public static string[] PROPRIETAOBBLIGATORIE_FORMAT1_SHEET1 = { "MATERIALE", "TIPO" };
+        public static string[] PROPRIETAOBBLIGATORIE_FORMAT1_SHEET1 = { "MATERIALE", "NORMATIVA", "TIPO" };
 
 
         /// <summary>
