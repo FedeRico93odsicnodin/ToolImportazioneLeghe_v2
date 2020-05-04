@@ -275,9 +275,9 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
             
             _currentRowIndex= 0;
             _currentColIndex = 0;
+            
 
-            int indexRow_Max = (currentWorksheet.Dimension.End.Row <= LIMIT_ROW) ? currentWorksheet.Dimension.End.Row : LIMIT_ROW;
-            int indexCol_Max = (currentWorksheet.Dimension.End.Column <= LIMIT_COL) ? currentWorksheet.Dimension.End.Column : LIMIT_COL;
+
 
             do
             {
@@ -287,23 +287,25 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
                 {
                     _currentRowIndex++;
 
-                    // riposizionamento indice di riga 
-                    if(HoRiconosciutoFormat1_Concentrazioni())
-                        indexRow_Max = (currentWorksheet.Dimension.End.Row <= _currentRowIndex + LIMIT_ROW) ? currentWorksheet.Dimension.End.Row : _currentRowIndex + LIMIT_ROW;
+                    HoRiconosciutoFormat1_Concentrazioni();
 
                 }
-                while (_currentRowIndex <= indexRow_Max);
+                while (_currentRowIndex <= currentWorksheet.Dimension.End.Row);
+
+                int _colIndexIterazionePrecedente = _currentColIndex;
+
 
                 // ricalcolo eventuale indice solonna 
                 _currentColIndex = RicalcolaIndiceColonna();
 
-                // ricalcolo il limite per la lettura su colonna 
-                indexCol_Max = (currentWorksheet.Dimension.End.Column <= _currentColIndex + LIMIT_COL) ? currentWorksheet.Dimension.End.Column : _currentColIndex + LIMIT_COL;
+                if (_currentColIndex == 0)
+                    break;
+
 
                 // riazzero indice di riga 
                 _currentRowIndex = 0;
             }
-            while (_currentColIndex <= indexCol_Max);
+            while (_currentColIndex <= currentWorksheet.Dimension.End.Column);
 
             // attribuzione con gli eventuali quadranti di concentrazione letti
             listaQuadrantiConcentrazioni = _listaQuadrantiConcentrazioni;
@@ -366,12 +368,28 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
                 _currentRowIndex++;
 
                 if (_currentRowIndex > maxHeader_rowIndex)
-                    return false;
+                    break;
             }
 
             // se non ho riconosciuto l'header allora esco senza aver riconosciuto il quadrante 
             if (!riconoscimentoHeader)
+            {
+                // ricalcolo eventuale indice prima di coontinuare a leggere altro quadrante 
+                while (_foglioExcelCorrente.Cells[_currentRowIndex, _currentColIndex].Value != null)
+                {
+
+                    if (_foglioExcelCorrente.Cells[_currentRowIndex, _currentColIndex].Merge == true)
+                    {
+                        _currentRowIndex--;
+                        break;
+                    }
+
+                    _currentRowIndex++;
+                }
+
                 return false;
+            }
+                
 
             #region RICONOSCIMENTO HEADERS CONCENTRAZIONI
 
@@ -483,6 +501,15 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
                     hoLettoAlmenoUnPossibileValoreElemento = true;
                     _currentRowIndex++;
                 }
+                else
+                {
+                    if (hoLettoAlmenoUnPossibileValoreElemento)
+                    {
+                        _currentRowIndex--;
+                        return true;
+                    }
+                        
+                }
                    
             }
 
@@ -504,7 +531,13 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
 
             if (_listaQuadrantiConcentrazioni != null)
                 if (_listaQuadrantiConcentrazioni.Count() > 0)
+                {
                     newColIndex = _listaQuadrantiConcentrazioni.Select(x => x.EndingCol).Max();
+                    if (newColIndex == _currentColIndex - 1)
+                        return 0;
+                }
+                    
+            
 
             return newColIndex;
         }
