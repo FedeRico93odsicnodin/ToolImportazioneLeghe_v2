@@ -302,9 +302,17 @@ namespace ToolImportazioneLeghe_Console.Messaging_Console
         /// </summary>
         private const string STEP2 = "STEP2 : ";
 
+
+        /// <summary>
+        /// Marker per step 3 messages
+        /// </summary>
+        private const string STEP3 = "STEP3 : ";
+
         #endregion
 
+        #region FROM EXCEL TO DATABASE STEPS
 
+        #region MESSAGGI STEP 1 - APERTURA FILE EXCEL
 
         /// <summary>
         /// Inizio apertura foglio excel sorgente di cui viene passato il nome in input
@@ -326,6 +334,10 @@ namespace ToolImportazioneLeghe_Console.Messaging_Console
             ConsoleService.FormatMessageConsole(currentMessage, true);
         }
 
+        #endregion
+
+
+        #region MESSAGGI STEP 2 - VALIDAZIONE FOGLI PER IL FILE EXCEL CORRENTE IN BASE AL FORMATO IMPOSTATO IN FASE DI CONFIGURAZIONE
 
         /// <summary>
         /// Inizio di validazione dei diversi fogli contenuti all'interno del file excel corrente 
@@ -346,5 +358,26 @@ namespace ToolImportazioneLeghe_Console.Messaging_Console
             string currentMessage = String.Format(STEP2 + "la validazione dei diversi fogli excel è avvenuta correttamente");
             ConsoleService.FormatMessageConsole(currentMessage, true);
         }
+
+        #endregion
+
+
+        #region MESSAGGI STEP 3 - RECUPERO DI TUTTE LE INFORMAZIONI PER IL FILE EXCEL CORRENTEMENTE APERTO E VALIDATO
+
+        /// <summary>
+        /// Indicazione di inizio recupero di tutte le informazioni contenute all'interno dei fogli excel validati correttamente 
+        /// per la tipologia passata in input
+        /// </summary>
+        /// <param name="foglioExcelSorgente"></param>
+        public void STEP3_InizioRecuperoDiTutteLeInformazioniPerExcelCorrente(string foglioExcelSorgente)
+        {
+            string currentMessage = String.Format(STEP3 + "inizio della lettura di tutte le informazioni contenute nel file excel '{0}'", foglioExcelSorgente);
+            ConsoleService.FormatMessageConsole(currentMessage, true);
+        }
+
+        #endregion
+
+        #endregion
+
     }
 }

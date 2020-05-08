@@ -309,16 +309,74 @@ namespace ToolImportazioneLeghe_Console.Excel
 
 
         /// <summary>
-        /// Lettura di tutte le informazioni lette con lo step precedente
-        /// viene ritornato false se:
-        /// 1) non è stata letta nessuna informazione dai fogli precedentemente letti come validi
+        /// Lettura delle informazioni contenute nel file excel corrente in base al formato inserito per il file excel corrente,
+        /// in particolare in base alla tipologia si deciderà se recuperare le informazioni in un modo piuttosto che in un altro
         /// </summary>
         /// <returns></returns>
-        public bool ReadExcelInfo()
+        public bool ReadExcelInformation()
         {
-            return false;
-        }
+            if (_openedExcel == null)
+                throw new Exception(ExceptionMessages.EXCEL_FILENOTINMEMORY);
 
+
+            // caso in cui il file è di primo formato
+            if (_formatoExcel == Constants.FormatFileExcel.DatabaseLeghe)
+            {
+                // eccezione nel caso in cui la lista relativa ai fogli riconosciuti per il primo formato sia NULL EMPTY
+                if (_sheetsLetturaFormat_1 == null)
+                    throw new Exception(ExceptionMessages.EXCEL_READERINFO_FOGLINULLEMPTY_FORMAT1);
+                if(_sheetsLetturaFormat_1.Count() == 0)
+                    throw new Exception(ExceptionMessages.EXCEL_READERINFO_FOGLINULLEMPTY_FORMAT1);
+
+                foreach(Excel_Format1_Sheet currentFoglioExcel in _sheetsLetturaFormat_1)
+                {
+                    // eccezione su validazione foglio corrente eventualmente mancata 
+                    if (currentFoglioExcel.GetTipologiaFoglio == Constants_Excel.TipologiaFoglio_Format1.NotDefined)
+                        throw new Exception(ExceptionMessages.EXCEL_READERINFO_TIPOLOGIANONDEFINITAFOGLIOCORRENTE);
+
+                    if (currentFoglioExcel.GetPosSheet == 0)
+                        throw new Exception(ExceptionMessages.EXCEL_READERINFO_NESSUNAPOSIZIONETROVATAPERFOGLIOCORRENTE);
+
+
+                    // recupero del foglio corrente contenuto nel file di riferimento e dal quale continuare la lettura delle informazioni
+                    ExcelWorksheet excelSheetReference = _openedExcel.Workbook.Worksheets[currentFoglioExcel.GetPosSheet];
+
+                    // oggetto nel quale inserisco le informazioni recuperate per il foglio corrente
+                    Excel_Format1_Sheet filledInfo;
+
+                    if (currentFoglioExcel.GetTipologiaFoglio == Constants_Excel.TipologiaFoglio_Format1.FoglioLeghe)
+                        if(ExcelReaderInfo.ReadLegheInfo(excelSheetReference, currentFoglioExcel, out filledInfo))
+                        {
+                            // TODO : segnalazione del recupero corretto delle informazioni per il file corrente 
+
+                            //currentFoglioExcel = filledInfo;
+                        }
+
+                }
+            }
+            // caso in cui il file è di secondo formato
+            else if(_formatoExcel == Constants.FormatFileExcel.Cliente)
+            {
+                // eccezione nel caso in cui la lista relativa ai fogli riconosciuti per il primo formato sia NULL EMPTY
+                if (_sheetsLetturaFormat_2 == null)
+                    throw new Exception(ExceptionMessages.EXCEL_READERINFO_FOGLINULLEMPTY_FORMAT2);
+                if (_sheetsLetturaFormat_2.Count() == 0)
+                    throw new Exception(ExceptionMessages.EXCEL_READERINFO_FOGLINULLEMPTY_FORMAT2);
+
+                foreach(Excel_Format2_Sheet currentFoglioExcel in _sheetsLetturaFormat_2)
+                {
+
+                    if (currentFoglioExcel.GetPosSheet == 0)
+                        throw new Exception(ExceptionMessages.EXCEL_READERINFO_NESSUNAPOSIZIONETROVATAPERFOGLIOCORRENTE);
+
+                }
+            }
+
+            return false;
+
+
+        }
+        
 
         /// <summary>
         /// Vegnono validate le informazioni presenti all'interno del foglio excel corrente in particolare 
@@ -402,9 +460,43 @@ namespace ToolImportazioneLeghe_Console.Excel
                 _startingPosLeghe_col_format2 = startingCol;
                 _colonneConcentrazioniSecondoFormato = listaConcentrations;
 
-                return false;
+                return true;
             }
 
+            return false;
+        }
+
+        #endregion
+
+
+        #region METODI PRIVATI - RECUPERO DI TUTTE LE INFORMAZIONI PRESENTI SUL FILE IN BASE ALLA TIPOLOGIA
+
+        /// <summary>
+        /// Recupero di tutte le informazioni dal file excel di FORMATO 1 per un foglio relativo alle leghe
+        /// </summary>
+        /// <returns></returns>
+        private static bool ReadInfoFromExcelFormat_1_Leghe()
+        {
+            return false;
+        }
+
+
+        /// <summary>
+        /// Recupero di tutte le informazioni del file excel di FORMATO1 per un foglio relativo alle concentrazioni
+        /// </summary>
+        /// <returns></returns>
+        private static bool ReadInfoFromExcelFormat_1_Concentrations()
+        {
+            return false;
+        }
+
+
+        /// <summary>
+        /// Recupero di tutte le informazioni del file excel di FORMATO2 per un foglio relativo sia a leghe che concentrazioni
+        /// </summary>
+        /// <returns></returns>
+        private static bool ReadInfoFromExcelFormat_2()
+        {
             return false;
         }
 

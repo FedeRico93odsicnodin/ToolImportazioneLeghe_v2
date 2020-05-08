@@ -584,12 +584,8 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
 
                         if (RiconoscimentoColonneConcentrazioni_SecondoFormato())
                         {
-                            if (RiconoscimentoColonneConcentrazioni_SecondoFormato())
-                            {
-                                colonneElementi = _currentConcentrations;
-                                return true;
-                            }
-                                
+                            colonneElementi = _currentConcentrations;
+                            return true;
                         }
                     }
 
@@ -629,7 +625,7 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
                     break;
             }
 
-            if(readMandatoryProperties_Leghe.Count() == _mandatoryInfo_format1_sheet2.Count())
+            if(readMandatoryProperties_Leghe.Count() == _mandatoryInfo_Leghe_Format2.Count())
             {
                 _startReadingProperties_row = _currentRowIndex;
                 _startReadingLegheProperties_col = currentColCopy;
@@ -670,63 +666,121 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
             // lista che alla fine conterrà tutte le proprieta opzionali per l'elemento
             List<string> readOptionalProperties = new List<string>();
 
+            // indice di colonna di inizio per il primo elemento in lettura eventuale corrente
+            int startingColIndex = _currentColIndex;
 
-            bool primaLetturaHeader = true;
+            // indice di colonna di fine iterazione per il primo elemento in lettura 
+            int endingColIndex = _currentColIndex;
             
-            while(currentElem != String.Empty)
+            // significa che per questo caso mi trovo ancora nella lettura delle proprieta per l'elemento precedente
+            while(_currentColIndex <= _foglioExcelCorrente.Dimension.End.Column)
             {
-                while(currentElem == nextElem)
+                if (_foglioExcelCorrente.Cells[_currentRowIndex + 1, _currentColIndex].Value != null)
                 {
-                    if (_foglioExcelCorrente.Cells[rowHeadersProperty, _currentColIndex].Value != null)
+                    // riconoscimento della proprieta corrente
+                    if (
+                        _mandatoryInfo_Concentrations_Format2.Contains(_foglioExcelCorrente.Cells[_currentRowIndex + 1, _currentColIndex].Value.ToString().ToUpper()) ||
+                        _mandatoryInfo_Concentrations_Format2.Contains(_foglioExcelCorrente.Cells[_currentRowIndex + 1, _currentColIndex].Value.ToString().ToUpper() + "."))
                     {
-                        if (_mandatoryInfo_Concentrations_Format2.Contains(_foglioExcelCorrente.Cells[rowHeadersProperty, _currentColIndex].Value.ToString().ToUpper()))
+                        readMandatoryProperties.Add(_foglioExcelCorrente.Cells[_currentRowIndex + 1, _currentColIndex].Value.ToString().ToUpper());
+                    }
+                    else if (_optionalInfo_Concentrations_Format2.Contains(_foglioExcelCorrente.Cells[_currentRowIndex + 1, _currentColIndex].Value.ToString().ToUpper()))
+                    {
+                        readOptionalProperties.Add(_foglioExcelCorrente.Cells[_currentRowIndex + 1, _currentColIndex].Value.ToString().ToUpper());
+                    }
+
+                    // incremenento indice di colonna per iterazione corrente
+                    _currentColIndex++;
+
+                    // prendo la posizione per l'indice di colonna letto in modo finale per l'elemento corrente e le sue proprieta 
+                    endingColIndex = _currentColIndex - 1;
+
+                    // verifico che la prossima colonna contiene ancora la definizione per l'elemento corrente 
+                    // (deve corrispondere ad un valore NULL per l'elemento corrente)
+                    if (_foglioExcelCorrente.Cells[_currentRowIndex, _currentColIndex].Value != null)
+                        nextElem = _foglioExcelCorrente.Cells[_currentRowIndex, _currentColIndex].Value.ToString();
+
+                    // finisco di leggere l'elemento corrente solo se ho trovato l'elemento successivos
+                    if(nextElem != String.Empty)
+                    {
+                        if (nextElem != currentElem)
                         {
-                            if (primaLetturaHeader)
+
+                            // validazione delle proprieta lette fino ad ora per l'elemento corrente
+                            if (readMandatoryProperties.Count() < _mandatoryInfo_Concentrations_Format2.Count())
+                                return false;
+
+                            // verifica che l'elemento corrente non sia nelle definizioni già date per gli elementi già inseriti
+                            if (_currentConcentrations != null)
                             {
-                                // attribuzione dei parametri per le concentrazioni correnti di elemento
-                                currentColumnsConcentrations.startingCol_Header = _currentColIndex;
-                                currentColumnsConcentrations.startingRow_Header = rowHeadersProperty;
-                                currentColumnsConcentrations.startingRow_Elemento = _currentRowIndex;
-                                currentColumnsConcentrations.NomeElemento = currentElem;
-                                primaLetturaHeader = false;
+                                if (_currentConcentrations.Where(x => x.NomeElemento == currentElem).Count() > 0)
+                                    return false;
+
+                                // inserimento degli indici per il riconoscimento dell'elemento corrente
+                                _currentConcentrations.Add(new Excel_Format2_ConcColumns()
+                                {
+                                    startingCol_Header = startingColIndex,
+                                    endingCol_Header = endingColIndex,
+                                    startingRow_Elemento = _currentRowIndex,
+                                    startingRow_Header = _currentRowIndex + 1
+                                }
+
+
+                                    );
+
+
+                                // calcolo eventualmente i nuovi indici di inzio e fine colonna di lettura
+                                startingColIndex = endingColIndex;
+                                endingColIndex = _currentColIndex;
                             }
-                                
+                            else
+                            {
+                                _currentConcentrations = new List<Excel_Format2_ConcColumns>();
 
-                            readMandatoryProperties.Add(_foglioExcelCorrente.Cells[rowHeadersProperty, _currentColIndex].Value.ToString().ToUpper());
-                            _currentColIndex++;
+                                // inserimento degli indici per il riconoscimento dell'elemento corrente
+                                _currentConcentrations.Add(new Excel_Format2_ConcColumns()
+                                {
+                                    startingCol_Header = startingColIndex,
+                                    endingCol_Header = endingColIndex,
+                                    startingRow_Elemento = _currentRowIndex,
+                                    startingRow_Header = _currentRowIndex + 1
+                                }
 
+
+                                    );
+
+
+                                // calcolo eventualmente i nuovi indici di inzio e fine colonna di lettura
+                                startingColIndex = endingColIndex;
+                                endingColIndex = _currentColIndex;
+                            }
+
+                            // imposto il prossimo elemento come l'elemento corrente di analisi
+                            currentElem = nextElem;
                         }
                     }
 
-                    if (_foglioExcelCorrente.Cells[_currentRowIndex, _currentColIndex].Value != null)
-                    {
-                        nextElem = _foglioExcelCorrente.Cells[_currentRowIndex, _currentColIndex].Value.ToString();
-                        currentColumnsConcentrations.endingCol_Header = _currentColIndex;
-                       
-                    }
-                    else
-                        nextElem = String.Empty;
+                }
+                else
+                {
+                    _currentColIndex++;
+                    endingColIndex = _currentColIndex;
                 }
 
-                // se non riconosco le parole chiave anche per un solo elemento di concentrazione ritorno false
-                if (readMandatoryProperties.Count() != _mandatoryInfo_Concentrations_Format2.Count())
-                    return false;
+                // capisco se sono comunque arrivato a fine lettura per l'elemento corrente
+                // facendo la differenza tra la colonna massima di lettura e quella minima per le proprieta questo valore deve essere al massimo uguale al conteggio delle proprieta sulle 2 liste
+                int differenzaProprietaLette = endingColIndex - startingColIndex;
+                if (differenzaProprietaLette > (_mandatoryInfo_Concentrations_Format2.Count() + _optionalInfo_Concentrations_Format2.Count()))
+                    break;
 
-                // aggiungo le concentrazioni
-                _currentConcentrations.Add(currentColumnsConcentrations);
 
-                // azzero variabile corrente
-                currentColumnsConcentrations = new Excel_Format2_ConcColumns();
-
-                currentElem = nextElem;
-
-                if (_foglioExcelCorrente.Cells[_currentRowIndex, _currentColIndex + 1].Value != null)
-                    nextElem = _foglioExcelCorrente.Cells[_currentRowIndex, _currentColIndex + 1].Value.ToString();
-                else
-                    nextElem = String.Empty;
             }
 
-            return true;
+            if (_currentConcentrations != null)
+                if (_currentConcentrations.Count() > 0)
+                    return true;
+
+            return false;
         }
     }
 }

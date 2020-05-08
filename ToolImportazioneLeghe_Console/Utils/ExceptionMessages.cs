@@ -106,6 +106,30 @@ namespace ToolImportazioneLeghe_Console.Utils
         /// </summary>
         public static string EXCEL_COLCRITERINONPRESENTE = "non posso proseguire l'analisi per individuare se il foglio corrente è di concentrazioni: manca la definizione della colonna su cui distinguere gli elementi (CRITERI)";
 
+
+        /// <summary>
+        /// Eccezione lanciata nel caso in cui, per un motivo sconosciuto, la lista finale dei fogli dai quali lo step 3 andrebbe a leggere le informazioni, è stata trovata null o empty
+        /// </summary>
+        public static string EXCEL_READERINFO_FOGLINULLEMPTY_FORMAT1 = "non posso continuare con il recupero di tutte le informazioni dal file EXCEL sorgente, riconosciuto come essere di primo formato, in quanto la lista dei FOGLI è NULL o EMPTY";
+
+
+        /// <summary>
+        /// Eccezione che si verifica nel caso in cui, durante la decisione del tipo di analisi per il recupero delle informazioni dal foglio corrente, la tipologia di foglio è trovata come NOT DEFINED
+        /// </summary>
+        public static string EXCEL_READERINFO_TIPOLOGIANONDEFINITAFOGLIOCORRENTE = "non posso continuare con l'analisi e il recupero delle informazioni perché uno dei fogli nel set è di TIPOLOGIA NON DEFINITA";
+
+
+        /// <summary>
+        /// Eccezione che si verifica nel caso in cui la posizione nel file excel di origine per il foglio in analisi corrente è stata trovata come = 0 cioe non valida per l'analisi e il recupero delle informazioni successivi
+        /// </summary>
+        public static string EXCEL_READERINFO_NESSUNAPOSIZIONETROVATAPERFOGLIOCORRENTE = "non posso continuare con l'analisi e il recupero delle informazioni perché uno dei fogli ha una posizione = 0 per il file EXCEL e quindi non valida";
+
+
+        /// <summary>
+        /// Eccezione lanciata nel caso in cui, per un motivo sconosciuto, la lista finale dei fogli dai quali lo step 3 andrebbe a leggere le informazioni, è stata trovata null o empty
+        /// </summary>
+        public static string EXCEL_READERINFO_FOGLINULLEMPTY_FORMAT2 = "non posso continuare con il recupero di tutte le informazioni dal file EXCEL sorgente, riconosciuto come essere di secondo formato, n quanto la lista dei FOGLI è NULL o EMPTY";
+
         #endregion
 
 

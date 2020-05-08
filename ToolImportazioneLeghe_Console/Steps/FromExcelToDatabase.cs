@@ -57,5 +57,22 @@ namespace ToolImportazioneLeghe_Console.Steps
             else
                 throw new Exception(ExceptionMessages.ERRORESTEP2_VALIDAZIONEFOGLIEXCEL);
         }
+
+
+        /// <summary>
+        /// Processo di recupero di tutte le informazioni dai files in lettura corrente per il file excel
+        /// </summary>
+        /// <returns></returns>
+        public static bool STEP3_GetAllInfoExcel()
+        {
+            ConsoleService.GetSeparatoreAttivita();
+
+            // segnalazione inizio STEP 3 di recupero informazioni per il file excel corrente 
+            ConsoleService.STEPS_FromExcelToDatabase.STEP3_InizioRecuperoDiTutteLeInformazioniPerExcelCorrente(ServiceLocator.GetUtilityFunctions.GetFileName(Constants.ExcelSourcePath));
+
+
+
+            return false;
+        }
     }
 }
