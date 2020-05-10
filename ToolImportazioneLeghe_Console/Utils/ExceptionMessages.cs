@@ -130,6 +130,39 @@ namespace ToolImportazioneLeghe_Console.Utils
         /// </summary>
         public static string EXCEL_READERINFO_FOGLINULLEMPTY_FORMAT2 = "non posso continuare con il recupero di tutte le informazioni dal file EXCEL sorgente, riconosciuto come essere di secondo formato, n quanto la lista dei FOGLI è NULL o EMPTY";
 
+
+        ////////////////////////////////////////////////////////////////////////////// ECCEZIONI LETTURA INFORMAZIONI DA FOGLI VALIDATI ////////////////////////////////////////////////////////////////////////////// 
+
+
+        /// <summary>
+        /// Eccezione lanciata nel caso in cui il foglio in input dal quale andare a leggere le informazioni è NULL per il caso corrente 
+        /// </summary>
+        public static string EXCEL_READERINFO_FOGLIONULLPERLETTURA = "non posso continuare con la lettura corrente in quanto il foglio in input è NULL";
+
+
+        /// <summary>
+        /// Eccezione lanciata prima della lettura effettiva per le informazioni del foglio corrente, gli indici mi definiscono il perimetro di azione rispetto alle celle di lettura se uno di questi è ZERO non posso continuare con l'analisi
+        /// </summary>
+        public static string EXCEL_READERINFO_INDICIDILETTURAZERO = "non posso continuare con la lettura delle informazioni per il foglio corrente in quanto uno degli indici di lettura è stato trovato = ZERO";
+
+
+        /// <summary>
+        /// Eccezione lanciata prima della lettura effettiva per le informazioni dal foglio corrente, gli indici non rispettano i vincoli di maggiore minore e quindi la lettura a priori sarebbe non valida
+        /// </summary>
+        public static string EXCEL_READERINFO_INDICINONVALIDI = "non posso continuare con la lettura delle informazioni per il foglio corrente in quanto il valore attribuito agli INDICI non è valido";
+
+
+        /// <summary>
+        /// Eccezione lanciata prima della lettura effettiva delle informazioni dal foglio corrente, una proprieta interna di lettura è stata trovata nulla per il caso corrente 
+        /// </summary>
+        public static string EXCEL_READERINFO_PROPRIETAINTERNANULLA = "non posso continuare con la lettura delle informazioni per il foglio interno in quanto una proprieta interna è NULLA";
+
+
+        /// <summary>
+        /// Eccezione lanciata prima della lettura delle informazioni effettiva per il foglio, non sono lette correttamente tutte le proprieta di headers sulle quali eseguire la successiva lettura valori
+        /// </summary>
+        public static string EXCEL_READERINFO_VINCOLILETTURAPROPRIETANONRISPETTATI = "non posso continuare con la lettura delle informazioni per il foglio, in quanto non sono rispettati tutti i vincoli di validazione sulle proprieta del foglio corrente";
+        
         #endregion
 
 

@@ -179,6 +179,12 @@ namespace ToolImportazioneLeghe_Console.Excel
 
 
         /// <summary>
+        /// Fine lettura delle colonne per le proprieta di lega per il foglio riconosciuto come contenente informazioni di lega
+        /// </summary>
+        private int _endingPosLeghe_col_format1 = 0;
+
+
+        /// <summary>
         /// Traccia della lettura delle concentrazioni per il secondo formato excel disponibile
         /// </summary>
         private List<Excel_Format2_ConcColumns> _colonneConcentrazioniSecondoFormato;
@@ -253,6 +259,7 @@ namespace ToolImportazioneLeghe_Console.Excel
                         {
                             foglioExcelCorrenteInfo.StartingRow_letturaLeghe = _startingPosLeghe_row_format1;
                             foglioExcelCorrenteInfo.StartingCol_letturaLeghe = _startingPosLeghe_col_format1;
+                            foglioExcelCorrenteInfo.EndingCol_letturaLeghe = _endingPosLeghe_col_format1;
                         }
                         else if(tipologiaRiconoscita == Constants_Excel.TipologiaFoglio_Format1.FoglioConcentrazioni)
                         {
@@ -345,7 +352,7 @@ namespace ToolImportazioneLeghe_Console.Excel
                     Excel_Format1_Sheet filledInfo;
 
                     if (currentFoglioExcel.GetTipologiaFoglio == Constants_Excel.TipologiaFoglio_Format1.FoglioLeghe)
-                        if(ExcelReaderInfo.ReadLegheInfo(excelSheetReference, currentFoglioExcel, out filledInfo))
+                        if(ExcelReaderInfo.ReadLegheInfo(excelSheetReference, currentFoglioExcel, out filledInfo) == Constants_Excel.EsitoRecuperoInformazioniFoglio.RecuperoCorretto)
                         {
                             // TODO : segnalazione del recupero corretto delle informazioni per il file corrente 
 
@@ -409,9 +416,10 @@ namespace ToolImportazioneLeghe_Console.Excel
         {
             int startingRow = 0;
             int startingCol = 0;
+            int endingColIndex = 0;
 
 
-            bool riconoscimrentoCorrente = ExcelRecognizers.Recognize_Format1_InfoLeghe(ref currentSheet, out startingRow, out startingCol);
+            bool riconoscimrentoCorrente = ExcelRecognizers.Recognize_Format1_InfoLeghe(ref currentSheet, out startingRow, out startingCol, out endingColIndex);
 
             // sono riuscito ad inviduare una prima congruenza per il riconoscimento del foglio delle leghe
             if (riconoscimrentoCorrente)
@@ -419,6 +427,7 @@ namespace ToolImportazioneLeghe_Console.Excel
                 // attribuzione parametri privati di riga / colonna di lettura per le leghe
                 _startingPosLeghe_row_format1 = startingRow;
                 _startingPosLeghe_col_format1 = startingCol;
+                _endingPosLeghe_col_format1 = endingColIndex;
                 return Constants_Excel.TipologiaFoglio_Format1.FoglioLeghe;
             }
 

@@ -123,6 +123,12 @@ namespace ToolImportazioneLeghe_Console.Excel.Model_Excel
         /// </summary>
         public int StartingCol_letturaLeghe { get; set; }
 
+
+        /// <summary>
+        /// Posizione di fine lettura colonne per le proprieta di lega corrente
+        /// </summary>
+        public int EndingCol_letturaLeghe { get; set; }
+
         #endregion
 
     }

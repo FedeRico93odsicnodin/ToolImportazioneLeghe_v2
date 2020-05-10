@@ -58,6 +58,18 @@ namespace ToolImportazioneLeghe_Console.Excel
 
 
         /// <summary>
+        /// Segnalazioni rispettivamente al recupero delle informazioni dal foglio excel corrente
+        /// questo puo produrre Warnings oppure Eccezioni vere e proprie per quanto riguarda la lettura delle informazioni di partenza
+        /// </summary>
+        public enum EsitoRecuperoInformazioniFoglio
+        {
+            RecuperoCorretto = 1,
+            RecoperoConWarnings = 2,
+            RecuperoConErrori = 3
+        }
+
+
+        /// <summary>
         /// Proprietà obbligatorie per la lettura delle informazioni dal primo foglio (FORMAT1)
         /// </summary>
         public static string[] PROPRIETAOBBLIGATORIE_FORMAT1_SHEET1 = { "MATERIALE", "NORMATIVA", "TIPO" };

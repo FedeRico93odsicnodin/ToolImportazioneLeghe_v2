@@ -158,12 +158,15 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
         /// <summary>
         /// Mi permette di riconoscere se il foglio corrente appartiene alla categoria relativa alle informazioni di lega 
         /// per il primo formato di foglio excel disponibile
+        /// se viene riconosciuto correttamente per l'header delle leghe viene anche restituito come indice di colonna l'ultimo indice sul quale 
+        /// è stata letta la proprieta da riconoscere nel foglio
         /// </summary>
         /// <param name="currentWorksheet"></param>
         /// <param name="startingRow"></param>
         /// <param name="startingCol"></param>
+        /// <param name="endingColIndexHeaders"></param>
         /// <returns></returns>
-        public static bool Recognize_Format1_InfoLeghe(ref ExcelWorksheet currentWorksheet, out int startingRow, out int startingCol)
+        public static bool Recognize_Format1_InfoLeghe(ref ExcelWorksheet currentWorksheet, out int startingRow, out int startingCol, out int endingColIndexHeaders)
         {
             // validazioni di partenza 
             if (currentWorksheet == null)
@@ -179,6 +182,9 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
 
             _currentRowIndex = 0;
             _currentColIndex = 0;
+
+            // indicazione di ultimo indice di lettura letto per gli header di proprieta che vengono riconosciuti per il foglio excel corrente 
+            endingColIndexHeaders = 0;
             
 
             // inserimento dei valori per il limite massimo di riga / colonna entro il quale devo riconoscere l'informazione 
@@ -196,7 +202,7 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
                 {
                     _currentRowIndex++;
 
-                    if(HoRiconosciutoHeader_Format1_Leghe())
+                    if(HoRiconosciutoHeader_Format1_Leghe(out endingColIndexHeaders))
                     {
                         startingRow = _currentRowIndex;
                         startingCol = _currentColIndex;
@@ -218,17 +224,17 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
         /// <summary>
         /// Mi dice se ho riconosciuto l'header relativo alle informazioni per le leghe sul primo foglio per il primo 
         /// formato excel
+        /// se viene riconosciuto correttamente per l'header delle leghe viene anche restituito come output l'indice per la colonna corrente 
         /// </summary>
-        /// <param name="startingRow"></param>
-        /// <param name="startingCol"></param>
+        /// <param name="nextColIndex"></param>
         /// <returns></returns>
-        private static bool HoRiconosciutoHeader_Format1_Leghe()
+        private static bool HoRiconosciutoHeader_Format1_Leghe(out int nextColIndex)
         {
            
             List<string> recognizedMandatoryProperties = new List<string>(); 
 
             // tiene traccia delle proprieta che sto leggendo
-            int nextColIndex = _currentColIndex;
+            nextColIndex = _currentColIndex;
            
 
             while (!(_foglioExcelCorrente.Cells[_currentRowIndex, nextColIndex].Value == null))
@@ -243,7 +249,8 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
             {
                 return true;
             }
-                
+
+            nextColIndex = 0;
             return false;
         }
 
