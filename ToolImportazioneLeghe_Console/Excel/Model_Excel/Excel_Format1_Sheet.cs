@@ -15,12 +15,6 @@ namespace ToolImportazioneLeghe_Console.Excel.Model_Excel
         #region ATTRIBUTI PRIVATI
         
         /// <summary>
-        /// lista di tutte le informazioni di lega che vengono lette dalla prima tipologia di foglio per il formato 1
-        /// </summary>
-        private List<Excel_Format1_Sheet1_Row> _listInfoLega_FoglioType1;
-
-
-        /// <summary>
         /// lista di tutte le informazioni relative alle concentrazioni in lettura per la seconda tipologia di foglio e il formato 1
         /// </summary>
         private List<Excel_Format1_Sheet2_ConcQuadrant> _listConcQuadrants_FoglioType2;
@@ -60,11 +54,7 @@ namespace ToolImportazioneLeghe_Console.Excel.Model_Excel
             _tipologiaFoglioCorrente = tipologiaFoglioFormato1;
             _posInExcel = posInExcel;
 
-
-            if (tipologiaFoglioFormato1 == Constants_Excel.TipologiaFoglio_Format1.FoglioLeghe)
-                _listInfoLega_FoglioType1 = new List<Excel_Format1_Sheet1_Row>();
-            else if (tipologiaFoglioFormato1 == Constants_Excel.TipologiaFoglio_Format1.FoglioConcentrazioni)
-                _listConcQuadrants_FoglioType2 = new List<Excel_Format1_Sheet2_ConcQuadrant>();
+            
         }
 
         #endregion
@@ -73,13 +63,10 @@ namespace ToolImportazioneLeghe_Console.Excel.Model_Excel
         #region GETTERS
 
         /// <summary>
-        /// Ritorno / aggiorno la lista relativa alle informazioni prelevate per la prima tipologia di foglio per il formato 1
+        /// Ritorno / aggiorno l'oggetto contenente tutte le proprieta lette per le leghe dalla prima tipologia di foglio per il 
+        /// primo formato excel 
         /// </summary>
-        public List<Excel_Format1_Sheet1_Row> GetListInfoLega_Type1
-        {
-            get { return _listInfoLega_FoglioType1; }
-            set { _listInfoLega_FoglioType1 = value; }
-        }
+        public Excel_Format1_Sheet1_Rows GetListInfoLega_Type1 { get; set; }
 
 
         /// <summary>

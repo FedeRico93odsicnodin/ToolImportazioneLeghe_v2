@@ -337,6 +337,11 @@ namespace ToolImportazioneLeghe_Console.Excel
 
                 foreach(Excel_Format1_Sheet currentFoglioExcel in _sheetsLetturaFormat_1)
                 {
+                    // istanza eventuali messaggi errore warnings per il foglio corrente in fase di recupero informazioni
+                    string errorMessages = String.Empty;
+                    string warningMessages = String.Empty;
+
+
                     // eccezione su validazione foglio corrente eventualmente mancata 
                     if (currentFoglioExcel.GetTipologiaFoglio == Constants_Excel.TipologiaFoglio_Format1.NotDefined)
                         throw new Exception(ExceptionMessages.EXCEL_READERINFO_TIPOLOGIANONDEFINITAFOGLIOCORRENTE);
@@ -352,7 +357,7 @@ namespace ToolImportazioneLeghe_Console.Excel
                     Excel_Format1_Sheet filledInfo;
 
                     if (currentFoglioExcel.GetTipologiaFoglio == Constants_Excel.TipologiaFoglio_Format1.FoglioLeghe)
-                        if(ExcelReaderInfo.ReadLegheInfo(excelSheetReference, currentFoglioExcel, out filledInfo) == Constants_Excel.EsitoRecuperoInformazioniFoglio.RecuperoCorretto)
+                        if(ExcelReaderInfo.ReadLegheInfo(excelSheetReference, currentFoglioExcel, out filledInfo, out warningMessages, out errorMessages) == Constants_Excel.EsitoRecuperoInformazioniFoglio.RecuperoCorretto)
                         {
                             // TODO : segnalazione del recupero corretto delle informazioni per il file corrente 
 

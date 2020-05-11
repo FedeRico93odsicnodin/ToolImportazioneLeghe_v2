@@ -79,6 +79,20 @@ namespace ToolImportazioneLeghe_Console.Excel.Model_Excel
 
 
         /// <summary>
+        /// Permette di ritornare il counter per le proprieta obbligatorie correnti, questo valoreè eventualmente da confrontare con 
+        /// la dimensionalita delle proprieta obbligatorie per capire se tutti gli inserimenti sono stati effettuati
+        /// </summary>
+        public int CounterMandatoryProperties
+        {
+            get
+            {
+                // ritorno il counter sulle proprieta che sono state effettivamente valorizzate durante un particolare inserimento per le proprieta obbligatorie
+                return _propertiesSet_Mandatory.Where(x => x.Value != String.Empty).Select(x => x.Key).ToList().Count();
+            }
+        }
+
+
+        /// <summary>
         /// Permette di ottenere il valore per una proprieta obbligatoria inserita 
         /// all'interno del wrapper corrente 
         /// </summary>
