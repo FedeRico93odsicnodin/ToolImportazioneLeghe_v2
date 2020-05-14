@@ -100,13 +100,13 @@ namespace ToolImportazioneLeghe_Console.Excel
         /// <summary>
         /// Proprieta obbligatorie per la lettura delle informazioni di base e per il formato 2
         /// </summary>
-        public static string[] PROPRIETAOBBLIGATORIE_FORMAT2 = { "NORMATIVA", "BASE", "MAT. NO.", "ALLOY NAME" };
+        public static string[] PROPRIETAOBBLIGATORIE_FORMAT2_LEGHE = { "NORMATIVA", "BASE", "MAT. NO.", "ALLOY NAME" };
 
 
         /// <summary>
         /// Proprieta opzionali per la lettura delle inforamzioni di base e per il formato 2
         /// </summary>
-        public static string[] PROPRIETAOPZIONALI_FORMAT2 = { "CATEGORIA", "DESCRIZIONE", "TRATTAMENTO" };
+        public static string[] PROPRIETAOPZIONALI_FORMAT2_leghe = { "CATEGORIA", "DESCRIZIONE", "TRATTAMENTO" };
 
 
         /// <summary>

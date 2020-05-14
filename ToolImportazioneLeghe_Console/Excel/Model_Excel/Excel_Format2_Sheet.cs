@@ -53,17 +53,7 @@ namespace ToolImportazioneLeghe_Console.Excel.Model_Excel
 
 
         #region GETTERS
-
-        /// <summary>
-        /// Ritorno / aggiorno la lista relativa alle informazioni prelevate per la prima tipologia di foglio per il formato 1
-        /// </summary>
-        public List<Excel_Format2_Row> GetListInfoLeghe
-        {
-            get { return _listRowLega_Foglio2; }
-            set { _listRowLega_Foglio2 = value; }
-        }
         
-
         /// <summary>
         /// Nome per il foglio corrente 
         /// </summary>
@@ -93,6 +83,14 @@ namespace ToolImportazioneLeghe_Console.Excel.Model_Excel
         /// di concentrazione per le leghe in lettura corrente 
         /// </summary>
         public List<Excel_Format2_ConcColumns> ColonneConcentrazioni { get; set; }
+
+
+        /// <summary>
+        /// Informazioni di carattere generale prese in lettura per le informazioni di lega di riga corrente
+        /// in questa lista sono contenute tutte le informazioni per le proprieta obbligatorie / opzionali per le informazioni
+        /// generali di lega 
+        /// </summary>
+        public List<Excel_PropertyWrapper> GeneralInfoLeghe { get; set; }
 
         #endregion
     }

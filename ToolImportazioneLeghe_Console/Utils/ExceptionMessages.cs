@@ -162,6 +162,12 @@ namespace ToolImportazioneLeghe_Console.Utils
         /// Eccezione lanciata prima della lettura delle informazioni effettiva per il foglio, non sono lette correttamente tutte le proprieta di headers sulle quali eseguire la successiva lettura valori
         /// </summary>
         public static string EXCEL_READERINFO_VINCOLILETTURAPROPRIETANONRISPETTATI = "non posso continuare con la lettura delle informazioni per il foglio, in quanto non sono rispettati tutti i vincoli di validazione sulle proprieta del foglio corrente";
+
+
+        /// <summary>
+        /// Eccezione lanciata quando, in lettura di un foglio relativo ai quadranti concentrazioni per il secondo tipo relativamente al formato 1, la lista dei quadranti è stata trovata nulla o vuota
+        /// </summary>
+        public static string EXCEL_READERINFO_QUADRANTICONCENTRAZIONINULLIPERLETTURA = "non posso continuare con la lettura delle informazioni per il foglio, in quanto la lista dei quadranti concentrazioni da cui leggere informazioni è NULLA o VUOTA";
         
         #endregion
 

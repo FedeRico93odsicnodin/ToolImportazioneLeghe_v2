@@ -130,13 +130,13 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
         /// <summary>
         /// Proprieta obbligatorie leghe per il secondo formato excel
         /// </summary>
-        private static List<string> _mandatoryInfo_Leghe_Format2 = Constants_Excel.PROPRIETAOBBLIGATORIE_FORMAT2.ToList();
+        private static List<string> _mandatoryInfo_Leghe_Format2 = Constants_Excel.PROPRIETAOBBLIGATORIE_FORMAT2_LEGHE.ToList();
 
 
         /// <summary>
         /// Proprieta opzionali leghe per il secondo formato excel
         /// </summary>
-        private static List<string> _optionalInfo_Leghe_Format2 = Constants_Excel.PROPRIETAOPZIONALI_FORMAT2.ToList();
+        private static List<string> _optionalInfo_Leghe_Format2 = Constants_Excel.PROPRIETAOPZIONALI_FORMAT2_leghe.ToList();
 
 
         /// <summary>

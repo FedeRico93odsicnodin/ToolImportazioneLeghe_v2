@@ -17,7 +17,12 @@ namespace ToolImportazioneLeghe_Console.Excel.Messages
         /// </summary>
         public static class Formato1_Foglio1_Leghe
         {
-
+            /// <summary>
+            /// Segnalazione di mancanza di un valore per la proprieta opzionale di lega 
+            /// 1) riga nella quale la proprieta è mancante
+            /// 2) nome della proprieta opzionale per la quale manca il valore
+            /// </summary>
+            public static string WARNING_MANCANZAVALOREPERPROPRIETAOPZIONALE_LEGA = "WARNING - riga {0}: mancanza del valore per la poprietà opzionale '{1}'";
         }
 
 
@@ -26,7 +31,11 @@ namespace ToolImportazioneLeghe_Console.Excel.Messages
         /// </summary>
         public static class Formato1_Foglio2_Concentrazioni
         {
-
+            /// <summary>
+            /// Segnalazione della mancanza di valore per una proprieta opzionale di concentrazione di lettura per una particolare riga all'interno del foglio di tipo 2 
+            /// per il formato 1 e di cui viene passato anche il nome corrispondente 
+            /// </summary>
+            public static string WARNING_MANCANZAVALOREPERPROPRIETAOPZIONALE_CONCENTRAZIONI = "WARNING - riga {0}: mancanza del valore per la proprieta opzionale '{1}' di concentrazione";
         }
 
 

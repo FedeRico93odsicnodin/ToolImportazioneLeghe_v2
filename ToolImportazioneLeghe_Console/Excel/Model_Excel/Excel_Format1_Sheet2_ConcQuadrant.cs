@@ -68,5 +68,11 @@ namespace ToolImportazioneLeghe_Console.Excel.Model_Excel
         /// Set delle concentrazioni lette per il quadrante corrente 
         /// </summary>
         public List<Excel_PropertyWrapper> Concentrations { get; set; }
+
+
+        /// <summary>
+        /// Mi dice se il quadrante corrente ha passato la prima validazione per il foglio corrente 
+        /// </summary>
+        public bool ValidatedOnExcel { get; set; }
     }
 }
