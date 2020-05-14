@@ -57,7 +57,10 @@ namespace ToolImportazioneLeghe_Console.Excel.Messages
         /// </summary>
         public static class Formato2_Foglio1_LegheConcentrazioni
         {
-
+            /// <summary>
+            /// Errore di mancata lettura per il nome di un elemento per l'insieme di colonne che mi caratterizzano le sue proprieta inerenti alle leghe in lettura corrente 
+            /// </summary>
+            public static string ERRORE_MANCATALETTURANOMEELEMENTO = "ERRORE - riga {0}, colonna {1}: nessuna informazione letta per il NOME dell'elemento sul quale andare a leggere le concentrazioni correnti.\n";
         }
     }
 }

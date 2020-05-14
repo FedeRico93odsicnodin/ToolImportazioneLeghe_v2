@@ -599,14 +599,41 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
         /// Permette di riempire oggetto proprieta lettura per un determinato elemento di concentrazioni, in input è passato il quadrante excel 
         /// riconosciuto in fase di validazione, in out put viene restituito questo quadrante riempito con le definizioni per le diverse proprieta di elemento in lettura 
         /// per il secondo formato e la lega corrente 
+        /// La proprieta relativa al main header mi serve per la mappatura del nome da attribuire all'elemento corrente 
+        /// La riga di header secondario mi serve per calolare gli indici di colonna per le diverse proprieta di header in lettura per l'elemento corrente 
         /// </summary>
+        /// <param name="mainHeaderRow"></param>
+        /// <param name="secondaryHeaderRow"></param>
         /// <param name="startingConcElem"></param>
         /// <param name="filledConcElem"></param>
         /// <returns></returns>
-        private static bool readCurrentConcentrationsInstance(Excel_Format2_ConcColumns startingConcElem, out Excel_Format2_ConcColumns filledConcElem)
+        private static bool readCurrentConcentrationsInstance(int mainHeaderRow, int secondaryHeaderRow, Excel_Format2_ConcColumns startingConcElem, out Excel_Format2_ConcColumns filledConcElem)
         {
-            // TODO : impleemnetazione di questo metodo + TEST COMPLESSIVO di recupero di tutte le informazioni per il foglio corrente 
+            bool hoLettoNomeElemento = false;
+            bool hoLettoConcentrationi = false;
 
+            // lettura del nome per l'elemento corrente 
+            if (_currentFoglioExcel.Cells[mainHeaderRow, startingConcElem.startingCol_Header].Value != null)
+            {
+                startingConcElem.NomeElemento = _currentFoglioExcel.Cells[mainHeaderRow, startingConcElem.startingCol_Header].Value.ToString();
+                hoLettoNomeElemento = true;
+            }
+            // segnalazione del nome per l'elemento corrente e la lega in analisi corrente 
+            else
+                _listaErrori_LetturaFoglio += String.Format(Excel_ErrorMessages.Formato2_Foglio1_LegheConcentrazioni.ERRORE_MANCATALETTURANOMEELEMENTO, mainHeaderRow, startingConcElem.startingCol_Header);
+
+            // lettura indici di colonne per le diverse proprieta sulle quali leggo per gli headers
+            InizializeMapperHeaderConcentrations(secondaryHeaderRow, startingConcElem.startingCol_Header, startingConcElem.endingCol_Header);
+
+
+            // inizio lettura proprieta elemento corrente 
+            _currentColIndex = startingConcElem.startingCol_Header;
+            
+
+            // TODO : finire implementazione per la lettura delle diverse proprieta per le concentrazioni e l'elemento corrente 
+
+
+            // istanza per la compilazione delle proprieta per la concentrazione corrente 
             filledConcElem = new Excel_Format2_ConcColumns();
             return false;
         }
@@ -681,6 +708,28 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
         /// </summary>
         /// <param name="readLegaProperties"></param>
         private static void CompileWarningMessages_ReadingInfoLeghe_Foramt2(Excel_PropertyWrapper readLegaProperties)
+        {
+
+        }
+
+
+        /// <summary>
+        /// Permette la compilazione per i messaggi di errore relativamente alla mancata lettura delle informazioni obbligatorie per ogni elemento 
+        /// e per le concentrazioni correnti
+        /// </summary>
+        /// <param name="readConcentrationsProperties"></param>
+        private static void CompileErrorMessages_ReadInfoConcentrations_Format2(Excel_PropertyWrapper readConcentrationsProperties)
+        {
+
+        }
+
+        
+        /// <summary>
+        /// Permette la compilazione per i messaggi di warning relativamente alla mancata lettura delle informazioni opzionali per ogni elemento 
+        /// e per le concentrazioni correnti
+        /// </summary>
+        /// <param name="readConcentrationsProperties"></param>
+        private static void CompileWarningMessages_ReadInfoConcentrations_Foramt2(Excel_PropertyWrapper readConcentrationsProperties)
         {
 
         }
