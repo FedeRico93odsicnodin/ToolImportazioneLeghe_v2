@@ -44,7 +44,16 @@ namespace ToolImportazioneLeghe_Console.Excel.Messages
         /// </summary>
         public static class Formato2_Foglio1_LegheConcentrazioni
         {
+            /// <summary>
+            /// Segnalazione di mancata lettura per una proprieta opzionale rispetto al foglio corrente di secondo formato e iterazione su una particolare lega
+            /// </summary>
+            public static string WARNING_MANCATALETTURAPROPRIETAOPZIONALE_LEGA = "WARNING - riga {0}, colonna {1}: mancata lettura della proprieta '{2}' OPZIONALE per le informazioni di lega";
 
+
+            /// <summary>
+            /// Segnalazione di mancata lettura per una proprieta opzionale rispetto al foglio corrente di secondo formato e iterazione su proprieta d un determinato elemento
+            /// </summary>
+            public static string WARNING_MANCATALETTURAPROPRIETAOPZIONALE_CONCENTRAZIONI = "WARNING - riga {0}, colonna {1}: mancata lettura della proprieta '{2}' OPZIONALE per le informazioni di concentrazione";
         }
     }
 }

@@ -19,6 +19,13 @@ namespace ToolImportazioneLeghe_Console.Excel.Model_Excel
 
 
         /// <summary>
+        /// Corrispondenza con la riga per la quale si itera rispetto alla lega, questo permette di far corrispondente 
+        /// ogni elemento in lettura con le sue proprieta alle informazioni di partenza ricavate per la lega 
+        /// </summary>
+        public int RowIterazioneLega { get; set; }
+
+
+        /// <summary>
         /// Riga di partenza per la lettura, corrisponde alla riga nella quale 
         /// è presente la definizione per l'elemento corrente 
         /// </summary>
@@ -47,6 +54,6 @@ namespace ToolImportazioneLeghe_Console.Excel.Model_Excel
         /// <summary>
         /// Indicazione dei valori per tutte le proprieta lette per l'analisi corrente 
         /// </summary>
-        public List<Excel_PropertyWrapper> ReadProperties { get; set; }
+        public Excel_PropertyWrapper ReadProperties { get; set; }
     }
 }

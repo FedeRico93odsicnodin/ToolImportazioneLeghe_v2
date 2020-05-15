@@ -533,6 +533,8 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
 
                 // istanza lettura proprieta di concentrazioni
                 Excel_Format2_ConcColumns readColumnsConcentrations;
+                bool hoLet;
+                
 
             }
             
@@ -584,7 +586,8 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
             }
 
             // calcolo eventuali messaggi di warnings / errore per la lettura delle leghe
-
+            CompileErrorMessages_ReadInfoLeghe_Format2(currentInfoLega);
+            CompileWarningMessages_ReadingInfoLeghe_Foramt2(currentInfoLega);
 
             // restituisco false se non leggo tutte le proprieta obbligatorie
             if (currentInfoLega.CounterMandatoryProperties != Constants_Excel.PROPRIETAOBBLIGATORIE_FORMAT2_LEGHE.Count())
@@ -626,15 +629,41 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
             InizializeMapperHeaderConcentrations(secondaryHeaderRow, startingConcElem.startingCol_Header, startingConcElem.endingCol_Header);
 
 
-            // inizio lettura proprieta elemento corrente 
-            _currentColIndex = startingConcElem.startingCol_Header;
-            
+            // inizio recupero proprieta correnti per elemento
+            foreach(KeyValuePair<int, string> currentProperty in _instanceConcentrationColMapper)
+            {
+                if (_currentFoglioExcel.Cells[_currentRowIndex, currentProperty.Key].Value != null)
+                {
+                    // aggiunta della proprieta obbligatoria per l'elemento
+                    if (Constants_Excel.PROPRIETAOBBLIGATORIE_ELEM_FORMAT2.Contains(currentProperty.Value))
+                        startingConcElem.ReadProperties.InsertMandatoryValue(currentProperty.Value, _currentFoglioExcel.Cells[_currentRowIndex, currentProperty.Key].Value.ToString());
+                    else if (Constants_Excel.PROPRIETAOPZIONALI_ELEM_FORMAT2.Contains(currentProperty.Value))
+                        startingConcElem.ReadProperties.InsertOptionalValue(currentProperty.Value, _currentFoglioExcel.Cells[_currentRowIndex, currentProperty.Key].Value.ToString());
+                }
+                else
+                {
+                    // aggiunta nel dizionario delle proprieta lette come null per l'elemento corrente
+                    _mapperNullPropertiesOnRows.Add(_currentRowIndex, currentProperty.Value);
+                }
+            }
 
-            // TODO : finire implementazione per la lettura delle diverse proprieta per le concentrazioni e l'elemento corrente 
+            // indico di aver letto correttamente la concentrazione se ho letto tutte le proprieta obbligatorie per questa
+            if (startingConcElem.ReadProperties.CounterMandatoryProperties == Constants_Excel.PROPRIETAOBBLIGATORIE_ELEM_FORMAT2.Count())
+                hoLettoConcentrationi = true;
+
+
+            // inserimento della messaggistica relativamente a warnings e errori trovati sul foglio in analisi corrente per le concentrazioni e la seconda tipologia di formato
+            CompileErrorMessages_ReadInfoConcentrations_Format2(startingConcElem.ReadProperties);
+            CompileWarningMessages_ReadInfoConcentrations_Foramt2(startingConcElem.ReadProperties);
 
 
             // istanza per la compilazione delle proprieta per la concentrazione corrente 
-            filledConcElem = new Excel_Format2_ConcColumns();
+            filledConcElem = startingConcElem;
+
+            // ritorno true solamente se ho letto sia il nome che le concentrazioni per l'elemento corrente 
+            if (hoLettoConcentrationi && hoLettoNomeElemento)
+                return true;
+
             return false;
         }
 
@@ -698,7 +727,19 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
         /// <param name="readLegaProperties"></param>
         private static void CompileErrorMessages_ReadInfoLeghe_Format2(Excel_PropertyWrapper readLegaProperties)
         {
+            // iterazione per le proprieta obbligatorie relative alle leghe per il secondo formato disponibile excel
+            foreach(string currentMandatoryPropertyLega in Constants_Excel.PROPRIETAOBBLIGATORIE_FORMAT2_LEGHE)
+            {
+                // iterazione per valori nulli e proprieta obbligatoria corrente 
+                foreach(KeyValuePair<int, string> valoreRigaNullo in _mapperNullPropertiesOnRows.Where(x => x.Value == currentMandatoryPropertyLega).ToDictionary(x => x.Key, x => x.Value))
+                {
+                    // recupero indice di colonna 
+                    int colProprietaNulla = PropertiesColMapper.Where(x => x.Value == currentMandatoryPropertyLega).Select(x => x.Key).FirstOrDefault();
 
+                    // inserimento del messaggio di errore per la proprieta corrente obbligatoria di cui è stata mancata la lettura
+                    _listaErrori_LetturaFoglio += String.Format(Excel_ErrorMessages.Formato2_Foglio1_LegheConcentrazioni.ERRORE_MANCATALETTURAPROPRIETAOBBLIGATORIA_LEGA, valoreRigaNullo.Key, colProprietaNulla, currentMandatoryPropertyLega);
+                }
+            }
         }
 
 
@@ -709,7 +750,18 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
         /// <param name="readLegaProperties"></param>
         private static void CompileWarningMessages_ReadingInfoLeghe_Foramt2(Excel_PropertyWrapper readLegaProperties)
         {
+            // iterazione per la proprieta opzionale relativa alla lega per il secondo formato disponibile excel
+            foreach(string currentOptionalPropertyLega in Constants_Excel.PROPRIETAOPZIONALI_FORMAT2_leghe)
+            {
+                foreach(KeyValuePair<int, string> valoreRigaNullo in _mapperNullPropertiesOnRows.Where(x => x.Value == currentOptionalPropertyLega).ToDictionary(x => x.Key, x => x.Value))
+                {
+                    // recupero indice di colonna
+                    int colProprietaNulla = PropertiesColMapper.Where(x => x.Value == currentOptionalPropertyLega).Select(x => x.Key).FirstOrDefault();
 
+                    // inserimento del messaggio di warning per la proprieta corrente opzionale di cui è stata mancata la lettura
+                    _listaWarnings_LetturaFoglio += String.Format(Excel_WarningMessages.Formato2_Foglio1_LegheConcentrazioni.WARNING_MANCATALETTURAPROPRIETAOPZIONALE_LEGA, valoreRigaNullo.Key, colProprietaNulla, currentOptionalPropertyLega);
+                }
+            }
         }
 
 
@@ -720,7 +772,19 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
         /// <param name="readConcentrationsProperties"></param>
         private static void CompileErrorMessages_ReadInfoConcentrations_Format2(Excel_PropertyWrapper readConcentrationsProperties)
         {
+            // iterazione per le proprieta obbligatorie relative alle concentrazioni per il secondo formato disponibile excel
+            foreach (string currentMandatoryPropertyConcentrations in Constants_Excel.PROPRIETAOBBLIGATORIE_ELEM_FORMAT2)
+            {
+                // iterazione per valori nulli e proprieta obbligatoria corrente 
+                foreach (KeyValuePair<int, string> valoreRigaNullo in _mapperNullPropertiesOnRows.Where(x => x.Value == currentMandatoryPropertyConcentrations).ToDictionary(x => x.Key, x => x.Value))
+                {
+                    // recupero indice di colonna 
+                    int colProprietaNulla = _instanceConcentrationColMapper.Where(x => x.Value == currentMandatoryPropertyConcentrations).Select(x => x.Key).FirstOrDefault();
 
+                    // inserimento del messaggio di errore per la proprieta corrente obbligatoria di cui è stata mancata la lettura
+                    _listaErrori_LetturaFoglio += String.Format(Excel_ErrorMessages.Formato2_Foglio1_LegheConcentrazioni.ERRORE_MANCATALETTURAPROPRIETAOBBLIGATORIA_CONCENTRAZIONI, valoreRigaNullo.Key, colProprietaNulla, currentMandatoryPropertyConcentrations);
+                }
+            }
         }
 
         
@@ -731,7 +795,18 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
         /// <param name="readConcentrationsProperties"></param>
         private static void CompileWarningMessages_ReadInfoConcentrations_Foramt2(Excel_PropertyWrapper readConcentrationsProperties)
         {
+            // iterazione per la proprieta opzionale relativa alla lega per il secondo formato disponibile excel
+            foreach (string currentOptionalPropertyConcentrations in Constants_Excel.PROPRIETAOPZIONALI_ELEM_FORMAT2)
+            {
+                foreach (KeyValuePair<int, string> valoreRigaNullo in _mapperNullPropertiesOnRows.Where(x => x.Value == currentOptionalPropertyConcentrations).ToDictionary(x => x.Key, x => x.Value))
+                {
+                    // recupero indice di colonna
+                    int colProprietaNulla = _instanceConcentrationColMapper.Where(x => x.Value == currentOptionalPropertyConcentrations).Select(x => x.Key).FirstOrDefault();
 
+                    // inserimento del messaggio di warning per la proprieta corrente opzionale di cui è stata mancata la lettura
+                    _listaWarnings_LetturaFoglio += String.Format(Excel_WarningMessages.Formato2_Foglio1_LegheConcentrazioni.WARNING_MANCATALETTURAPROPRIETAOPZIONALE_CONCENTRAZIONI, valoreRigaNullo.Key, colProprietaNulla, currentOptionalPropertyConcentrations);
+                }
+            }
         }
 
         #endregion
