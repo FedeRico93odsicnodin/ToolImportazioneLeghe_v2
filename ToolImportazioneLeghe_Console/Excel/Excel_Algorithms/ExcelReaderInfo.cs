@@ -69,6 +69,14 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
         /// corrente 
         /// </summary>
         private static Dictionary<int, string> _instanceConcentrationColMapper;
+
+
+        /// <summary>
+        /// Questa stringa viene riempita con warnings ogni volta che la definizione delle proprieta per un elemento viene lasciata completamente vuota 
+        /// per una lega sul secondo formato, nel caso cosi fosse bisogna prevedere se alla fine della lettura sia stato letto almeno la definizione per un elemento
+        /// nel caso non sia cosi allora restituisco comunque errore altrimenti inserisco questa lista per i warnings sulla lettura delle concentrazioni per il foglio corrente 
+        /// </summary>
+        private static string _possibleWarnings_LetturaElementiVuota = String.Empty;
         
         #endregion
 
@@ -517,29 +525,68 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
             // inizializzazione dei valori header per le proprieta generali di lega (viene inizializzato in questo punto una sola volta)
             InizializeMapperHeaderLeghe(startingColIndexLeghe, endingColIndexLeghe);
 
-            
+
+            // nuovo set di valori per le concentrazioni e l'indice di lega corrente - boolean che mi dice se ho compiuto la lettura su tutti gli elementi
+            List<Excel_Format2_ConcColumns> newLegaConcentrationValues = new List<Excel_Format2_ConcColumns>();
+            bool hoLettoTuttiGliElementi = false;
+
+
+
             // posizione di inizio lettura informazioni per il file excel corrente 
             // prendo in considerazione il salto della prima riga relativa all'indice 1 di header
             // prendo in considerazione il salto della seconda riga relativa all'indice 2 di header
             _currentRowIndex = emptyInfo.StartingRow_Leghe + 2;
 
 
+            // valorizzo istanza in riempimento successivo
+            filledInfo = emptyInfo;
+
+
             // inizio iterazione delle righe su cui leggere tutti i valori per i casi di lega in lettura 
-            while(_currentRowIndex <= _currentFoglioExcel.Dimension.End.Row)
+            while (_currentRowIndex <= _currentFoglioExcel.Dimension.End.Row)
             {
                 // istanza lettura proprieta di lega 
                 Excel_PropertyWrapper readLegaProperties;
-                bool hoLettoProprietaLegaCorrenti = ReadGeneralInfoLega(out readLegaProperties);
 
-                // istanza lettura proprieta di concentrazioni
-                Excel_Format2_ConcColumns readColumnsConcentrations;
-                bool hoLet;
-                
+                // leggo correttamente le proprieta per la lega corrente
+                if (ReadGeneralInfoLega(out readLegaProperties))
+                    filledInfo.GeneralInfoLeghe.Add(readLegaProperties);
 
+
+                // recupero di tutte le colonne di concentrazioni per gli elementi e le informazioni di lega corrente 
+                List<Excel_Format2_ConcColumns> currentConcentrationsLega = emptyInfo.ColonneConcentrazioni.Where(x => x.RowIterazioneLega == _currentRowIndex).ToList();
+                if (currentConcentrationsLega.Count() == 0)
+                    _listaErrori_LetturaFoglio += String.Format(Excel_ErrorMessages.Formato2_Foglio1_LegheConcentrazioni.ERRORE_NESSUNACOLONNACONCENTRAZIONIPERLEGACORRENTE, _currentRowIndex);
+
+                // indicazione di quanti elementi sono rimasti vuoti durante l'analisi per la lega corrente 
+                int numElemVuoti = 0;
+
+                // aggiungo oggetto relativo alle informazioni sulle concentrazioni solamente se dal metodo per la lettura ho esito positivo
+                foreach (Excel_Format2_ConcColumns currentConcentrationLega in currentConcentrationsLega)
+                {
+                    Excel_Format2_ConcColumns currentReadConcentration;
+                    if (ReadCurrentConcentrationsInstance(principalRowHeader, secondaryRowHeader_Concentrations, currentConcentrationLega, out currentReadConcentration))
+                        newLegaConcentrationValues.Add(currentReadConcentration);
+                    // incremento della lista di elementi per cui manca la compilazione totale delle proprieta per la lega corrente 
+                    else
+                        numElemVuoti++;
+                }
+
+
+                // messaggio di errore nel caso tutti gli elementi siano stati lasciati vuoti per la compilazione corrente di lega 
+                if(numElemVuoti == currentConcentrationsLega.Count())
+                    _listaErrori_LetturaFoglio += String.Format(Excel_ErrorMessages.Formato2_Foglio1_LegheConcentrazioni.ERRORE_NESSUNACOLONNACONCENTRAZIONIPERLEGACORRENTE, _currentRowIndex);
+                // se ho letto almeno una concetrazione ma la lista dei messaggi di warnings sulla lettura di alcuni elementi vuoti non è vuota allora inserisco questa nei messaggi di warnings
+                else if(_possibleWarnings_LetturaElementiVuota != String.Empty)
+                {
+                    _listaWarnings_LetturaFoglio += _possibleWarnings_LetturaElementiVuota;
+                    _possibleWarnings_LetturaElementiVuota = String.Empty;
+                }
+
+                // incremento per la lettura su lega successiva
+                _currentRowIndex++;
             }
             
-
-            filledInfo = emptyInfo;
             return EsitoRecuperoInformazioniFoglio.RecuperoCorretto;
 
 
@@ -587,7 +634,7 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
 
             // calcolo eventuali messaggi di warnings / errore per la lettura delle leghe
             CompileErrorMessages_ReadInfoLeghe_Format2(currentInfoLega);
-            CompileWarningMessages_ReadingInfoLeghe_Foramt2(currentInfoLega);
+            CompileWarningMessages_ReadingInfoLeghe_Format2(currentInfoLega);
 
             // restituisco false se non leggo tutte le proprieta obbligatorie
             if (currentInfoLega.CounterMandatoryProperties != Constants_Excel.PROPRIETAOBBLIGATORIE_FORMAT2_LEGHE.Count())
@@ -610,7 +657,7 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
         /// <param name="startingConcElem"></param>
         /// <param name="filledConcElem"></param>
         /// <returns></returns>
-        private static bool readCurrentConcentrationsInstance(int mainHeaderRow, int secondaryHeaderRow, Excel_Format2_ConcColumns startingConcElem, out Excel_Format2_ConcColumns filledConcElem)
+        private static bool ReadCurrentConcentrationsInstance(int mainHeaderRow, int secondaryHeaderRow, Excel_Format2_ConcColumns startingConcElem, out Excel_Format2_ConcColumns filledConcElem)
         {
             bool hoLettoNomeElemento = false;
             bool hoLettoConcentrationi = false;
@@ -652,9 +699,27 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
                 hoLettoConcentrationi = true;
 
 
+            // dichiarazione possibili errori / warnings in lettura per il set delle proprieta e la concentrazione corrente 
+            string possibleStringError = String.Empty;
+            string possibleStringWarning = String.Empty;
+
             // inserimento della messaggistica relativamente a warnings e errori trovati sul foglio in analisi corrente per le concentrazioni e la seconda tipologia di formato
-            CompileErrorMessages_ReadInfoConcentrations_Format2(startingConcElem.ReadProperties);
-            CompileWarningMessages_ReadInfoConcentrations_Foramt2(startingConcElem.ReadProperties);
+            int counterErrori = CompileErrorMessages_ReadInfoConcentrations_Format2(startingConcElem.ReadProperties, out possibleStringError);
+            int counterWarnings = CompileWarningMessages_ReadInfoConcentrations_Foramt2(startingConcElem.ReadProperties, out possibleStringWarning);
+
+            // se il numero delle proprieta lascate vuote è esattamente parti al numero delle proprieta obbligatorie + il numero delle proprieta opzionali allora
+            // si tratta di un elemento che è lasciato vuoto perché non previsto dall'iterazione corrente, in ogni caso devo prevedere il fatto che non sia stato fatto il fill 
+            // di nessun elemento per il caso corrente
+            if(counterErrori == Constants_Excel.PROPRIETAOBBLIGATORIE_ELEM_FORMAT2.Count() && counterWarnings == Constants_Excel.PROPRIETAOPZIONALI_ELEM_FORMAT2.Count())
+            {
+                _possibleWarnings_LetturaElementiVuota += String.Format(Excel_WarningMessages.Formato2_Foglio1_LegheConcentrazioni.WARNING_MANCATALETTURACOMPLETAPROPRIETACONCENTRAZIONIELEMENTO, _currentRowIndex);
+            }
+            // nel caso in cui invece abbia alternanza sulle proprieta di warnings e di errore lasciate vuote, allora devo restituire come errore e come warnings esattamente le proprieta di cui è mancata la lettura 
+            else
+            {
+                _listaErrori_LetturaFoglio += possibleStringError;
+                _listaWarnings_LetturaFoglio += possibleStringWarning;
+            }
 
 
             // istanza per la compilazione delle proprieta per la concentrazione corrente 
@@ -748,7 +813,7 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
         /// delle celle vuote in corrispondenza delle proprieta opzionali
         /// </summary>
         /// <param name="readLegaProperties"></param>
-        private static void CompileWarningMessages_ReadingInfoLeghe_Foramt2(Excel_PropertyWrapper readLegaProperties)
+        private static void CompileWarningMessages_ReadingInfoLeghe_Format2(Excel_PropertyWrapper readLegaProperties)
         {
             // iterazione per la proprieta opzionale relativa alla lega per il secondo formato disponibile excel
             foreach(string currentOptionalPropertyLega in Constants_Excel.PROPRIETAOPZIONALI_FORMAT2_leghe)
@@ -770,8 +835,15 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
         /// e per le concentrazioni correnti
         /// </summary>
         /// <param name="readConcentrationsProperties"></param>
-        private static void CompileErrorMessages_ReadInfoConcentrations_Format2(Excel_PropertyWrapper readConcentrationsProperties)
+        private static int CompileErrorMessages_ReadInfoConcentrations_Format2(Excel_PropertyWrapper readConcentrationsProperties, out string possibleErrorReadConcentrations)
         {
+            // indicazione del possibile messaggio di errore che potrei ricevere dalla non compilazione di alcune delle proprieta presenti
+            // IDEA: se nessuna proprieta è compilata per la concentrazione e l'elemento per la lega corrente allora restituisco un warning
+            // (quell'elemento di fatto potrebbe non far parte della definizione attribuita alla lega attuale)
+            // altrimenti restituisco errore per il caso delle proprieta obbligatorie
+            possibleErrorReadConcentrations = String.Empty;
+            int counterErroreProprietaObbligatorie = 0;
+
             // iterazione per le proprieta obbligatorie relative alle concentrazioni per il secondo formato disponibile excel
             foreach (string currentMandatoryPropertyConcentrations in Constants_Excel.PROPRIETAOBBLIGATORIE_ELEM_FORMAT2)
             {
@@ -782,9 +854,14 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
                     int colProprietaNulla = _instanceConcentrationColMapper.Where(x => x.Value == currentMandatoryPropertyConcentrations).Select(x => x.Key).FirstOrDefault();
 
                     // inserimento del messaggio di errore per la proprieta corrente obbligatoria di cui è stata mancata la lettura
-                    _listaErrori_LetturaFoglio += String.Format(Excel_ErrorMessages.Formato2_Foglio1_LegheConcentrazioni.ERRORE_MANCATALETTURAPROPRIETAOBBLIGATORIA_CONCENTRAZIONI, valoreRigaNullo.Key, colProprietaNulla, currentMandatoryPropertyConcentrations);
+                    possibleErrorReadConcentrations += String.Format(Excel_ErrorMessages.Formato2_Foglio1_LegheConcentrazioni.ERRORE_MANCATALETTURAPROPRIETAOBBLIGATORIA_CONCENTRAZIONI, valoreRigaNullo.Key, colProprietaNulla, currentMandatoryPropertyConcentrations);
+
+                    // incremento per le proprieta obbligatorie di lettura mancata
+                    counterErroreProprietaObbligatorie++;
                 }
             }
+
+            return counterErroreProprietaObbligatorie;
         }
 
         
@@ -793,8 +870,11 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
         /// e per le concentrazioni correnti
         /// </summary>
         /// <param name="readConcentrationsProperties"></param>
-        private static void CompileWarningMessages_ReadInfoConcentrations_Foramt2(Excel_PropertyWrapper readConcentrationsProperties)
+        private static int CompileWarningMessages_ReadInfoConcentrations_Foramt2(Excel_PropertyWrapper readConcentrationsProperties, out string possibleWarningsReadConcentrations)
         {
+            possibleWarningsReadConcentrations = String.Empty;
+            int counterWarningsProprietaOpzionali = 0;
+
             // iterazione per la proprieta opzionale relativa alla lega per il secondo formato disponibile excel
             foreach (string currentOptionalPropertyConcentrations in Constants_Excel.PROPRIETAOPZIONALI_ELEM_FORMAT2)
             {
@@ -804,9 +884,13 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
                     int colProprietaNulla = _instanceConcentrationColMapper.Where(x => x.Value == currentOptionalPropertyConcentrations).Select(x => x.Key).FirstOrDefault();
 
                     // inserimento del messaggio di warning per la proprieta corrente opzionale di cui è stata mancata la lettura
-                    _listaWarnings_LetturaFoglio += String.Format(Excel_WarningMessages.Formato2_Foglio1_LegheConcentrazioni.WARNING_MANCATALETTURAPROPRIETAOPZIONALE_CONCENTRAZIONI, valoreRigaNullo.Key, colProprietaNulla, currentOptionalPropertyConcentrations);
+                    possibleWarningsReadConcentrations += String.Format(Excel_WarningMessages.Formato2_Foglio1_LegheConcentrazioni.WARNING_MANCATALETTURAPROPRIETAOPZIONALE_CONCENTRAZIONI, valoreRigaNullo.Key, colProprietaNulla, currentOptionalPropertyConcentrations);
+
+                    counterWarningsProprietaOpzionali++;
                 }
             }
+
+            return counterWarningsProprietaOpzionali;
         }
 
         #endregion

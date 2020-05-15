@@ -72,7 +72,16 @@ namespace ToolImportazioneLeghe_Console.Excel.Messages
             /// <summary>
             /// Errore mancata lettura di una proprieta obbligatoria per la lettrua delle proprieta obbligatorie relative ai parametri principali di concentrazioni
             /// </summary>
-            public static string ERRORE_MANCATALETTURAPROPRIETAOBBLIGATORIA_CONCENTRAZIONI = "ERRORE - riga {0}, colonna {1}: il valore per la proprieta '{2}' OBBLIGATORIA per le CONCENTRAZIONI è NULL.\n"; 
+            public static string ERRORE_MANCATALETTURAPROPRIETAOBBLIGATORIA_CONCENTRAZIONI = "ERRORE - riga {0}, colonna {1}: il valore per la proprieta '{2}' OBBLIGATORIA per le CONCENTRAZIONI è NULL.\n";
+
+
+            /// <summary>
+            /// Errore mancata lettura di concentrazioni per una delle leghe inserite nel foglio excel corrente di formato 2
+            /// </summary>
+            public static string ERRORE_NESSUNACOLONNACONCENTRAZIONIPERLEGACORRENTE = "ERRORE - riga {0}: non ho trovato nessun valore da leggere per le concentrazioni e per le informazioni relative ad una delle leghe inserite";
+
+
+            public static string ERRORE_NONHOLETTOTUTTELEDEFINIZIONIDATEPERGLIELEMENTI = "ERRORE - riga "
         }
     }
 }

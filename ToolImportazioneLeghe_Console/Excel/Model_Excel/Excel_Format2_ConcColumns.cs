@@ -55,5 +55,11 @@ namespace ToolImportazioneLeghe_Console.Excel.Model_Excel
         /// Indicazione dei valori per tutte le proprieta lette per l'analisi corrente 
         /// </summary>
         public Excel_PropertyWrapper ReadProperties { get; set; }
+
+
+        /// <summary>
+        /// Indicazione di non lettura informazioni per tutti gli elementi presenti sul file excel corrente 
+        /// </summary>
+        public bool HoLettoInformazionePerQuestoElemento { get; set; }
     }
 }
