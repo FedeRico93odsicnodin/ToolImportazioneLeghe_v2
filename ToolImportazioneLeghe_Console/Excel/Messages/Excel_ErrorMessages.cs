@@ -81,7 +81,7 @@ namespace ToolImportazioneLeghe_Console.Excel.Messages
             public static string ERRORE_NESSUNACOLONNACONCENTRAZIONIPERLEGACORRENTE = "ERRORE - riga {0}: non ho trovato nessun valore da leggere per le concentrazioni e per le informazioni relative ad una delle leghe inserite";
 
 
-            public static string ERRORE_NONHOLETTOTUTTELEDEFINIZIONIDATEPERGLIELEMENTI = "ERRORE - riga "
+            public static string ERRORE_NONHOLETTOTUTTELEDEFINIZIONIDATEPERGLIELEMENTI = "ERRORE - riga ";
         }
     }
 }
