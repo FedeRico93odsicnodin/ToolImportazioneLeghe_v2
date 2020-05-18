@@ -64,7 +64,7 @@ namespace ToolImportazioneLeghe_Console.Excel
         public enum EsitoRecuperoInformazioniFoglio
         {
             RecuperoCorretto = 1,
-            RecoperoConWarnings = 2,
+            RecuperoConWarnings = 2,
             RecuperoConErrori = 3
         }
 

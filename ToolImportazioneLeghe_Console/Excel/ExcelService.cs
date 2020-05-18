@@ -298,7 +298,7 @@ namespace ToolImportazioneLeghe_Console.Excel
 
                         foglioExcelCorrenteInfo.StartingRow_Leghe = _startingPosLeghe_row_format2;
                         foglioExcelCorrenteInfo.StartingCol_Leghe = _startingPosLeghe_col_format2;
-                        foglioExcelCorrenteInfo.ColonneConcentrazioni = _colonneConcentrazioniSecondoFormato;
+                        //foglioExcelCorrenteInfo.ColonneConcentrazioni = _colonneConcentrazioniSecondoFormato;
 
                         _sheetsLetturaFormat_2.Add(foglioExcelCorrenteInfo);
                     }
@@ -325,6 +325,8 @@ namespace ToolImportazioneLeghe_Console.Excel
             if (_openedExcel == null)
                 throw new Exception(ExceptionMessages.EXCEL_FILENOTINMEMORY);
 
+
+            #region RECUPERO INFORMAZIONI PER IL PRIMO FORMATO
 
             // caso in cui il file è di primo formato
             if (_formatoExcel == Constants.FormatFileExcel.DatabaseLeghe)
@@ -356,16 +358,44 @@ namespace ToolImportazioneLeghe_Console.Excel
                     // oggetto nel quale inserisco le informazioni recuperate per il foglio corrente
                     Excel_Format1_Sheet filledInfo;
 
+                    // riconoscimenti per la lettura del foglio delle leghe 
                     if (currentFoglioExcel.GetTipologiaFoglio == Constants_Excel.TipologiaFoglio_Format1.FoglioLeghe)
-                        if(ExcelReaderInfo.ReadLegheInfo(excelSheetReference, currentFoglioExcel, out filledInfo, out warningMessages, out errorMessages) == Constants_Excel.EsitoRecuperoInformazioniFoglio.RecuperoCorretto)
+                        if(!(ExcelReaderInfo.ReadLegheInfo(
+                            excelSheetReference, 
+                            currentFoglioExcel, 
+                            out filledInfo, 
+                            out warningMessages, 
+                            out errorMessages) == Constants_Excel.EsitoRecuperoInformazioniFoglio.RecuperoCorretto))
                         {
-                            // TODO : segnalazione del recupero corretto delle informazioni per il file corrente 
-
-                            //currentFoglioExcel = filledInfo;
+                            // TODO: segnalazione + scrittura log errori warnings
                         }
+                    // riconoscimento per la lettura del foglio delle concentrazioni
+                    else if(currentFoglioExcel.GetTipologiaFoglio == Constants_Excel.TipologiaFoglio_Format1.FoglioConcentrazioni)
+                        {
+                            // dichiarazione della variabile per il contenimento delle informazioni per le concentrazioni lette dal foglio excel corrente 
+                            Excel_Format1_Sheet foglioExcelConcentrations;
+
+                            // nel caso in cui ho recuperato il foglio ma con degli errori allora non vado a leggerne ulteriormente le informazioni
+                            if (!(ExcelReaderInfo.ReadConcentrationsInfo(
+                                excelSheetReference, 
+                                currentFoglioExcel, 
+                                out foglioExcelConcentrations,
+                                out warningMessages,
+                                out errorMessages) == Constants_Excel.EsitoRecuperoInformazioniFoglio.RecuperoConErrori))
+                            {
+                                // TODO: segnalazione + scrittura log errori warnings
+                            }
+                        }
+                        
 
                 }
             }
+
+            #endregion
+
+
+            #region RECUPERO INFORMAZIONI DAL SECONDO FORMATO
+
             // caso in cui il file è di secondo formato
             else if(_formatoExcel == Constants.FormatFileExcel.Cliente)
             {
@@ -381,8 +411,24 @@ namespace ToolImportazioneLeghe_Console.Excel
                     if (currentFoglioExcel.GetPosSheet == 0)
                         throw new Exception(ExceptionMessages.EXCEL_READERINFO_NESSUNAPOSIZIONETROVATAPERFOGLIOCORRENTE);
 
+
+                    // recupero del foglio corrente contenuto nel file di riferimento e dal quale continuare la lettura delle informazioni
+                    ExcelWorksheet excelSheetReference = _openedExcel.Workbook.Worksheets[currentFoglioExcel.GetPosSheet];
+
+                    // oggetto nel quale inserisco le informazioni recuperate per il foglio corrente
+                    Excel_Format2_Sheet filledInfo;
+
+                    //if(ExcelReaderInfo.ReadInfoFormat2(excelSheetReference, currentFoglioExcel, out filledInfo))
+                    //{
+
+                    //}
+
+
+
                 }
             }
+
+            #endregion
 
             return false;
 

@@ -729,7 +729,6 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
                                     startingCol_Header = startingColIndex,
                                     endingCol_Header = endingColIndex,
                                     startingRow_Elemento = _currentRowIndex,
-                                    startingRow_Header = _currentRowIndex + 1
                                 }
 
 
@@ -750,7 +749,6 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
                                     startingCol_Header = startingColIndex,
                                     endingCol_Header = endingColIndex,
                                     startingRow_Elemento = _currentRowIndex,
-                                    startingRow_Header = _currentRowIndex + 1
                                 }
 
 

@@ -79,9 +79,25 @@ namespace ToolImportazioneLeghe_Console.Excel.Messages
             /// Errore mancata lettura di concentrazioni per una delle leghe inserite nel foglio excel corrente di formato 2
             /// </summary>
             public static string ERRORE_NESSUNACOLONNACONCENTRAZIONIPERLEGACORRENTE = "ERRORE - riga {0}: non ho trovato nessun valore da leggere per le concentrazioni e per le informazioni relative ad una delle leghe inserite";
+            
+
+            /// <summary>
+            /// Errore di non poter continuare con analisi del foglio corrente in quanto mancano tutte le informazioni di base per poter leggere almeno una lega contenuta nel foglio 
+            /// </summary>
+            public static string ERRORE_ANALISINTERROTTAPERTUTTEPROPRIETALEGHEMANCANTI = "ERRORE - non posso continuare con l'analisi del foglio excel '{0}' perché mancano tutte le informazioni di LEGA per poter proseguire.\n";
 
 
-            public static string ERRORE_NONHOLETTOTUTTELEDEFINIZIONIDATEPERGLIELEMENTI = "ERRORE - riga ";
+            /// <summary>
+            /// Errore di non poter continuare con analisi del foglio excel in quanto mancano tutte le informazioni di base per i valori in lettura per le concentrazioni per poter proseguire 
+            /// </summary>
+            public static string ERRORE_ANALISIINTERROTTAPERTUTTECONCENTRAZIONIMANCANTI = "ERRORE - non posso continuare con l'analisi del foglio excel '{0}' perché mancano tutte le informazioni per le CONCENTRAZIONI DA LEGGERE per poter proseguire.\n";
+
+
+            /// <summary>
+            /// Erroe di mancata lettura per alcune delle leghe di informazioni di carattere generale di lega e per alcune delle leghe delle informazioni su tutti gli elementi per proseguire 
+            /// in ogni caso questi 2 insiemi formano uno unico che non permette di proseguire con l'analisi per nessuno degli elementi
+            /// </summary>
+            public static string ERRORE_PERTUTTELELEGHESITUAZIONEMISTANONLETTURAPROPRIETALEGHECONCENTRAZIONI = "ERRORE - non posso continuare con l'analisi del foglio excel '{0}' perché per alcune leghe manca la lettura delle informazioni generali e per altre la lettura delle concentrazioni fondamentali per proseguire.\n";
         }
     }
 }

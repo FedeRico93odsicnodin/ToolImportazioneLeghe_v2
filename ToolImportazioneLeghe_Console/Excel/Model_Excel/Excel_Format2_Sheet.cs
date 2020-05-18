@@ -13,13 +13,7 @@ namespace ToolImportazioneLeghe_Console.Excel.Model_Excel
     {
 
         #region ATTRIBUTI PRIVATI
-
-        /// <summary>
-        /// Lista di tutte le informazioni di lega lette per la seconda tipologia di formato excel disponibile
-        /// </summary>
-        private List<Excel_Format2_Row> _listRowLega_Foglio2;
-
-
+        
         /// <summary>
         /// Nome foglio corrente
         /// </summary>
@@ -46,7 +40,7 @@ namespace ToolImportazioneLeghe_Console.Excel.Model_Excel
             _sheetName = sheetName;
             _posInExcel = posInExcel;
 
-            _listRowLega_Foglio2 = new List<Excel_Format2_Row>();
+
         }
 
         #endregion
@@ -73,16 +67,15 @@ namespace ToolImportazioneLeghe_Console.Excel.Model_Excel
 
 
         /// <summary>
-        /// Informazione colonna di inizio per la lettura delle concentrazioni
+        /// Informazione riga di fine lettura per le informazioni generali di lega 
         /// </summary>
-        public int StartingCol_Leghe { get; set; }
+        public int EndingCol_Leghe { get; set; }
 
 
         /// <summary>
-        /// Informazione delle colonne nelle quali sono contenute le diverse informazioni
-        /// di concentrazione per le leghe in lettura corrente 
+        /// Informazione colonna di inizio per la lettura delle concentrazioni
         /// </summary>
-        public List<Excel_Format2_ConcColumns> ColonneConcentrazioni { get; set; }
+        public int StartingCol_Leghe { get; set; }
 
 
         /// <summary>
@@ -90,7 +83,15 @@ namespace ToolImportazioneLeghe_Console.Excel.Model_Excel
         /// in questa lista sono contenute tutte le informazioni per le proprieta obbligatorie / opzionali per le informazioni
         /// generali di lega 
         /// </summary>
-        public List<Excel_PropertyWrapper> GeneralInfoLeghe { get; set; }
+        public List<Excel_Format2_Row_LegaProperties> AllInfoLeghe { get; set; }
+
+
+        /// <summary>
+        /// Indica se il foglio corrente ha passato la validazione finale inerente il recupero di tutte le informazioni contenute al suo interno
+        /// cio significa che per almeno una riga di lega, per questo iniziale controllo, sia stato letto tutto il set di proprieta e concentrazioni 
+        /// da eventualmente trasferire
+        /// </summary>
+        public bool RecuperoCorrettoInformazioni { get; set; }
 
         #endregion
     }
