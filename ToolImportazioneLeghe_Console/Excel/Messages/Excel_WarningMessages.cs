@@ -66,6 +66,26 @@ namespace ToolImportazioneLeghe_Console.Excel.Messages
         /// </summary>
         public static class Formato2_Foglio1_LegheConcentrazioni
         {
+            #region WARNINGS SU RICONOSCIMENTO SECONDO FORMATO
+
+            /// <summary>
+            /// Segnalazione per la mancata lettura di una proprieta opzionale di lega, comunque non invalidante per le successive analisi e valorizzazioni rispetto ai valori 
+            /// contenuti nel foglio di secondo tipo corrente 
+            /// </summary>
+            public static string WARNING_MANCATORICONOSCIMENTOPROPRIETAOPZIONALE_LEGA = "WARNING - riga {0}: mancata lettura della seguente proprieta OPZIONALE DI LEGA '{1}'";
+
+
+            /// <summary>
+            /// Segnalazione di mancata lettura di un header opzionale di concentrazione, la mancata lettura di questo header non è invalidante ma è comunque segnalata nei messaggi 
+            /// finali per il foglio e l'iterazione correnti
+            /// </summary>
+            public static string WARNING_MANCATORICONOSCIMENTOPROPRIETAOPZIONALE_CONCENTRAZIONI = "WARNING - riga {0}: mancata lettura della seguente proprieta OPZIONALE DI CONCENTRAZIONI '{1}'";
+
+            #endregion
+
+
+            #region WARNINGS SU LETTURA PROPRIETA - VALIDAZIONE 1
+
             /// <summary>
             /// Segnalazione di mancata lettura per una proprieta opzionale rispetto al foglio corrente di secondo formato e iterazione su una particolare lega
             /// </summary>
@@ -82,6 +102,8 @@ namespace ToolImportazioneLeghe_Console.Excel.Messages
             /// Segnalazione relativa alla mancata lettura completa di tutte le proprieta per un certo elemento di cui è stata data la definizione di colonna e rispetto alla lettura di una riga di lega 
             /// </summary>
             public static string WARNING_MANCATALETTURACOMPLETAPROPRIETACONCENTRAZIONIELEMENTO = "WARNING - riga {0}: le proprieta relative a un certo elemento sono state lasciate completamente vuote, il caso è corretto se l'elemento non fa parte della definizione per la lega corrente.\n";
+
+            #endregion
         }
     }
 }

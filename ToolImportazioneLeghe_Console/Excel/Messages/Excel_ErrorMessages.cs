@@ -143,6 +143,39 @@ namespace ToolImportazioneLeghe_Console.Excel.Messages
         /// </summary>
         public static class Formato2_Foglio1_LegheConcentrazioni
         {
+            #region RICONOSCIMENTO FORMATO 2 
+
+            /// <summary>
+            /// Errore durante l'analisi di riga e le proprieta direttamente collegate alla lega, in particolare c'è il mancato riconoscimento per una delle proprieta obbligatorie
+            /// queste proprieta sono invalidanti rispetto alla riga e quindi alla lega corrente per le analisi e le valorizzazioni successive
+            /// </summary>
+            public static string ERRORE_MANCATORICONOSCIMENTOPROPRIETAOBBLIGATORIALEGA = "ERRORE - riga {0}: mancato riconoscimento per la proprieta OBBLIGATORIA DI LEGA '{1}'";
+
+
+            /// <summary>
+            /// Segnalazione di mancato riconoscimento per almeno una lega e per le sue proprieta globali e di concentrazione per il foglio corrente 
+            /// </summary>
+            public static string ERRORE_NESSUNAINFORMAZIONEDIRIGALETTA = "ERRORE - per il foglio '{0}' non ho letto ALCUNA INFORMAZIONE DI RIGA (proprieta leghe / concentrazioni)";
+
+
+            /// <summary>
+            /// Errore per il mancato riconoscimento di una proprieta obbligatoria per le concentrazioni, questa proprieta non riconosciuta è invalidante rispetto a tutto il processo successivo 
+            /// di analisi per il foglio corrente 
+            /// </summary>
+            public static string ERRORE_MANCATORICONOSCIMENTOPROPRIETAOBBLIGATORIACONCENTRAZIONI = "ERRORE - riga {0}: mancato riconoscimento per la proprieta OBBLIGATORIA DI CONCENTRAZIONE '{1}'";
+
+
+            /// <summary>
+            /// Errore relativo al mancato riconoscimento delle colonne di header per il foglio di secondo formato attuale, questa opzione è invalidante rispetto a 
+            /// tutta la restante iterazione possibile 
+            /// </summary>
+            public static string ERRORE_NESSUNACONCENTRAZIONERICONOSCIUTAPERHEADER = "ERRORE - per il foglio '{0}' non ho letto ALCUNA INFORMAZIONE DI HEADER COLONNE CONCENTRAZIONI";
+
+            #endregion
+            
+
+            #region RECUPERO INFORMAZIONI - VALIDAZIONE 1
+
             /// <summary>
             /// Errore di mancata lettura per il nome di un elemento per l'insieme di colonne che mi caratterizzano le sue proprieta inerenti alle leghe in lettura corrente 
             /// </summary>
@@ -184,6 +217,8 @@ namespace ToolImportazioneLeghe_Console.Excel.Messages
             /// in ogni caso questi 2 insiemi formano uno unico che non permette di proseguire con l'analisi per nessuno degli elementi
             /// </summary>
             public static string ERRORE_PERTUTTELELEGHESITUAZIONEMISTANONLETTURAPROPRIETALEGHECONCENTRAZIONI = "ERRORE - non posso continuare con l'analisi del foglio excel '{0}' perché per alcune leghe manca la lettura delle informazioni generali e per altre la lettura delle concentrazioni fondamentali per proseguire.\n";
+
+            #endregion
         }
     }
 }

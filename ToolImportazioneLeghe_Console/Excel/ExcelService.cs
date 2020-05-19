@@ -187,7 +187,7 @@ namespace ToolImportazioneLeghe_Console.Excel
         /// <summary>
         /// Traccia della lettura delle concentrazioni per il secondo formato excel disponibile
         /// </summary>
-        private List<Excel_Format2_ConcColumns> _colonneConcentrazioniSecondoFormato;
+        private List<Excel_Format2_Row_LegaProperties> _colonneConcentrazioniSecondoFormato;
 
 
         /// <summary>
@@ -227,12 +227,26 @@ namespace ToolImportazioneLeghe_Console.Excel
 
 
         /// <summary>
-        /// Piossibili messaggi di warnings dati durante la lettura per il foglio excel corrente 
+        /// Possibili messaggi di warnings dati durante la lettura per il foglio excel corrente 
         /// questo messaggio di warning viene valorizzato ogni qual volta si analizza un foglio 2 per il primo formato
         /// e il riconoscimento non avviene correttamente 
         /// </summary>
         private string _possibleWarnings_Concentrations_ReadCurrentExcel = String.Empty;
-        
+
+
+        /// <summary>
+        /// Possibili errori derivanti dall'analisi e lettura per i dati per il secondo formato excel disponibile 
+        /// per le informazioni di lega 
+        /// </summary>
+        private string _possibleErrors_LetturaSecondoFormato = String.Empty;
+
+
+        /// <summary>
+        /// Possibili warnings derivanti dall'analisi e lettura per i dati per il secondo formato excel disponibile
+        /// per le informazioni di lega
+        /// </summary>
+        private string _possibleWarnings_LetturaSecondoFormato = String.Empty;
+
         #endregion
 
 
@@ -269,6 +283,8 @@ namespace ToolImportazioneLeghe_Console.Excel
             int currentSheetPosition = 0;
 
 
+            #region RICONOSCIMENTO TIPOLOGIA PER DATABASE LEGHE 
+
             // inizializzazione di una delle 2 liste in base al formato
             if (_formatoExcel == Constants.FormatFileExcel.DatabaseLeghe)
             {
@@ -295,6 +311,7 @@ namespace ToolImportazioneLeghe_Console.Excel
 
                     if (!(tipologiaRiconoscita == Constants_Excel.TipologiaFoglio_Format1.NotDefined))
                     {
+                        // segnalazione a console per la tipologia riconosciuta 
                         ConsoleService.ConsoleExcel.ExcelReaders_Message_RiconoscimentoSeguenteTipologia_Format1(currentWorksheet.Name, currentSheetPosition, tipologiaRiconoscita.ToString());
 
                         Excel_Format1_Sheet foglioExcelCorrenteInfo = new Excel_Format1_Sheet(currentWorksheet.Name, tipologiaRiconoscita, currentSheetPosition);
@@ -338,6 +355,12 @@ namespace ToolImportazioneLeghe_Console.Excel
                 return true;
 
             }
+
+            #endregion
+
+
+            #region RICONOSCIMENTO TIPOLOGIA PER CLIENTE 
+
             else if(_formatoExcel == Constants.FormatFileExcel.Cliente)
             {
                 _sheetsLetturaFormat_2 = new List<Excel_Format2_Sheet>();
@@ -347,7 +370,17 @@ namespace ToolImportazioneLeghe_Console.Excel
                     currentSheetPosition++;
 
                     bool hoRiconosciutoSecondaTipologia = RecognizeTipoFoglio_Format2(currentWorksheet);
-                    if(hoRiconosciutoSecondaTipologia)
+
+
+                    // verifica dei messaggi di errore / warnings per la lettura corrente e nuovo azzeramento 
+                    CheckMessagesForCurrentSheet(_possibleErrors_LetturaSecondoFormato, _possibleWarnings_LetturaSecondoFormato, currentWorksheet.Name, Constants_Excel.StepLetturaFoglio.Riconoscimento);
+
+                    _possibleErrors_LetturaSecondoFormato = String.Empty;
+                    _possibleWarnings_LetturaSecondoFormato = String.Empty;
+
+
+
+                    if (hoRiconosciutoSecondaTipologia)
                     {
                         ConsoleService.ConsoleExcel.ExcelReaders_Message_RiconoscimentoSeguenteTipologia_Format2(currentWorksheet.Name, currentSheetPosition);
 
@@ -355,7 +388,7 @@ namespace ToolImportazioneLeghe_Console.Excel
 
                         foglioExcelCorrenteInfo.StartingRow_Leghe = _startingPosLeghe_row_format2;
                         foglioExcelCorrenteInfo.StartingCol_Leghe = _startingPosLeghe_col_format2;
-                        //foglioExcelCorrenteInfo.ColonneConcentrazioni = _colonneConcentrazioniSecondoFormato;
+                        foglioExcelCorrenteInfo.AllInfoLeghe = _colonneConcentrazioniSecondoFormato;
 
                         _sheetsLetturaFormat_2.Add(foglioExcelCorrenteInfo);
                     }
@@ -363,6 +396,8 @@ namespace ToolImportazioneLeghe_Console.Excel
                         ConsoleService.ConsoleExcel.ExcelReaders_Message_FoglioNonRiconosciuto(currentWorksheet.Name, currentSheetPosition);
                 }
             }
+
+            #endregion
 
             // come il caso precedente 
             if (_sheetsLetturaFormat_2.Count() == 0)
@@ -615,10 +650,29 @@ namespace ToolImportazioneLeghe_Console.Excel
             int startingRow = 0;
             int startingCol = 0;
 
-            List<Excel_Format2_ConcColumns> listaConcentrations;
+            // istanze messaggi di errore / warnings per iterazione corrente 
+            string errorMessages_Format2 = String.Empty;
+            string warningMessages_Format2 = String.Empty;
 
 
-            if (ExcelRecognizers.Recognize_Format2_InfoLegheConcentrazioni(ref currentSheet, out startingRow, out startingCol, out listaConcentrations))
+            List<Excel_Format2_Row_LegaProperties> listaConcentrations;
+
+            // analisi per il foglio corrente 
+            Constants_Excel.EsitoRecuperoInformazioniFoglio esitoLetturaFoglioSecondoFormato = ExcelRecognizers.Recognize_Format2_InfoLegheConcentrazioni(
+                ref currentSheet,
+                out startingRow,
+                out startingCol,
+                out listaConcentrations,
+                out errorMessages_Format2,
+                out warningMessages_Format2);
+
+            // attribuzione dei messaggi globali errors e warnings per la lettura del foglio corrente 
+            _possibleErrors_LetturaSecondoFormato = errorMessages_Format2;
+            _possibleWarnings_LetturaSecondoFormato = warningMessages_Format2;
+
+
+            if (esitoLetturaFoglioSecondoFormato == Constants_Excel.EsitoRecuperoInformazioniFoglio.RecuperoCorretto || 
+                esitoLetturaFoglioSecondoFormato == Constants_Excel.EsitoRecuperoInformazioniFoglio.RecuperoConWarnings)
             {
                 _startingPosLeghe_row_format2 = startingRow;
                 _startingPosLeghe_col_format2 = startingCol;

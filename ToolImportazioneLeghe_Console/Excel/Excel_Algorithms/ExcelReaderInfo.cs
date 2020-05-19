@@ -721,7 +721,7 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
         private static bool ReadGeneralInfoLega(out Excel_PropertyWrapper currentInfoLega)
         {
             // istanza proprieta lette per la lega correntemente in analisi
-            currentInfoLega = new Excel_PropertyWrapper(Constants_Excel.PROPRIETAOBBLIGATORIE_FORMAT2_LEGHE, Constants_Excel.PROPRIETAOPZIONALI_FORMAT2_leghe, TipologiaPropertiesFoglio.Format2_Leghe);
+            currentInfoLega = new Excel_PropertyWrapper(Constants_Excel.PROPRIETAOBBLIGATORIE_FORMAT2_LEGHE, Constants_Excel.PROPRIETAOPZIONALI_FORMAT2_LEGHE, TipologiaPropertiesFoglio.Format2_Leghe);
             
 
             foreach(KeyValuePair<int, string> currentProperty in PropertiesColMapper)
@@ -738,7 +738,7 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
 
 
                 // check di non null per il valore corrispondente alla proprieta in lettura (proprieta opzionale)
-                if (Constants_Excel.PROPRIETAOPZIONALI_FORMAT2_leghe.Contains(currentProperty.Value))
+                if (Constants_Excel.PROPRIETAOPZIONALI_FORMAT2_LEGHE.Contains(currentProperty.Value))
                 {
                     if (_currentFoglioExcel.Cells[_currentRowIndex, currentProperty.Key].Value != null)
                         currentInfoLega.InsertOptionalValue(currentProperty.Value, _currentFoglioExcel.Cells[_currentRowIndex, currentProperty.Key].Value.ToString());
@@ -867,7 +867,7 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
                 {
                     // match definizione proprieta obbligatoria / opzionale
                     if (Constants_Excel.PROPRIETAOBBLIGATORIE_FORMAT2_LEGHE.Contains(_currentFoglioExcel.Cells[_currentRowIndex, _currentColIndex].Value.ToString().ToUpper())
-                        || Constants_Excel.PROPRIETAOPZIONALI_FORMAT2_leghe.Contains(_currentFoglioExcel.Cells[_currentRowIndex, _currentColIndex].Value.ToString().ToUpper()))
+                        || Constants_Excel.PROPRIETAOPZIONALI_FORMAT2_LEGHE.Contains(_currentFoglioExcel.Cells[_currentRowIndex, _currentColIndex].Value.ToString().ToUpper()))
                         PropertiesColMapper.Add(_currentColIndex, _currentFoglioExcel.Cells[_currentRowIndex, _currentColIndex].Value.ToString().ToUpper());
                 }
             }
@@ -934,7 +934,7 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
         private static void CompileWarningMessages_ReadingInfoLeghe_Format2(Excel_PropertyWrapper readLegaProperties)
         {
             // iterazione per la proprieta opzionale relativa alla lega per il secondo formato disponibile excel
-            foreach(string currentOptionalPropertyLega in Constants_Excel.PROPRIETAOPZIONALI_FORMAT2_leghe)
+            foreach(string currentOptionalPropertyLega in Constants_Excel.PROPRIETAOPZIONALI_FORMAT2_LEGHE)
             {
                 foreach(KeyValuePair<int, string> valoreRigaNullo in _mapperNullPropertiesOnRows.Where(x => x.Value == currentOptionalPropertyLega).ToDictionary(x => x.Key, x => x.Value))
                 {

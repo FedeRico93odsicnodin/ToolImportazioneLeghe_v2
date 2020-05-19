@@ -118,7 +118,7 @@ namespace ToolImportazioneLeghe_Console.Excel
         /// <summary>
         /// Proprieta opzionali per la lettura delle inforamzioni di base e per il formato 2
         /// </summary>
-        public static string[] PROPRIETAOPZIONALI_FORMAT2_leghe = { "CATEGORIA", "DESCRIZIONE", "TRATTAMENTO" };
+        public static string[] PROPRIETAOPZIONALI_FORMAT2_LEGHE = { "CATEGORIA", "DESCRIZIONE", "TRATTAMENTO" };
 
 
         /// <summary>
