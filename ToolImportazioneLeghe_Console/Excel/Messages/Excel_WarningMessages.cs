@@ -18,11 +18,18 @@ namespace ToolImportazioneLeghe_Console.Excel.Messages
         public static class Formato1_Foglio1_Leghe
         {
             /// <summary>
+            /// Segnalazione di mancato riconoscimento di una proprieta di header opzionale per il foglio relativo alle proprieta di lega per il primo formato excel
+            /// </summary>
+            public static string WARNING_MANCATORICONOSCIMENTOPROPRIETAHEADER_LEGA = "WARNING - non sono riuscito a trovate la seguente proprieta '{0}' OPZIONALE per il foglio '{1}' di proprieta di lega per il primo formato";
+
+
+            /// <summary>
             /// Segnalazione di mancanza di un valore per la proprieta opzionale di lega 
             /// 1) riga nella quale la proprieta è mancante
             /// 2) nome della proprieta opzionale per la quale manca il valore
             /// </summary>
             public static string WARNING_MANCANZAVALOREPERPROPRIETAOPZIONALE_LEGA = "WARNING - riga {0}: mancanza del valore per la poprietà opzionale '{1}'";
+            
         }
 
 
@@ -31,11 +38,26 @@ namespace ToolImportazioneLeghe_Console.Excel.Messages
         /// </summary>
         public static class Formato1_Foglio2_Concentrazioni
         {
+
+            #region RICONOSCIMENTO TIPOLOGIA FOGLIO 
+
+            /// <summary>
+            /// Segnalazione di mancato riconoscimento per una proprieta opzionale di header per il quadrante delle concentrazioni e il primo formato excel disponibile
+            /// </summary>
+            public static string WARNING_MANCATORICONOSCIMENTOPROPRIETAOPZIONALIQUADRANTE = "WARNING - riga {0}: mancato riconoscimento per l'header della proprieta opzionale '{1}'";
+            
+            #endregion 
+
+            
+            #region RECUPERO INFORMAZIONI - VALIDAZIONE 1
+
             /// <summary>
             /// Segnalazione della mancanza di valore per una proprieta opzionale di concentrazione di lettura per una particolare riga all'interno del foglio di tipo 2 
             /// per il formato 1 e di cui viene passato anche il nome corrispondente 
             /// </summary>
             public static string WARNING_MANCANZAVALOREPERPROPRIETAOPZIONALE_CONCENTRAZIONI = "WARNING - riga {0}: mancanza del valore per la proprieta opzionale '{1}' di concentrazione";
+
+            #endregion
         }
 
 

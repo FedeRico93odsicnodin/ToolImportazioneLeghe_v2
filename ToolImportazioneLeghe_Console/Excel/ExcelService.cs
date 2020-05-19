@@ -201,6 +201,38 @@ namespace ToolImportazioneLeghe_Console.Excel
         /// </summary>
         private int _startingPosLeghe_col_format2 = 0;
 
+
+        /// <summary>
+        /// Possibili messaggi di errori dati dalla lettura per il foglio excel corrente 
+        /// questo messaggio di errore viene valorizzato ogni qual volta di analizza un foglio 1 per il primo formato 
+        /// e il riconoscimento non avviene correttamente 
+        /// </summary>
+        private string _possibleErrors_Leghe_ReadCurrentExcel = String.Empty;
+
+
+        /// <summary>
+        /// Possibili messaggi di warnings dati dalla lettura per il foglio excel corrente 
+        /// questo messaggio di warning viene valorizzato ogni qual volta si analizza un foglio 1 per il primo formato
+        /// e il riconoscimento avviene correttamente ma con alcuni warnings
+        /// </summary>
+        private string _possibleWarnings_Leghe_ReadCurrentExcel = String.Empty;
+
+
+        /// <summary>
+        /// Possibili messaggi di errore dati durante la lettura per il foglio excel corrente 
+        /// questo messaggio di errore viene valorizzato ogni qual volta si analizza un foglio 2 per il primo formato
+        /// e il riconoscimento non avviene correttamente 
+        /// </summary>
+        private string _possibleErrors_Concentrations_ReadCurrentExcel = String.Empty;
+
+
+        /// <summary>
+        /// Piossibili messaggi di warnings dati durante la lettura per il foglio excel corrente 
+        /// questo messaggio di warning viene valorizzato ogni qual volta si analizza un foglio 2 per il primo formato
+        /// e il riconoscimento non avviene correttamente 
+        /// </summary>
+        private string _possibleWarnings_Concentrations_ReadCurrentExcel = String.Empty;
+        
         #endregion
 
 
@@ -241,13 +273,26 @@ namespace ToolImportazioneLeghe_Console.Excel
             if (_formatoExcel == Constants.FormatFileExcel.DatabaseLeghe)
             {
                 _sheetsLetturaFormat_1 = new List<Excel_Format1_Sheet>();
+                
 
                 foreach(ExcelWorksheet currentWorksheet in _openedExcel.Workbook.Worksheets)
                 {
                     currentSheetPosition++;
-
+                    
                     // riconoscimento della tipologia foglio per il primo formato
                     Constants_Excel.TipologiaFoglio_Format1 tipologiaRiconoscita = RecognizeTipoFoglio_Format1(currentWorksheet);
+
+
+                    // verifica dei messaggi di errore / warnings per la lettura corrente e nuovo azzeramento 
+                    CheckMessagesForCurrentSheet(_possibleErrors_Leghe_ReadCurrentExcel, _possibleWarnings_Leghe_ReadCurrentExcel, currentWorksheet.Name, Constants_Excel.StepLetturaFoglio.Riconoscimento);
+                    CheckMessagesForCurrentSheet(_possibleErrors_Concentrations_ReadCurrentExcel, _possibleWarnings_Concentrations_ReadCurrentExcel, currentWorksheet.Name, Constants_Excel.StepLetturaFoglio.Riconoscimento);
+
+                    _possibleErrors_Leghe_ReadCurrentExcel = String.Empty;
+                    _possibleErrors_Concentrations_ReadCurrentExcel = String.Empty;
+                    _possibleWarnings_Leghe_ReadCurrentExcel = String.Empty;
+                    _possibleWarnings_Concentrations_ReadCurrentExcel = String.Empty;
+
+
                     if (!(tipologiaRiconoscita == Constants_Excel.TipologiaFoglio_Format1.NotDefined))
                     {
                         ConsoleService.ConsoleExcel.ExcelReaders_Message_RiconoscimentoSeguenteTipologia_Format1(currentWorksheet.Name, currentSheetPosition, tipologiaRiconoscita.ToString());
@@ -260,16 +305,28 @@ namespace ToolImportazioneLeghe_Console.Excel
                             foglioExcelCorrenteInfo.StartingRow_letturaLeghe = _startingPosLeghe_row_format1;
                             foglioExcelCorrenteInfo.StartingCol_letturaLeghe = _startingPosLeghe_col_format1;
                             foglioExcelCorrenteInfo.EndingCol_letturaLeghe = _endingPosLeghe_col_format1;
+
+                            // azzeramento proprieta per eventuale prossima lettura 
+                            _startingPosLeghe_col_format1 = 0;
+                            _startingPosLeghe_row_format1 = 0;
+                            _endingPosLeghe_col_format1 = 0;
                         }
                         else if(tipologiaRiconoscita == Constants_Excel.TipologiaFoglio_Format1.FoglioConcentrazioni)
                         {
                             foglioExcelCorrenteInfo.GetConcQuadrants_Type2 = _quadrantiConcentrazioneLetturaCorrente;
+
+                            // azzeramento proprieta per eventuale prossima lettura 
+                            _quadrantiConcentrazioneLetturaCorrente = null;
                         }
 
+                        // aggiunta del foglio corrente 
                         _sheetsLetturaFormat_1.Add(foglioExcelCorrenteInfo);
                     }
                     else
+                    {
                         ConsoleService.ConsoleExcel.ExcelReaders_Message_FoglioNonRiconosciuto(currentWorksheet.Name, currentSheetPosition);
+                    }
+                        
                 }
 
                 // non è presente nessun foglio sul quale eseguire la lettura delle informazioni
@@ -469,31 +526,78 @@ namespace ToolImportazioneLeghe_Console.Excel
             int startingCol = 0;
             int endingColIndex = 0;
 
+            #region POSSIBILE RICONOSCIMENTO DI UN FOGLIO PER LE LEGHE 
 
-            bool riconoscimrentoCorrente = ExcelRecognizers.Recognize_Format1_InfoLeghe(ref currentSheet, out startingRow, out startingCol, out endingColIndex);
+            // inizializzazione dei possibili messaggi di errore / warnings emersi durante la lettura per il file excel corrente 
+            string currentErrorsExcel = String.Empty;
+            string currentWarningsExcel = String.Empty;
 
-            // sono riuscito ad inviduare una prima congruenza per il riconoscimento del foglio delle leghe
-            if (riconoscimrentoCorrente)
+
+            Constants_Excel.EsitoRecuperoInformazioniFoglio esitoRiconoscimentoFoglio_Leghe = ExcelRecognizers.Recognize_Format1_InfoLeghe(
+                ref currentSheet, 
+                out startingRow, 
+                out startingCol, 
+                out endingColIndex,
+                out currentErrorsExcel,
+                out currentWarningsExcel);
+
+
+
+            // inserisco la stringa con gli eventuali warnings emersi dalla lettura corrente 
+            _possibleErrors_Leghe_ReadCurrentExcel = currentErrorsExcel;
+            _possibleWarnings_Leghe_ReadCurrentExcel = currentWarningsExcel;
+
+
+            // riconoscimento completo e senza nessuna segnalazione per il foglio leghe corrente 
+            if (esitoRiconoscimentoFoglio_Leghe == Constants_Excel.EsitoRecuperoInformazioniFoglio.RecuperoCorretto ||
+               esitoRiconoscimentoFoglio_Leghe == Constants_Excel.EsitoRecuperoInformazioniFoglio.RecuperoConWarnings)
             {
                 // attribuzione parametri privati di riga / colonna di lettura per le leghe
                 _startingPosLeghe_row_format1 = startingRow;
                 _startingPosLeghe_col_format1 = startingCol;
                 _endingPosLeghe_col_format1 = endingColIndex;
+
                 return Constants_Excel.TipologiaFoglio_Format1.FoglioLeghe;
             }
 
+            #endregion
+
+
+            #region POSSIBILE RICONOSCIMENTO DI UN FOGLIO PER LE CONCENTRAZIONI
+
+            // lista che conterrà i quadranti di concentrazioni finali per la lettura di un foglio di seconda tipologia 
             List<Excel_Format1_Sheet2_ConcQuadrant> concentrationsQuadrants;
 
+            // azzeramento delle stringhe per i messaggi errori / warnings reincontrati
+            currentErrorsExcel = String.Empty;
+            currentWarningsExcel = String.Empty;
+
+
             // tentativo di riconoscimento foglio concentrazioni
-            bool riconoscimentoFoglioConcentrazioni = ExcelRecognizers.Recognize_Format1_InfoConcentrations(ref currentSheet, out concentrationsQuadrants);
+            Constants_Excel.EsitoRecuperoInformazioniFoglio esitoRecuperoInformazioniFoglio_Concentrazioni = ExcelRecognizers.Recognize_Format1_InfoConcentrations(
+                ref currentSheet, 
+                out concentrationsQuadrants,
+                out currentErrorsExcel,
+                out currentWarningsExcel);
+
+
+            // attribuzione dei messaggi di warnings e di errori finali durante il tentativo di riconoscimento di un foglio per le concentrazioni
+            _possibleErrors_Concentrations_ReadCurrentExcel = currentErrorsExcel;
+            _possibleWarnings_Concentrations_ReadCurrentExcel = currentWarningsExcel;
+
 
             // sono riuscito a riconoscere il foglio per le concentrazioni correnti
-            if(riconoscimentoFoglioConcentrazioni)
+            if (esitoRecuperoInformazioniFoglio_Concentrazioni == Constants_Excel.EsitoRecuperoInformazioniFoglio.RecuperoCorretto ||
+                esitoRecuperoInformazioniFoglio_Concentrazioni == Constants_Excel.EsitoRecuperoInformazioniFoglio.RecuperoConWarnings)
             {
                 _quadrantiConcentrazioneLetturaCorrente = concentrationsQuadrants;
                 return Constants_Excel.TipologiaFoglio_Format1.FoglioConcentrazioni;
             }
-            
+
+            #endregion
+
+            // nel caso in cui mi trovassi a non avere nessun riconoscimento per entrambi i formati il foglio non viene preso in considerazione ma solamente
+            // i diversi errori / warnings di generazione durante l'analisi
             return Constants_Excel.TipologiaFoglio_Format1.NotDefined;
         }
 
@@ -575,6 +679,52 @@ namespace ToolImportazioneLeghe_Console.Excel
         /// Ritorno la lista di tutte le informazioni lette dal secondo formato excel
         /// </summary>
         public List<Excel_Format2_Sheet> GetExcelFormat_2Info { get { return _sheetsLetturaFormat_2; } }
+
+        #endregion
+
+
+        #region SCRITTURA MESSAGGI ERRORE - WARNINGS SU APPOSITI LOG DI FOGLIO 
+
+        /// <summary>
+        /// Permette di verificare se le stringhe relative ai messaggi di errori / warnings per il foglio excel corrente e per lo step corrente sono 
+        /// effettivamente valorizzate durante l'analisi e in base a questo le va a scrivere opportunamente sul file da ricreare o gia esistente e per 
+        /// la folder relativa all'inserimento di tutti i messaggi per il foglio correntemente in analisi
+        /// </summary>
+        /// <param name="currentErrorsMessages"></param>
+        /// <param name="currentWarningMessages"></param>
+        /// <param name="currentSheetName"></param>
+        private void CheckMessagesForCurrentSheet(string currentErrorsMessages, string currentWarningMessages, string currentSheetName, Constants_Excel.StepLetturaFoglio currentStep)
+        {
+            if (currentErrorsMessages != String.Empty)
+                InsertErrorMessages(currentErrorsMessages, currentSheetName, currentStep);
+
+            if (currentWarningMessages != String.Empty)
+                InsertWarningsMessages(currentWarningMessages, currentSheetName, currentStep);
+        } 
+
+
+        /// <summary>
+        /// Permette di inserire per messaggi di errore nell'apposito log
+        /// </summary>
+        /// <param name="currentErrorsMessages"></param>
+        /// <param name="currentSheetName"></param>
+        /// <param name="currentStep"></param>
+        private void InsertErrorMessages(string currentErrorsMessages, string currentSheetName, Constants_Excel.StepLetturaFoglio currentStep)
+        {
+            // TODO : implementazione scrittura su log
+        }
+
+
+        /// <summary>
+        /// Permette di inserire messaggi di warnings nell'apposito log
+        /// </summary>
+        /// <param name="currentWarningsMessages"></param>
+        /// <param name="currentSheetName"></param>
+        /// <param name="currentStep"></param>
+        private void InsertWarningsMessages(string currentWarningsMessages, string currentSheetName, Constants_Excel.StepLetturaFoglio currentStep)
+        {
+            // TODO : implementazione scrittura su log
+        }
 
         #endregion
 

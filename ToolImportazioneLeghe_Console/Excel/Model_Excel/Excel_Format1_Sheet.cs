@@ -118,5 +118,41 @@ namespace ToolImportazioneLeghe_Console.Excel.Model_Excel
 
         #endregion
 
+
+        #region STRINGHE MESSAGGISTICA IN USCITA 
+
+        /// <summary>
+        /// Indicazione degli errori che sono emersi durante la lettura e l'analisi del file excel
+        /// nei diversi steps di read
+        /// questa stringa è per il tentativo di recupero delle informazioni relative alla lega 
+        /// </summary>
+        public string ErrorMessages_ExcelAnalyzer_ProprietaLeghe { get; set; }
+
+
+        /// <summary>
+        /// indicazione dei messaggi di warnings emersi durante la lettura e l'analisi del file excel 
+        /// nei diversi steps di read
+        /// questa stringa è per il tentativo di recupero delle informazioni relative alla lega 
+        /// </summary>
+        public string WarningMessages_ExcelAnalyzer_ProprietaLeghe { get; set; }
+
+
+        /// <summary>
+        /// indicazione dei messaggi di errore emersi durante la lettura e l'analisi del file excel 
+        /// nei diversi steps di read
+        /// questa stringa è per il tentativo di recupero delle informazioni relative alle concentrazioni
+        /// </summary>
+        public string ErrorMessages_ExcelAnalyzer_ProprietaConcentrazioni { get; set; }
+
+
+        /// <summary>
+        /// Indicazione dei messaggi di warnings emersi durante la lettura e l'analisi del file excel 
+        /// nei diversi steps di read
+        /// questa stringa è per il tentativo di recupero delle informazioni relative alle concentrazioni
+        /// </summary>
+        public string WarningMessages_ExcelAnalyzer_ProprietaConcentrazioni { get; set; }
+
+        #endregion
+
     }
 }

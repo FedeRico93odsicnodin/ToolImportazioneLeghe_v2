@@ -70,6 +70,18 @@ namespace ToolImportazioneLeghe_Console.Excel
 
 
         /// <summary>
+        /// Indicazione di quale sia lo step di lettura per l'analisi del foglio corrente in base ai parametri passati nelle configurazioni
+        /// serve per andare a inserire adeguata messaggistica circa l'analisi del foglio corrente 
+        /// </summary>
+        public enum StepLetturaFoglio
+        {
+            Riconoscimento = 1,
+            RecuperoInformazioni_Validazione1 = 2,
+            Validazione2_StessoFile = 3
+        }
+
+
+        /// <summary>
         /// Proprietà obbligatorie per la lettura delle informazioni dal primo foglio (FORMAT1)
         /// </summary>
         public static string[] PROPRIETAOBBLIGATORIE_FORMAT1_SHEET1 = { "MATERIALE", "NORMATIVA", "TIPO" };

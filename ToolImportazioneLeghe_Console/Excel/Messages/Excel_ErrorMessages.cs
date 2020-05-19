@@ -13,10 +13,61 @@ namespace ToolImportazioneLeghe_Console.Excel.Messages
     public static class Excel_ErrorMessages
     {
         /// <summary>
+        /// Classe contenente le diverse intestazioni disponibili per le diverse tipologie di foglio excel e una analisi che non va a buon fine 
+        /// per un determinato foglio in iterazione corrente 
+        /// </summary>
+        public static class Headers_ExcelSheet_ErrorMessages
+        {
+
+            /// <summary>
+            /// Permette di ritornare l'intestazione da dare prima di inserire errori per un determinato foglio excel appartenenti a file del primo formato 
+            /// relativamente alla validazione per il primo tipo (proprieta di lega)
+            /// </summary>
+            /// <param name="sheetName"></param>
+            /// <returns></returns>
+            public static string GetHeader_RecognizeSheet_Type1Format1(string sheetName)
+            {
+                return "=================================================================\n" +
+                    String.Format("RICONOSCIMENTO PROPRIETA DI LEGHE - FOGLIO : '{0}'\n", sheetName) +
+                    "=================================================================\n";
+            }
+
+
+            /// <summary>
+            /// Permette di ritornare l'intestazione da dare prima di inserire errori per un determinato foglio excel appartenente al file del primo formato 
+            /// relativamente alla validazione per il secondo tipo (proprieta di concentrazioni e quadranti di concentrazioni)
+            /// </summary>
+            /// <param name="sheetName"></param>
+            /// <returns></returns>
+            public static string GetHeader_RecognizeSheet_Type2Format1(string sheetName)
+            {
+                return "=================================================================\n" +
+                    String.Format("RICONOSCIMENTO PROPRIETA DI CONCENTRAZIONI - FOGLIO : '{0}'\n", sheetName) +
+                    "=================================================================\n";
+            }
+
+            
+        }
+
+
+
+        /// <summary>
         /// Messaggi di errore per la prima tipologia di foglio per il primo formato
         /// </summary>
         public static class Formato1_Foglio1_Leghe
         {
+
+            #region RICONOSCIMENTO FOGLIO 
+
+            /// <summary>
+            /// Mancata lettura di un header per le proprieta di lega per il primo formato e il primo foglio disponibile
+            /// </summary>
+            public static string ERRORE_MANCATORICONOSCIMENTOPROPRIETAHEADERLEGHE = "ERRORE - non sono riuscito a trovare la proprieta '{0}' obbligatoria, relativamente al foglio '{1}' per la lettura delle proprieta di lega.\n";
+
+            #endregion 
+
+
+            #region RECUPERO - VALIDAZIONE 1 - INFORMAZIONI
 
             /// <summary>
             /// Errore nella lettura di una proprieta obbligatoria per la lega correntemente in lettura, manca il valore e la lega non verrà presa in considerazione nelle analisi successive
@@ -26,10 +77,13 @@ namespace ToolImportazioneLeghe_Console.Excel.Messages
             /// </summary>
             public static string ERRORE_MANDATORYPROPERTYMANCANTE_LEGA = "ERRORE - riga {0}: nessuna informazione valorizzata per la proprietà obbligatoria '{1}', la seguente lega presa in considerazione nelle analisi successive.\n";
 
+
             /// <summary>
             /// Errore fatale: questo errore non permette di continuare con l'iterazione per il foglio excel corrente 
             /// </summary>
             public static string ERRORE_NESSUNA_INFORMAZIONE_LETTA = "ERRORE: non è stata letta alcuna informazione per il foglio Excel di LEGHE '{0}'.\n";
+
+            #endregion
         }
 
 
@@ -38,6 +92,36 @@ namespace ToolImportazioneLeghe_Console.Excel.Messages
         /// </summary>
         public static class Formato1_Foglio2_Concentrazioni
         {
+            #region RICONOSCIMENTO FOGLIO 
+
+            /// <summary>
+            /// Errore di mancato riconoscimento del title per il quadrante delle concentrazioni in analisi corrente 
+            /// </summary>
+            public static string ERRORE_MANCATOTITLEQUADRANTE = "ERRORE - riga {0}: non sono riuscito a riconoscere un TITLE per l'eventuale quadrante da cui recuperare i valori delle concentrazioni";
+            
+
+            /// <summary>
+            /// Errore di mancato riconscimento di una proprieta obbligatoria di header per le concentrazioni su un quadrante per il tipo di foglio in riconoscimento
+            /// </summary>
+            public static string ERRORE_MANCATORICONOSCIMENTOPROPRIETAHEADEROBBLIGATORIA = "ERRORE - riga {0}: non sono riuscito a riconoscere la proprieta {1} obbligatoria per le concentrazioni";
+
+
+            /// <summary>
+            /// Errore di mancato riconoscimento di almeno un elemento per il quadrante delle concentrazioni corrente 
+            /// </summary>
+            public static string ERRORE_NESSUNRICONOSCIMENTOPERELEMENTO = "ERRORE - non sono riuscito a riconoscere nessun elemento per eventuale completamento concentrazioni quadrante a partire dalla riga {0}";
+
+
+            /// <summary>
+            /// Errore di mancato riconoscimento di alcun quadrante per poter proseguire correttamente l'analisi e l'eventuale lettura delle concentrazioni per i diversi materiali contenuti in questo foglio
+            /// </summary>
+            public static string ERRORE_NESSUNQUADRANTECONCENTRAZIONIUTILEPERANALISI = "ERRORE - la tipologia per il foglio corrente è per la lettura delle concentrazioni, ma nessun quadrante di concentrazioni contiene delle informazioni utili per continuare l'analisi";
+
+            #endregion
+            
+
+            #region RECUPERO - VALIDAZIONE 1 - INFORMAZIONI
+
             /// <summary>
             /// Errore di mancata lettura del nome per il quadrante delle concentrazioni correntemente in analisi per la situazione corrente
             /// </summary>
@@ -49,6 +133,8 @@ namespace ToolImportazioneLeghe_Console.Excel.Messages
             /// proprieta relative alle diverse concentrazioni applicate per la lega corrente 
             /// </summary>
             public static string ERRORE_MANDATORYPROPERTYMANCANTE_CONCENTRAZIONI = "ERRORE - riga {0}: nessuna inforamzione valorizzata per la proprieta obbligatoria '{1}', le concentrazioni per la lega non verranno prese in considerazione per le analisi successive.\n";
+
+            #endregion
         }
 
 
