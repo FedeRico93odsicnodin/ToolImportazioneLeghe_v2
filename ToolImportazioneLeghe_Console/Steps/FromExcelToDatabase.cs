@@ -70,9 +70,13 @@ namespace ToolImportazioneLeghe_Console.Steps
             // segnalazione inizio STEP 3 di recupero informazioni per il file excel corrente 
             ConsoleService.STEPS_FromExcelToDatabase.STEP3_InizioRecuperoDiTutteLeInformazioniPerExcelCorrente(ServiceLocator.GetUtilityFunctions.GetFileName(Constants.ExcelSourcePath));
 
-
-
-            return false;
+            if (ServiceLocator.GetExcelService.GetExcelReaders.ReadExcelInformation())
+            {
+                ConsoleService.STEPS_FromExcelToDatabase.STEP3_RecuperoDelleInformazioniUltimato(ServiceLocator.GetUtilityFunctions.GetFileName(Constants.ExcelSourcePath));
+                return true;
+            }
+            else
+                throw new Exception(ExceptionMessages.ERRORESTEP3_LETTURAFOGLIOEXCELNONRIUSCITA);
         }
     }
 }

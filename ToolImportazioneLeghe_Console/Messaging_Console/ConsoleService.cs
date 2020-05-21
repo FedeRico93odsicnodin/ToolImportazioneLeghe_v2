@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using ToolImportazioneLeghe_Console.Excel;
 using ToolImportazioneLeghe_Console.Utils;
 
 namespace ToolImportazioneLeghe_Console.Messaging_Console
@@ -226,6 +227,8 @@ namespace ToolImportazioneLeghe_Console.Messaging_Console
         #endregion
 
 
+        #region APERTURA FILE EXCEL CORRENTE 
+
         /// <summary>
         /// Segnalazione esistenza per il file excel corrente 
         /// </summary>
@@ -236,6 +239,10 @@ namespace ToolImportazioneLeghe_Console.Messaging_Console
             ConsoleService.FormatMessageConsole(currentMessage, false);
         }
 
+        #endregion
+
+
+        #region VALIDAZIONE FOGLI PER FILE EXCEL CORRENTE RISPETTO AI FORMATI E ALLE DIVERSE TIPOLOGIE DI FOGLIO DISPONIBILI
 
         /// <summary>
         /// Segnalazione che il foglio è stato trovato di una certa tipologia per l'istanza di reader corrente e per il formato corrente
@@ -276,9 +283,101 @@ namespace ToolImportazioneLeghe_Console.Messaging_Console
             ConsoleService.FormatMessageConsole(currentMessage, true);
         }
 
+        #endregion
 
 
+        #region LETTURA INFORMAZIONI + VALIDAZIONE 1 (EMPTY SPACES)
 
+        /// <summary>
+        /// Segnalazione di avvenuta lettura informazioni corretta per la tipologia di formato 1 excel e la natura del foglio passato in input
+        /// nel messaggio verrà indicata anche la posizione e il nome per il foglio in analisi
+        /// </summary>
+        /// <param name="foglioLettura"></param>
+        /// <param name="posizioneFoglio"></param>
+        /// <param name="tipologiaFoglioFormato1"></param>
+        public void ExcelReaders_Message_LetturaFoglioTipoFormato1AvvenutaCorrettamente(string foglioLettura, int posizioneFoglio, Constants_Excel.TipologiaFoglio_Format1 tipologiaFoglioFormato1)
+        {
+            string currentMessage = String.Format(excelService_Marker + readerExcel_Marker + "PRIMO FORMATO: ho letto correttamente le informazioni per tipologia '{0}' per il foglio '{1}' in posizione {2}", tipologiaFoglioFormato1, foglioLettura, posizioneFoglio);
+            ConsoleService.FormatMessageConsole(currentMessage, true);
+        }
+
+
+        /// <summary>
+        /// Segnalazione sempre per il foglio corrente che la lettura è avvenuta con dei warnings rispetto alla validazione contenimento dei valori per il foglio di cui si sono recuperati i valori
+        /// questi warnings non portano al momento al blocco dell'applicazione ma potrebbero non coincidere con la situazione voluta dall'utente
+        /// </summary>
+        /// <param name="foglioLettura"></param>
+        public void ExcelReaders_Message_LetturaFoglioFormato1AvvenutaConWarnings(string foglioLettura)
+        {
+            string currentMessage = String.Format(excelService_Marker + readerExcel_Marker + "PRIMO FORMATO: per il foglio '{0}' la lettura è pero avvenuta con WARNINGS (consultare il relativo log per maggiori informazioni)", foglioLettura);
+            ConsoleService.FormatMessageConsole(currentMessage, true);
+        }
+
+
+        /// <summary>
+        /// Segnalazione che il recupero per il certo foglio excel del primo formato e per le informazioni contenute per lega / concentrazioni non è avvenuto correttamente 
+        /// cioe non ha passato la fase 1 di validazione rispetto al contenimento delle informazioni di base per poter continuare con l'analisi successiva
+        /// </summary>
+        /// <param name="foglioLetturaCorrente"></param>
+        /// <param name="posizioneFoglio"></param>
+        /// <param name="tipologiaFoglioFOrmato1"></param>
+        public void ExcelReaders_Message_LetturaFoglioFormato1AvvenutaConErrori(string foglioLetturaCorrente, int posizioneFoglio, Constants_Excel.TipologiaFoglio_Format1 tipologiaFoglioFormato1)
+        {
+            string currentMessage = String.Format(excelService_Marker + readerExcel_Marker + "PRIMO FORMATO: ERRORE nella lettura delle informazioni del foglio '{0}' in posizione {1} e per il formato '{2}', non potrò proseguire con l'analisi di questo foglio", foglioLetturaCorrente, posizioneFoglio, tipologiaFoglioFormato1);
+            ConsoleService.FormatMessageConsole(currentMessage, true);
+        }
+
+
+        /// <summary>
+        /// Segnaalzione di prossima interruzione per l'analisi corrente, non sono stati riconosciuti correttamente tutte le tipologie minime per poter andare successivamente 
+        /// a leggere per concentrazioni e materiali per il file excel corrente
+        /// </summary>
+        /// <param name="fileExcelName"></param>
+        public void ExcelReaders_Message_InterruzioneAnalisi_SetFogliRiconosciutiInsufficiente(string fileExcelName)
+        {
+            string currentMessage = String.Format(excelService_Marker + readerExcel_Marker + "PRIMO FORMATO: non posso proseguire con l'ANALISI e l'IMPORT per il file '{0}' in quanto non sono state riconosciute le tipologie di FOGLIO per LEGHE E CONCENTRAZIONI minimo e indispensabile per il proseguimento", fileExcelName);
+            ConsoleService.FormatMessageConsole(currentMessage, true);
+        }
+
+
+        /// <summary>
+        /// Segnalazione di recupero corretto per le informazioni contenute nel secondo formato disponibile per la lettura di leghe e concentrazioni
+        /// </summary>
+        /// <param name="foglioLettura"></param>
+        /// <param name="posizioneFoglio"></param>
+        public void ExcelReaders_Message_LetturaFoglioTipoFormato2AvvenutaCorrettamente(string foglioLettura, int posizioneFoglio)
+        {
+            string currentMessage = String.Format(excelService_Marker + readerExcel_Marker + "SECONDO FORMATO: ho letto correttamente le informazioni per tipologia per il foglio '{0}' in posizione {1}", foglioLettura, posizioneFoglio);
+            ConsoleService.FormatMessageConsole(currentMessage, true);
+        }
+
+
+        /// <summary>
+        /// Segnalazione che per il secondo formato il recupero delle informazioni al momento non è invalidante ma è avvenuto con dei warnings 
+        /// che devono essere presi in considerazione
+        /// </summary>
+        /// <param name="foglioLettura"></param>
+        public void ExcelReaders_Message_LetturaFoglioFormato2AvvenutaConWarnings(string foglioLettura)
+        {
+            string currentMessage = String.Format(excelService_Marker + readerExcel_Marker + "SECONDO FORMATO: per il foglio '{0}' la lettura è pero avvenuta con WARNINGS (consultare il relativo log per maggiori informazioni)", foglioLettura);
+            ConsoleService.FormatMessageConsole(currentMessage, true);
+        }
+
+
+        /// <summary>
+        /// Segnalazione di errori durante la lettura per il foglio del secondo formato disponibile, l'analisi e successivi import 
+        /// non saranno più disponibili per il foglio in analisi 
+        /// </summary>
+        /// <param name="foglioLetturaCorrente"></param>
+        /// <param name="posizioneFoglio"></param>
+        /// <param name="tipologiaFoglioFOrmato1"></param>
+        public void ExcelReaders_Message_LetturaFoglioFormato2AvvenutaConErrori(string foglioLetturaCorrente, int posizioneFoglio)
+        {
+            string currentMessage = String.Format(excelService_Marker + readerExcel_Marker + "SECONDO FORMATO: ERRORE nella lettura delle informazioni del foglio '{0}' in posizione {1} e per il formato 2, non potrò proseguire con l'analisi di questo foglio", foglioLetturaCorrente, posizioneFoglio);
+            ConsoleService.FormatMessageConsole(currentMessage, true);
+        }
+
+        #endregion
 
     }
 
@@ -372,6 +471,17 @@ namespace ToolImportazioneLeghe_Console.Messaging_Console
         public void STEP3_InizioRecuperoDiTutteLeInformazioniPerExcelCorrente(string foglioExcelSorgente)
         {
             string currentMessage = String.Format(STEP3 + "inizio della lettura di tutte le informazioni contenute nel file excel '{0}'", foglioExcelSorgente);
+            ConsoleService.FormatMessageConsole(currentMessage, true);
+        }
+
+
+        /// <summary>
+        /// indicazione di ultimato recupero delle informazioni per il file excel corrente, si fa riferimento alla consultazione dei log 
+        /// prodotti se eventualmente sono stati prodotti dei warnings durante questa operazione
+        /// </summary>
+        public void STEP3_RecuperoDelleInformazioniUltimato(string foglioExcelSorgente)
+        {
+            string currentMessage = String.Format(STEP3 + "lettura delle informazioni per il file '{0}' avvenuta con successo, consultare il log prodotto per maggiori informazioni", foglioExcelSorgente);
             ConsoleService.FormatMessageConsole(currentMessage, true);
         }
 

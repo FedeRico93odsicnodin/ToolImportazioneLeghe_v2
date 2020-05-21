@@ -426,10 +426,14 @@ namespace ToolImportazioneLeghe_Console.Excel
                 // eccezione nel caso in cui la lista relativa ai fogli riconosciuti per il primo formato sia NULL EMPTY
                 if (_sheetsLetturaFormat_1 == null)
                     throw new Exception(ExceptionMessages.EXCEL_READERINFO_FOGLINULLEMPTY_FORMAT1);
-                if(_sheetsLetturaFormat_1.Count() == 0)
+                if (_sheetsLetturaFormat_1.Count() == 0)
                     throw new Exception(ExceptionMessages.EXCEL_READERINFO_FOGLINULLEMPTY_FORMAT1);
 
-                foreach(Excel_Format1_Sheet currentFoglioExcel in _sheetsLetturaFormat_1)
+                // nuova variabile contenimento informazioni riempite per questo step
+                List<Excel_Format1_Sheet> excelSheetsNewValues_Format1 = new List<Excel_Format1_Sheet>();
+
+
+                foreach (Excel_Format1_Sheet currentFoglioExcel in _sheetsLetturaFormat_1)
                 {
                     // istanza eventuali messaggi errore warnings per il foglio corrente in fase di recupero informazioni
                     string errorMessages = String.Empty;
@@ -450,37 +454,97 @@ namespace ToolImportazioneLeghe_Console.Excel
                     // oggetto nel quale inserisco le informazioni recuperate per il foglio corrente
                     Excel_Format1_Sheet filledInfo;
 
+                    // esito di recupero informazioni per il foglio corrente 
+                    Constants_Excel.EsitoRecuperoInformazioniFoglio esitoRecuperoInformazioniFoglioFormato1Corrente = ExcelReaderInfo.ReadLegheInfo(
+                            excelSheetReference,
+                            currentFoglioExcel,
+                            out filledInfo,
+                            out warningMessages,
+                            out errorMessages);
+
+                    // scrittura eventuale il file di log per errori e wornings su recupero formato corrente 
+                    CheckMessagesForCurrentSheet(errorMessages, warningMessages, excelSheetReference.Name, Constants_Excel.StepLetturaFoglio.RecuperoInformazioni_Validazione1);
+
+
                     // riconoscimenti per la lettura del foglio delle leghe 
                     if (currentFoglioExcel.GetTipologiaFoglio == Constants_Excel.TipologiaFoglio_Format1.FoglioLeghe)
-                        if(!(ExcelReaderInfo.ReadLegheInfo(
-                            excelSheetReference, 
-                            currentFoglioExcel, 
-                            out filledInfo, 
-                            out warningMessages, 
-                            out errorMessages) == Constants_Excel.EsitoRecuperoInformazioniFoglio.RecuperoCorretto))
+                    {
+                        if ((esitoRecuperoInformazioniFoglioFormato1Corrente == Constants_Excel.EsitoRecuperoInformazioniFoglio.RecuperoCorretto) ||
+                            (esitoRecuperoInformazioniFoglioFormato1Corrente == Constants_Excel.EsitoRecuperoInformazioniFoglio.RecuperoConWarnings))
                         {
-                            // TODO: segnalazione + scrittura log errori warnings
+                            // segnalazione di avvenuta lettura per il foglio corrente a console
+                            ConsoleService.ConsoleExcel.ExcelReaders_Message_LetturaFoglioTipoFormato1AvvenutaCorrettamente(excelSheetReference.Name, currentFoglioExcel.GetPosSheet, currentFoglioExcel.GetTipologiaFoglio);
+
+                            // segnalazione di eventuale recupero con warnings 
+                            if (esitoRecuperoInformazioniFoglioFormato1Corrente == Constants_Excel.EsitoRecuperoInformazioniFoglio.RecuperoConWarnings)
+                                ConsoleService.ConsoleExcel.ExcelReaders_Message_LetturaFoglioFormato1AvvenutaConWarnings(excelSheetReference.Name);
+
+                            // aggiunta del foglio con le nuove informazioni all'interno della lista finale dei fogli informazioni
+                            excelSheetsNewValues_Format1.Add(filledInfo);
                         }
+                        // segnalazione che le informazioni di lega corrente sono state recuperate con degli errori
+                        else
+                        {
+                            // oltre la segnalazione non c'è bisogno di aggiungere il foglio al nuovo set in quanto non piu valido
+                            ConsoleService.ConsoleExcel.ExcelReaders_Message_LetturaFoglioFormato1AvvenutaConErrori(excelSheetReference.Name, currentFoglioExcel.GetPosSheet, currentFoglioExcel.GetTipologiaFoglio);
+                        }
+                    }
                     // riconoscimento per la lettura del foglio delle concentrazioni
-                    else if(currentFoglioExcel.GetTipologiaFoglio == Constants_Excel.TipologiaFoglio_Format1.FoglioConcentrazioni)
+                    else if (currentFoglioExcel.GetTipologiaFoglio == Constants_Excel.TipologiaFoglio_Format1.FoglioConcentrazioni)
+                    {
+                        // dichiarazione della variabile per il contenimento delle informazioni per le concentrazioni lette dal foglio excel corrente 
+                        Excel_Format1_Sheet foglioExcelConcentrations;
+
+                        // nel caso in cui ho recuperato il foglio ma con degli errori allora non vado a leggerne ulteriormente le informazioni
+                        if (!(ExcelReaderInfo.ReadConcentrationsInfo(
+                            excelSheetReference,
+                            currentFoglioExcel,
+                            out foglioExcelConcentrations,
+                            out warningMessages,
+                            out errorMessages) == Constants_Excel.EsitoRecuperoInformazioniFoglio.RecuperoConErrori))
                         {
-                            // dichiarazione della variabile per il contenimento delle informazioni per le concentrazioni lette dal foglio excel corrente 
-                            Excel_Format1_Sheet foglioExcelConcentrations;
+                            // segnalazione di avvenuta lettura per il foglio corrente a console
+                            ConsoleService.ConsoleExcel.ExcelReaders_Message_LetturaFoglioTipoFormato1AvvenutaCorrettamente(excelSheetReference.Name, currentFoglioExcel.GetPosSheet, currentFoglioExcel.GetTipologiaFoglio);
 
-                            // nel caso in cui ho recuperato il foglio ma con degli errori allora non vado a leggerne ulteriormente le informazioni
-                            if (!(ExcelReaderInfo.ReadConcentrationsInfo(
-                                excelSheetReference, 
-                                currentFoglioExcel, 
-                                out foglioExcelConcentrations,
-                                out warningMessages,
-                                out errorMessages) == Constants_Excel.EsitoRecuperoInformazioniFoglio.RecuperoConErrori))
-                            {
-                                // TODO: segnalazione + scrittura log errori warnings
-                            }
+                            // segnalazione di eventuale recupero con warnings 
+                            if (esitoRecuperoInformazioniFoglioFormato1Corrente == Constants_Excel.EsitoRecuperoInformazioniFoglio.RecuperoConWarnings)
+                                ConsoleService.ConsoleExcel.ExcelReaders_Message_LetturaFoglioFormato1AvvenutaConWarnings(excelSheetReference.Name);
+
+                            // aggiunta del foglio con le nuove informazioni all'interno della lista finale dei fogli informazioni
+                            excelSheetsNewValues_Format1.Add(filledInfo);
                         }
-                        
-
+                        // segnalazione che le informazioni di concentrazione corrente sono state recuperate con degli errori
+                        else
+                        {
+                            // oltre la segnalazione non c'è bisogno di aggiungere il foglio al nuovo set in quanto non piu valido
+                            ConsoleService.ConsoleExcel.ExcelReaders_Message_LetturaFoglioFormato1AvvenutaConErrori(excelSheetReference.Name, currentFoglioExcel.GetPosSheet, currentFoglioExcel.GetTipologiaFoglio);
+                        }
+                    }
                 }
+
+
+                // fine iterazione corrente: vado ad eseguire il controllo da quanti fogli ho recuperato effettivamente informazioni utili 
+                // se il numero dei fogli per i quali le informazioni non sono state recuperate correttamente è 0, non posso proseguire con l'analisi
+                if (excelSheetsNewValues_Format1.Count() == 0)
+                    return false;
+
+                // tra il set di fogli recuperati deve essercene almeno uno di materiali e uno di concentrazioni per poter continuare correttamente l'analisi
+                // TODO: mettere questo controllo anche in fase di validazione per i fogli sul formato corrente 
+                if (
+                    excelSheetsNewValues_Format1.Where(x => x.GetTipologiaFoglio == Constants_Excel.TipologiaFoglio_Format1.FoglioLeghe).Count() == 0 ||
+                    excelSheetsNewValues_Format1.Where(x => x.GetTipologiaFoglio == Constants_Excel.TipologiaFoglio_Format1.FoglioConcentrazioni).Count() == 0)
+                {
+                    // segnalazione di prossima interruzione del tool per mancanza di tutti i fogli necessari
+                    ConsoleService.ConsoleExcel.ExcelReaders_Message_InterruzioneAnalisi_SetFogliRiconosciutiInsufficiente(ServiceLocator.GetUtilityFunctions.GetFileName(Constants.ExcelSourcePath));
+
+                    return false;
+                }
+
+                // attribuzione del nuovo valore per i files recuperati per il formato corrente 
+                _sheetsLetturaFormat_1 = excelSheetsNewValues_Format1;
+
+                // per gli altri casi ritorno true in quanto il recupero si è concluso correttamente 
+                return true;
             }
 
             #endregion
@@ -489,7 +553,7 @@ namespace ToolImportazioneLeghe_Console.Excel
             #region RECUPERO INFORMAZIONI DAL SECONDO FORMATO
 
             // caso in cui il file è di secondo formato
-            else if(_formatoExcel == Constants.FormatFileExcel.Cliente)
+            else if (_formatoExcel == Constants.FormatFileExcel.Cliente)
             {
                 // eccezione nel caso in cui la lista relativa ai fogli riconosciuti per il primo formato sia NULL EMPTY
                 if (_sheetsLetturaFormat_2 == null)
@@ -497,11 +561,18 @@ namespace ToolImportazioneLeghe_Console.Excel
                 if (_sheetsLetturaFormat_2.Count() == 0)
                     throw new Exception(ExceptionMessages.EXCEL_READERINFO_FOGLINULLEMPTY_FORMAT2);
 
-                foreach(Excel_Format2_Sheet currentFoglioExcel in _sheetsLetturaFormat_2)
+                // introduzione della variabile per inserire i fogli 2 con le informazioni correntemente recuperate per questo step
+                List<Excel_Format2_Sheet> newValuesFormat2 = new List<Excel_Format2_Sheet>();
+
+                foreach (Excel_Format2_Sheet currentFoglioExcel in _sheetsLetturaFormat_2)
                 {
 
                     if (currentFoglioExcel.GetPosSheet == 0)
                         throw new Exception(ExceptionMessages.EXCEL_READERINFO_NESSUNAPOSIZIONETROVATAPERFOGLIOCORRENTE);
+
+                    // dichiarazione delle possibili stringhe di errore / warnings per il caso corrente per la seconda tipologia in analisi
+                    string errorsMessages_Format2 = String.Empty;
+                    string warningMessages_Format2 = String.Empty;
 
 
                     // recupero del foglio corrente contenuto nel file di riferimento e dal quale continuare la lettura delle informazioni
@@ -510,20 +581,50 @@ namespace ToolImportazioneLeghe_Console.Excel
                     // oggetto nel quale inserisco le informazioni recuperate per il foglio corrente
                     Excel_Format2_Sheet filledInfo;
 
-                    //if(ExcelReaderInfo.ReadInfoFormat2(excelSheetReference, currentFoglioExcel, out filledInfo))
-                    //{
+                    // recupero informazioni per il foglio di formato 2
+                    Constants_Excel.EsitoRecuperoInformazioniFoglio esitoRecuperoInformazioniFoglioFormato2Corrente = ExcelReaderInfo.ReadInfoFormat2(excelSheetReference, currentFoglioExcel, out filledInfo, out errorsMessages_Format2, out warningMessages_Format2
+                        );
 
-                    //}
+                    // scrittura eventuale il file di log per errori e wornings su recupero formato corrente 
+                    CheckMessagesForCurrentSheet(errorsMessages_Format2, warningMessages_Format2, excelSheetReference.Name, Constants_Excel.StepLetturaFoglio.RecuperoInformazioni_Validazione1);
 
 
+                    if (esitoRecuperoInformazioniFoglioFormato2Corrente == Constants_Excel.EsitoRecuperoInformazioniFoglio.RecuperoCorretto ||
+                        esitoRecuperoInformazioniFoglioFormato2Corrente == Constants_Excel.EsitoRecuperoInformazioniFoglio.RecuperoConWarnings)
+                    {
+                        // segnalazione di recupero corretto per le informazioni contenute in questo secondo formato
+                        ConsoleService.ConsoleExcel.ExcelReaders_Message_LetturaFoglioTipoFormato2AvvenutaCorrettamente(excelSheetReference.Name, currentFoglioExcel.GetPosSheet);
+
+                        // segnalazione di eventuale recupero con warnings
+                        if (esitoRecuperoInformazioniFoglioFormato2Corrente == Constants_Excel.EsitoRecuperoInformazioniFoglio.RecuperoConWarnings)
+                            ConsoleService.ConsoleExcel.ExcelReaders_Message_LetturaFoglioFormato2AvvenutaConWarnings(excelSheetReference.Name);
+
+                        // inserimento del foglio con le informazioni correntemente recuperate all'interno del set attuale
+                        newValuesFormat2.Add(filledInfo);
+
+                    }
+                    else
+                    {
+                        // segnalazione di recupero per il foglio corrente con degli errori per i quali non se ne potrà proseguire la successiva analisi
+                        ConsoleService.ConsoleExcel.ExcelReaders_Message_LetturaFoglioFormato2AvvenutaConErrori(excelSheetReference.Name, currentFoglioExcel.GetPosSheet);
+                    }
 
                 }
+
+
+                // controllo dopo iterazione su questi fogli 
+                if (newValuesFormat2.Count() == 0)
+                    return false;
+
+                return true;
             }
 
             #endregion
 
-            return false;
-
+            // se esco dalle 2 validazioni disponibili per i diversi fogli senza ancora aver recuperato niente e non aver riconosciuto tipologia foglio lancio una eccezione 
+            else
+                throw new Exception(ExceptionMessages.EXCEL_READERINFO_NESSUNAATTRIBUZIONETIPIRICONOSCIUTAAFOGLI);
+            
 
         }
         

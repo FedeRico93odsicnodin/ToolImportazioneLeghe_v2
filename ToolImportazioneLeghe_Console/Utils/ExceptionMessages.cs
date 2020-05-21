@@ -168,6 +168,13 @@ namespace ToolImportazioneLeghe_Console.Utils
         /// Eccezione lanciata quando, in lettura di un foglio relativo ai quadranti concentrazioni per il secondo tipo relativamente al formato 1, la lista dei quadranti è stata trovata nulla o vuota
         /// </summary>
         public static string EXCEL_READERINFO_QUADRANTICONCENTRAZIONINULLIPERLETTURA = "non posso continuare con la lettura delle informazioni per il foglio, in quanto la lista dei quadranti concentrazioni da cui leggere informazioni è NULLA o VUOTA";
+
+
+        /// <summary>
+        /// Eccezione lanciata se, al momento del tentativo di lettura su una ipotetica, primaria validazione dei diversi fogli per formato e tipologia, non sono riuscito a recuperare 
+        /// nessuna informazione per il collocamento delle informazioni in lettura rispetto ai fogli
+        /// </summary>
+        public static string EXCEL_READERINFO_NESSUNAATTRIBUZIONETIPIRICONOSCIUTAAFOGLI = "non posso continuare con la lettura delle informazioni per i diversi fogli contenuti nel file excel corrente, errore irreversibile su mancato riconoscimento tipologia fogli";
         
         #endregion
 
@@ -184,6 +191,13 @@ namespace ToolImportazioneLeghe_Console.Utils
         /// Eccezione su STEP 2 nel caso in cui i fogli per il file excel corrente non siano stati validati correttamente per la lettura di certe informazioni da questi
         /// </summary>
         public static string ERRORESTEP2_VALIDAZIONEFOGLIEXCEL = "STEPS: non posso continuare con lo STEP 3 di lettura informazioni da EXCEL perché i fogli non sono stati validati correttamente";
+
+
+        /// <summary>
+        /// Eccezione su STEP 3 nel caso in cui i fogli per il file excel non sono stati letti correttamente in qualche informazione obbligatoria indispensabile (sono state lette stringhe vuote 
+        /// in prossimita di questi valori)
+        /// </summary>
+        public static string ERRORESTEP3_LETTURAFOGLIOEXCELNONRIUSCITA = "STEPS: non posso continuare con lo STEP 4 di SECONDA VALIDAZIONE effettiva per l'EXCEL, in quanto le informazioni non hanno superato la prima validazione (VALORI NULLI per le informazioni di base)";
 
         #endregion
     }
