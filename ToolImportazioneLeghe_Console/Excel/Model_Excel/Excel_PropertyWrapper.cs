@@ -93,6 +93,21 @@ namespace ToolImportazioneLeghe_Console.Excel.Model_Excel
 
 
         /// <summary>
+        /// Permette di ottenere il counter rispetto alle proprieta opzionali correntemente valorizzate in base alla natura per l'oggetto corrente 
+        /// se queste proprieta sono tutte non valorizzate cosi come le proprieta relative al caso obbligatorio, significa che sono in presenza di una riga nulla che viene unicamente segnalata come warning
+        /// per il recupero delle informazioni correnti
+        /// </summary>
+        public int CounterOptionalProperties
+        {
+            get
+            {
+                // ritorno il counter sulle proprieta che sono state effettivamente valorizzate in via opzionale durante un particolare inserimento per le proprieta opzionali
+                return _propertiesSet_Optional.Where(x => x.Value != String.Empty).Select(x => x.Key).Count();
+            }
+        }
+
+
+        /// <summary>
         /// Permette di ottenere il valore per una proprieta obbligatoria inserita 
         /// all'interno del wrapper corrente 
         /// </summary>

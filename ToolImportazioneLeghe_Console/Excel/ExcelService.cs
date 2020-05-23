@@ -293,7 +293,7 @@ namespace ToolImportazioneLeghe_Console.Excel
 
                 foreach(ExcelWorksheet currentWorksheet in _openedExcel.Workbook.Worksheets)
                 {
-                    currentSheetPosition++;
+                    
                     
                     // riconoscimento della tipologia foglio per il primo formato
                     Constants_Excel.TipologiaFoglio_Format1 tipologiaRiconoscita = RecognizeTipoFoglio_Format1(currentWorksheet);
@@ -338,6 +338,8 @@ namespace ToolImportazioneLeghe_Console.Excel
 
                         // aggiunta del foglio corrente 
                         _sheetsLetturaFormat_1.Add(foglioExcelCorrenteInfo);
+
+                        currentSheetPosition++;
                     }
                     else
                     {
@@ -444,8 +446,9 @@ namespace ToolImportazioneLeghe_Console.Excel
                     if (currentFoglioExcel.GetTipologiaFoglio == Constants_Excel.TipologiaFoglio_Format1.NotDefined)
                         throw new Exception(ExceptionMessages.EXCEL_READERINFO_TIPOLOGIANONDEFINITAFOGLIOCORRENTE);
 
-                    if (currentFoglioExcel.GetPosSheet == 0)
-                        throw new Exception(ExceptionMessages.EXCEL_READERINFO_NESSUNAPOSIZIONETROVATAPERFOGLIOCORRENTE);
+                    // eccezione da togliere, la posizione iniziale è proprio 0
+                    //if (currentFoglioExcel.GetPosSheet == 0)
+                    //    throw new Exception(ExceptionMessages.EXCEL_READERINFO_NESSUNAPOSIZIONETROVATAPERFOGLIOCORRENTE);
 
 
                     // recupero del foglio corrente contenuto nel file di riferimento e dal quale continuare la lettura delle informazioni

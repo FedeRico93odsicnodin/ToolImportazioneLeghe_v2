@@ -137,6 +137,9 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
                 throw new Exception(ExceptionMessages.EXCEL_READERINFO_VINCOLILETTURAPROPRIETANONRISPETTATI);
 
 
+            // posizionamento indice di riga corrente a prima posizione utile dopo la lettura dell'header
+            _currentRowIndex++;
+
             // inizio iterazione per il recupero dei valori
             while (_currentRowIndex <= _currentFoglioExcel.Dimension.End.Row)
             {
@@ -201,6 +204,9 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
             {
                 if (_currentFoglioExcel.Cells[_currentRowIndex, currentIndex].Value != null)
                     PropertiesColMapper.Add(currentIndex, _currentFoglioExcel.Cells[_currentRowIndex, currentIndex].Value.ToString().ToUpper());
+
+                // incremento indice lettura per proprieta successiva
+                currentIndex++;
             }
         }
 
@@ -217,7 +223,7 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
             // istanza per le proprieta correntemente lette per la lega 
             readProperties = new Excel_PropertyWrapper(Constants_Excel.PROPRIETAOBBLIGATORIE_FORMAT1_SHEET1, Constants_Excel.PROPRIETAOPZIONALI_FORMAT1_SHEET1, TipologiaPropertiesFoglio.Format1_Foglio1_Leghe);
 
-
+            
             // lettura proprieta di riga 
             foreach (KeyValuePair<int, string> currentProperty in PropertiesColMapper)
             {
@@ -233,6 +239,8 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
                     if (Constants_Excel.PROPRIETAOPZIONALI_FORMAT1_SHEET1.Contains(currentProperty.Value.ToUpper()))
                         readProperties.InsertOptionalValue(currentProperty.Value.ToUpper(), _currentFoglioExcel.Cells[_currentRowIndex, currentProperty.Key].Value.ToString());
                 }
+
+
             }
 
 
@@ -256,6 +264,10 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
         /// <param name="readProperties"></param>
         private static void CompileErrorMessageForLeghe_Format1(Excel_PropertyWrapper readProperties)
         {
+            // se TUTTE proprieta lette sono empty significa che ho letto una riga nulla per l'istanza corrente (segnalato come warning)
+            if (readProperties.CounterMandatoryProperties == 0 && readProperties.CounterOptionalProperties == 0)
+                return;
+
             foreach(string mandatoryProperty in Constants_Excel.PROPRIETAOBBLIGATORIE_FORMAT1_SHEET1.ToList())
             {
                 if (readProperties.GetMandatoryProperty(mandatoryProperty) == String.Empty)
@@ -270,6 +282,13 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
         /// <param name="readProperties"></param>
         private static void CompileWarningMessageForLeghe_Format1(Excel_PropertyWrapper readProperties)
         {
+            // se TUTTE LE proprieta lette sono empty significa che ho letto una riga nulla per l'istanza di recupero corrente (segnalato in questa fase con un messaggio extra)
+            if(readProperties.CounterMandatoryProperties == 0 && readProperties.CounterOptionalProperties == 0)
+            {
+                _listaWarnings_LetturaFoglio += String.Format(Excel_WarningMessages.Formato1_Foglio1_Leghe.WARNING_HOTROVATOUNARIGACOMPLETAMENTEVUOTA_LEGA, _currentRowIndex);
+                return;
+            }
+
             foreach(string optionalProperty in Constants_Excel.PROPRIETAOPZIONALI_FORMAT1_SHEET1.ToList())
             {
                 if (readProperties.GetOptionalProperty(optionalProperty) == String.Empty)

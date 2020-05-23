@@ -24,6 +24,12 @@ namespace ToolImportazioneLeghe_Console.Excel.Messages
 
 
             /// <summary>
+            /// Segnalazione di mancanza di informazione per una intera riga in lettura per l'istanza di recupero leghe corrente dal primo foglio per il primo formato
+            /// </summary>
+            public static string WARNING_HOTROVATOUNARIGACOMPLETAMENTEVUOTA_LEGA = "WARNING - la riga {0} non contiene informazioni per l'istanza di recupero per le leghe correnti";
+
+
+            /// <summary>
             /// Segnalazione di mancanza di un valore per la proprieta opzionale di lega 
             /// 1) riga nella quale la proprieta è mancante
             /// 2) nome della proprieta opzionale per la quale manca il valore

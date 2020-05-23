@@ -40,7 +40,7 @@ namespace ToolImportazioneLeghe_Console.Utils
         /// <summary>
         /// Fomrat per il file excel utilizzato come eventuale sorgente 
         /// </summary>
-        public static FormatFileExcel format_foglio_origin = FormatFileExcel.Cliente;
+        public static FormatFileExcel format_foglio_origin = FormatFileExcel.DatabaseLeghe;
 
 
         /// <summary>
@@ -52,7 +52,8 @@ namespace ToolImportazioneLeghe_Console.Utils
         /// <summary>
         /// Path per l'eventuale file excel di origine 
         /// </summary>
-        public static string ExcelSourcePath = "C:\\Users\\Fede\\Desktop\\Alloy_test.xlsx";
+        //public static string ExcelSourcePath = "C:\\Users\\Fede\\Desktop\\Alloy_test.xlsx";
+        public static string ExcelSourcePath = "E:\\GNR_Data\\Nickel_Alloys.xlsx";
 
 
         /// <summary>
@@ -69,9 +70,10 @@ namespace ToolImportazioneLeghe_Console.Utils
         /// Stringa di logging per il log globale sull'intera 
         /// procedura di importazione 
         /// </summary>
-        public static string GlobalLoggingPath = "C:\\Users\\Fede\\Desktop\\log.txt";
+        //public static string GlobalLoggingPath = "C:\\Users\\Fede\\Desktop\\log.txt";
+        public static string GlobalLoggingPath = "E:\\GNR_Data\\log.txt";
 
-        
+
         /// <summary>
         /// Modalita di inserimento delle informazioni nella destinazione 
         /// in particolare se si trovano delle corrispondenze, si puo decidere di:
