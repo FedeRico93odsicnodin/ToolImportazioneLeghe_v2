@@ -348,22 +348,29 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
 
 
                 // tentativo di valorizzazione del nome nel caso in cui sia null o empty
-                if ((currentQuadrant.NomeMateriale == null || currentQuadrant.NomeMateriale == String.Empty) &&
-                    _currentFoglioExcel.Cells[currentQuadrant.StartingRow_Title, currentQuadrant.StartigCol] != null)
+                if (currentQuadrant.NomeMateriale == null || currentQuadrant.NomeMateriale == String.Empty)
                 {
-                    currentQuadrant.NomeMateriale = _currentFoglioExcel.Cells[currentQuadrant.StartingRow_Title, currentQuadrant.StartigCol].Value.ToString();
-                    titleValidation = true;
-                }
-                    
-                else
-                {
-                    // segnalo nei messaggi di errore che non potro proseguire per la prossima analisi in quanto il titolo materiale è vuoto
-                    _listaErrori_LetturaFoglio += String.Format(Excel_ErrorMessages.Formato1_Foglio2_Concentrazioni.ERRORE_NOMEMATERIALELETTURAQUADRANTEVUOTO, currentQuadrant.StartingRow_Title, currentQuadrant.StartigCol);
+                    if (_currentFoglioExcel.Cells[currentQuadrant.StartingRow_Title, currentQuadrant.StartigCol] != null)
+                    {
+                        currentQuadrant.NomeMateriale = _currentFoglioExcel.Cells[currentQuadrant.StartingRow_Title, currentQuadrant.StartigCol].Value.ToString();
+                        titleValidation = true;
+                    }
+                    else
+                    {
+                        // segnalo nei messaggi di errore che non potro proseguire per la prossima analisi in quanto il titolo materiale è vuoto
+                        _listaErrori_LetturaFoglio += String.Format(Excel_ErrorMessages.Formato1_Foglio2_Concentrazioni.ERRORE_NOMEMATERIALELETTURAQUADRANTEVUOTO, currentQuadrant.StartingRow_Title, currentQuadrant.StartigCol);
 
-                    // invalidazione automatica per il quadrante di concentrazioni corrente
-                    currentQuadrant.ValidatedOnExcel = false;
+                        // invalidazione automatica per il quadrante di concentrazioni corrente
+                        currentQuadrant.ValidatedOnExcel = false;
+                    }
                 }
-                
+                // validazione su nome già avvenuta 
+                else
+                    titleValidation = true; 
+
+
+
+
 
                 // posizionamento da lettura headers
                 _currentRowIndex = currentQuadrant.StartingRow_Headers;

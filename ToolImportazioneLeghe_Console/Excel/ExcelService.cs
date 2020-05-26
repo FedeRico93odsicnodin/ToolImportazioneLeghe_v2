@@ -457,21 +457,22 @@ namespace ToolImportazioneLeghe_Console.Excel
                     // oggetto nel quale inserisco le informazioni recuperate per il foglio corrente
                     Excel_Format1_Sheet filledInfo;
 
-                    // esito di recupero informazioni per il foglio corrente 
-                    Constants_Excel.EsitoRecuperoInformazioniFoglio esitoRecuperoInformazioniFoglioFormato1Corrente = ExcelReaderInfo.ReadLegheInfo(
-                            excelSheetReference,
-                            currentFoglioExcel,
-                            out filledInfo,
-                            out warningMessages,
-                            out errorMessages);
-
-                    // scrittura eventuale il file di log per errori e wornings su recupero formato corrente 
-                    CheckMessagesForCurrentSheet(errorMessages, warningMessages, excelSheetReference.Name, Constants_Excel.StepLetturaFoglio.RecuperoInformazioni_Validazione1);
-
 
                     // riconoscimenti per la lettura del foglio delle leghe 
                     if (currentFoglioExcel.GetTipologiaFoglio == Constants_Excel.TipologiaFoglio_Format1.FoglioLeghe)
                     {
+
+                        // esito di recupero informazioni per il foglio corrente 
+                        Constants_Excel.EsitoRecuperoInformazioniFoglio esitoRecuperoInformazioniFoglioFormato1Corrente = ExcelReaderInfo.ReadLegheInfo(
+                                excelSheetReference,
+                                currentFoglioExcel,
+                                out filledInfo,
+                                out warningMessages,
+                                out errorMessages);
+
+                        // scrittura eventuale il file di log per errori e wornings su recupero formato corrente 
+                        CheckMessagesForCurrentSheet(errorMessages, warningMessages, excelSheetReference.Name, Constants_Excel.StepLetturaFoglio.RecuperoInformazioni_Validazione1);
+
                         if ((esitoRecuperoInformazioniFoglioFormato1Corrente == Constants_Excel.EsitoRecuperoInformazioniFoglio.RecuperoCorretto) ||
                             (esitoRecuperoInformazioniFoglioFormato1Corrente == Constants_Excel.EsitoRecuperoInformazioniFoglio.RecuperoConWarnings))
                         {
@@ -495,16 +496,20 @@ namespace ToolImportazioneLeghe_Console.Excel
                     // riconoscimento per la lettura del foglio delle concentrazioni
                     else if (currentFoglioExcel.GetTipologiaFoglio == Constants_Excel.TipologiaFoglio_Format1.FoglioConcentrazioni)
                     {
+
                         // dichiarazione della variabile per il contenimento delle informazioni per le concentrazioni lette dal foglio excel corrente 
                         Excel_Format1_Sheet foglioExcelConcentrations;
 
-                        // nel caso in cui ho recuperato il foglio ma con degli errori allora non vado a leggerne ulteriormente le informazioni
-                        if (!(ExcelReaderInfo.ReadConcentrationsInfo(
+                        // esito di recupero informazioni per il foglio corrente 
+                        Constants_Excel.EsitoRecuperoInformazioniFoglio esitoRecuperoInformazioniFoglioFormato1Corrente = ExcelReaderInfo.ReadConcentrationsInfo(
                             excelSheetReference,
                             currentFoglioExcel,
                             out foglioExcelConcentrations,
                             out warningMessages,
-                            out errorMessages) == Constants_Excel.EsitoRecuperoInformazioniFoglio.RecuperoConErrori))
+                            out errorMessages);
+
+                        // nel caso in cui ho recuperato il foglio ma con degli errori allora non vado a leggerne ulteriormente le informazioni
+                        if (!(esitoRecuperoInformazioniFoglioFormato1Corrente == Constants_Excel.EsitoRecuperoInformazioniFoglio.RecuperoConErrori))
                         {
                             // segnalazione di avvenuta lettura per il foglio corrente a console
                             ConsoleService.ConsoleExcel.ExcelReaders_Message_LetturaFoglioTipoFormato1AvvenutaCorrettamente(excelSheetReference.Name, currentFoglioExcel.GetPosSheet, currentFoglioExcel.GetTipologiaFoglio);
@@ -514,7 +519,7 @@ namespace ToolImportazioneLeghe_Console.Excel
                                 ConsoleService.ConsoleExcel.ExcelReaders_Message_LetturaFoglioFormato1AvvenutaConWarnings(excelSheetReference.Name);
 
                             // aggiunta del foglio con le nuove informazioni all'interno della lista finale dei fogli informazioni
-                            excelSheetsNewValues_Format1.Add(filledInfo);
+                            excelSheetsNewValues_Format1.Add(foglioExcelConcentrations);
                         }
                         // segnalazione che le informazioni di concentrazione corrente sono state recuperate con degli errori
                         else
