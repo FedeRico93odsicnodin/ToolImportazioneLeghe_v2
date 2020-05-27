@@ -49,6 +49,8 @@ namespace ToolImportazioneLeghe_Console
                 // STEP 3: recupero informazioni e validazione 1 per le informazioni contenute all'interno del file excel aperto e validato sugli steps precedenti
                 if (_conclusioneSTEP2_ValidazioneFogliExcel)
                     _conclusioneSTEP3_Lettura1InformazioniExcel = FromExcelToDatabase.STEP3_GetAllInfoExcel();
+
+                Console.ReadKey();
             }
             catch(Exception e)
             {

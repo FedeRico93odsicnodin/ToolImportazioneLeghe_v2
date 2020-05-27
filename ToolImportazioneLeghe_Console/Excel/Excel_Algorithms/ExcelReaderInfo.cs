@@ -384,6 +384,9 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
                 // imposto = true e verifico che durante l'iterazione non succeda che anche solo una riga venga poi invalidata 
                 concValidation = true;
 
+                // istanza di concentrazioni per il foglio corrente 
+                currentQuadrant.Concentrations = new List<Excel_PropertyWrapper>();
+
                 while (_currentRowIndex <= currentQuadrant.EndingRow_Concentrations)
                 {
 
@@ -468,8 +471,10 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
 
             // valorizzazione eventuali messaggi warnings errori per l'importazione delle informazioni di concentrazioni correnti
             CompileErrorMessages_ConcentrazioniFoglio1(readConcentrations);
-            CompileWarningMessageForLeghe_Format1(readConcentrations);
+            CompilaWarningMessages_ConcentrazioniFoglio1(readConcentrations);
 
+            // todo: eventualmente sostituire con la definizione di una lista
+            _mapperNullPropertiesOnRows = new Dictionary<int, string>();
 
             // le proprieta obbligatorie non sono state lette correttamente per il foglio corrente 
             if (readConcentrations.CounterMandatoryProperties < Constants_Excel.PROPRIETAOBBLIGATORIE_FORMAT1_SHEET2.Count())
