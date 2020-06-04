@@ -18,41 +18,13 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
     public static class ExcelRecognizers
     {
         #region ATTRIBUTI PRIVATI
-
-        #region RICONOSCIMENTO DEI PRIMI 2 FOGLI PER LA PRIMA TIPOLOGIA DI FORMATO
-
+        
         /// <summary>
         /// Attribuzione al momenti di richiamo di uno dei diversi metodi in analisi, mappatura di tutte le informazioni per il foglio 
         /// excel correntemente in analisi
         /// </summary>
         private static ExcelWorksheet _foglioExcelCorrente;
-
-
-        /// <summary>
-        /// Limite nella lettura delle righe prima che non sia stata ancora trovata nessuna informazione utile al 
-        /// fine del riconoscimento
-        /// </summary>
-        private static int LIMIT_ROW = 20;
-
-
-        /// <summary>
-        /// Limite nella lettura delle colonne prima che non sia stata ancora trovata nessuna informazione utile al 
-        /// fine del riconoscimento
-        /// </summary>
-        private static int LIMIT_COL = 20;
-
-
-        /// <summary>
-        /// Lista degli headers obbligatori per il foglio di leghe per il formato 1
-        /// </summary>
-        private static List<string> _mandatoryInfo_format1_sheet1 = Constants_Excel.PROPRIETAOBBLIGATORIE_FORMAT1_SHEET1.ToList();
-
-
-        /// <summary>
-        /// Lista degli headers opzionali per il foglio di leghe per il formato 1
-        /// </summary>
-        private static List<string> _optionalInfo_format1_sheet1 = Constants_Excel.PROPRIETAOPZIONALI_FORMAT1_SHEET1.ToList();
-
+        
 
         /// <summary>
         /// Traccia di riga correntemenete in analisi
@@ -64,93 +36,28 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
         /// Traccia di colonna correntemente in analisi
         /// </summary>
         private static int _currentColIndex = 0;
+        
+
+        /// <summary>
+        /// Mapper per gli indici di colonna relativi ai diversi titoli letti per il riconoscimento di 
+        /// un determinato header - riconoscimento delle proprieta obbligatorie
+        /// </summary>
+        private static Dictionary<int, string> _mandatoryTitlesColumnMapper;
 
 
         /// <summary>
-        /// Lista per l'eventuale riconoscimento di un quadrante delle concentrazioni per la seconda tipologia di foglio
-        /// per il primo formato
+        /// Mapper per gli indici di colonna relativi ai diversi titoli letti per il riconoscimento di 
+        /// un determinato header - riconoscimento delle proprieta opzionali
         /// </summary>
-        private static List<Excel_Format1_Sheet2_ConcQuadrant> _listaQuadrantiConcentrazioni;
+        private static Dictionary<int, string> _optionalTitlesColumnMapper;
 
 
         /// <summary>
-        /// Proprieta obbligatorie per il riconoscimento header per il quadrante delle concentrazioni corrente 
+        /// Indica l'indice massimo di colonna dal quale provare eventualmente a iterare per il riconoscimento dei quadranti di concentrazione
+        /// orizzontali successivi rispetto a quelli incolonnati il cui riconoscimento è ultimato
         /// </summary>
-        private static List<string> _mandatoryInfo_format1_sheet2 = Constants_Excel.PROPRIETAOBBLIGATORIE_FORMAT1_SHEET2.ToList();
-
-
-        /// <summary>
-        /// Proprieta opzionali per il riconoscimento header per il quadrante delle concentrazioni corrente
-        /// </summary>
-        private static List<string> _optionalInfo_format1_sheet2 = Constants_Excel.PROPRIETAOPZIONALI_FORMAT1_SHEET2.ToList();
-
-
-        /// <summary>
-        /// Indica il numero di righe vuote massimo che posso leggere prima di incontrare l'header per il quadrante di concentrazioni 
-        /// a partire dal primo riconoscimento fatto per il title
-        /// </summary>
-        private static int LIMIT_ROW_HEADERCONCENTRATION_RECOGNITION = 2;
-
-
-        /// <summary>
-        /// Indicazione della colonna dei CRITERI per la quale devo andare a riconoscere sulle righe successive la presenza di un certo elemento
-        /// definito
-        /// </summary>
-        private static int _colCriteriIndex = 0;
-
-
-        /// <summary>
-        /// Traccia del nome di colonna criteri per l'eventuale lettura delle definizioni degli elementi sottostanti
-        /// </summary>
-        private const string COLCRITERI_HEADER = "CRITERI";
-
-        #endregion
-
-
-        #region RICONOSCIMENTO DELLA TERZA TIPOLOGIA DI FOGLIO PER IL FORMATO 2 NEL QUALE SONO PRESENTI SIA LE INFORMAZIONI DI LEGHE CHE DI CONCENTRAZIONI
-
-        /// <summary>
-        /// Mi darà indicazione finale rispetto a dove iniziare a leggere le proprieta per la lega 
-        /// </summary>
-        private static int _startReadingProperties_row = 0;
-
-
-        /// <summary>
-        /// Indicazione della colonna di partenza dalla quale iniziare a leggere per le proprieta di lega
-        /// </summary>
-        private static int _startReadingLegheProperties_col = 0;
-
-
-        /// <summary>
-        /// Indicazione degli oggetti di concentrazione da riempire rispetto alle posizioni excel individuate per questi
-        /// in questa fases
-        /// </summary>
-        private static List<Excel_Format2_ConcColumns> _currentConcentrations;
-
-
-        /// <summary>
-        /// Proprieta obbligatorie leghe per il secondo formato excel
-        /// </summary>
-        private static List<string> _mandatoryInfo_Leghe_Format2 = Constants_Excel.PROPRIETAOBBLIGATORIE_FORMAT2_LEGHE.ToList();
-
-
-        /// <summary>
-        /// Proprieta opzionali leghe per il secondo formato excel
-        /// </summary>
-        private static List<string> _optionalInfo_Leghe_Format2 = Constants_Excel.PROPRIETAOPZIONALI_FORMAT2_LEGHE.ToList();
-
-
-        /// <summary>
-        /// Proprieta obbligatorie di elemento per la seconda tipologia di formato excel 
-        /// </summary>
-        private static List<string> _mandatoryInfo_Concentrations_Format2 = Constants_Excel.PROPRIETAOBBLIGATORIE_ELEM_FORMAT2.ToList();
-
-
-        /// <summary>
-        /// Proprieta opzionali di elemento per la seconda tipologia di formato excel 
-        /// </summary>
-        private static List<string> _optionalInfo_Concentrations_Format2 = Constants_Excel.PROPRIETAOPZIONALI_ELEM_FORMAT2.ToList();
-
+        private static int _maxColIndexPreviousQuadrantsRecognition = 0;
+        
 
         /// <summary>
         /// Stringa dei possibili errori emersi durante la lettura per il file excel corrente 
@@ -162,84 +69,91 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
         /// Stringa dei possibili warnings durante la procedura di lettura per il file excel corrente 
         /// </summary>
         private static string _warning_Messages_ReadExcel = String.Empty;
+        
+
+        /// <summary>
+        /// Limite sul numero di righe consentite in lettura vuota prima del riconoscimento dell'header per il quadrante delle concentrazioni
+        /// in analisi corrente (lettura concentrazioni per il primo formato disponibile)
+        /// </summary>
+        private const int _LIMITHEADERCONCENTRATIONRECOGNITION = 5;
+        
+        
+        /// <summary>
+        /// Oggetto per la mappatura relativa alle proprieta degli elementi letti per il secondo formato e la terza tipologia di foglio 
+        /// </summary>
+        public class MapperElementFormat2
+        {
+            /// <summary>
+            /// Nome per l'elemento (intestazione a inizio colonna)
+            /// </summary>
+            public string NameElement { get; set; } 
+
+
+            /// <summary>
+            /// Indicazione di riga per l'istanza di proprieta per le concentrazioni in lettura corrente 
+            /// </summary>
+            public int CurrentRowIndex { get; set; }
+
+
+            /// <summary>
+            /// Mappatura delle proprieta obbligatorie e in particolare degli indici 
+            /// di colonna e relativi titoli delle proprieta per questi
+            /// </summary>
+            public Dictionary<int, string> MandatoryProperties { get; set; }
+
+
+            /// <summary>
+            /// Mappatura delle proprieta opzionali e in particolare degli indici
+            /// di colonna e relativi titoli delle proprieta per questi 
+            /// </summary>
+            public Dictionary<int, string> OptionalProperties { get; set; }
+        }
 
 
         /// <summary>
-        /// Stringa relativa al messaggio finale di errore in restituzione per la lettura di un quadrante di concentrazione 
-        /// per il formato 2, prima tipologia di foglio 
+        /// Lista relativa alla mappatura degli header per le proprieta degli elementi per il terzo formato a disposizione
         /// </summary>
-        private static string _finalError_Message_ConcentrationQuadrant = String.Empty;
-
-
-        /// <summary>
-        /// Stringa relativa al messaggio finale di warning in restituzione per la lettura di un quadrante di concentrazione 
-        /// per il formato 2, prima tipologia di foglio
-        /// </summary>
-        private static string _finalWarning_Message_ConcentrationQuadrant = String.Empty;
-
-
-        /// <summary>
-        /// Lista di tutte le proprieta in lettura per il secondo formato, questo oggetto rappresenta le proprieta generali per la lega
-        /// e le diverse proprieta per gli elementi, in questa fase l'oggetto è istanziato per ogni possibile proprieta, sarà nella seconda fase
-        /// che verranno eventualmente lette tutte le informazioni e validate per la riga in analisi
-        /// </summary>
-        private static List<Excel_Format2_Row_LegaProperties> _readPropertiesRow_SecondoFormato;
+        private static List<MapperElementFormat2> _mapperElementsFormat2Sheet3 { get; set; }
 
         #endregion
-
-        #endregion
-
+        
 
         /// <summary>
-        /// Mi permette di riconoscere se il foglio corrente appartiene alla categoria relativa alle informazioni di lega 
-        /// per il primo formato di foglio excel disponibile
-        /// se viene riconosciuto correttamente per l'header delle leghe viene anche restituito come indice di colonna l'ultimo indice sul quale 
-        /// è stata letta la proprieta da riconoscere nel foglio
+        /// Riempimento di tutti gli oggetti per il foglio 1 e il formato 1 correnti
+        /// questo foglio viene cosi anche eventualmente validato rispetto alle informazioni di lega che si dovranno ritrovare al suo interno
         /// </summary>
         /// <param name="currentWorksheet"></param>
-        /// <param name="startingRow"></param>
-        /// <param name="startingCol"></param>
-        /// <param name="endingColIndexHeaders"></param>
+        /// <param name="recognizedInfo"></param>
         /// <param name="possibleErrorMessages"></param>
         /// <param name="possibleWarningMessages"></param>
         /// <returns></returns>
-        public static Constants_Excel.EsitoRecuperoInformazioniFoglio Recognize_Format1_InfoLeghe(ref ExcelWorksheet currentWorksheet, 
-            out int startingRow, 
-            out int startingCol, 
-            out int endingColIndexHeaders,
-            out string possibleErrorMessages,
-            out string possibleWarningMessages)
+        public static Constants_Excel.EsitoRecuperoInformazioniFoglio Recognize_Format1_InfoLeghe(
+            ref ExcelWorksheet currentWorksheet, 
+            out Excel_AlloyInfo_Sheet recognizedInfo)
         {
-            // validazioni di partenza 
-            if (currentWorksheet == null)
-                throw new Exception(ExceptionMessages.EXCEL_FILENOTINMEMORY);
 
+            // parametri fondamentali per il riconoscimento corrente 
             _foglioExcelCorrente = currentWorksheet;
-
-            startingRow = 0;
-            startingCol = 0;
-
-            int indexRow_Max = 1;
-            int intexCol_Max = 1;
-
             _currentRowIndex = 0;
             _currentColIndex = 0;
-
-            // indicazione di ultimo indice di lettura letto per gli header di proprieta che vengono riconosciuti per il foglio excel corrente 
-            endingColIndexHeaders = 0;
-
-
+            
             // inizializzazione delle 2 stringhe relative ai messaggi di segnalazione warnings / errori per il file excel correntemente in analisi
             _error_Messages_ReadExcel = String.Empty;
             _warning_Messages_ReadExcel = String.Empty;
 
 
-            // inserimento dei valori per il limite massimo di riga / colonna entro il quale devo riconoscere l'informazione 
-            indexRow_Max = (currentWorksheet.Dimension.End.Row <= LIMIT_ROW) ? currentWorksheet.Dimension.End.Row : LIMIT_ROW;
-            intexCol_Max = (currentWorksheet.Dimension.End.Column <= LIMIT_COL) ? currentWorksheet.Dimension.End.Column : LIMIT_COL;
+            // istanza per il foglio corrente 
+            recognizedInfo = new Excel_AlloyInfo_Sheet(_foglioExcelCorrente.Name, _foglioExcelCorrente.Index);
+
+
+            // riconoscimento header
+            bool riconoscimentoHeaderCorrente = false;
+
+            #region RICONOSCIMENTO HEADER PER IL FOGLIO DELLE LEGHE CORRENTE 
 
             do
             {
+                // riconoscimento header per il formato corrente 
                 _currentColIndex++;
 
                 // azzero nuovamente indice di riga per la nuova iterazione su colonna
@@ -249,114 +163,89 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
                 {
                     _currentRowIndex++;
 
-                    if(HoRiconosciutoHeader_Format1_Leghe(out endingColIndexHeaders))
+                    // tentativo di riconoscimento per l'header corrente 
+                    if(RecognizeHeaderOnRow(Constants_Excel.PROPRIETAOBBLIGATORIE_FORMAT1_SHEET1.ToList(), Constants_Excel.PROPRIETAOPZIONALI_FORMAT1_SHEET1.ToList()))
                     {
-                        startingRow = _currentRowIndex;
-                        startingCol = _currentColIndex;
-
-                        // attribuzione delle 2 stinghe per i messaggi di errore e warnings finali
-                        possibleErrorMessages = _error_Messages_ReadExcel;
-                        possibleWarningMessages = _warning_Messages_ReadExcel;
-
-                        if (possibleWarningMessages != String.Empty)
-                            return Constants_Excel.EsitoRecuperoInformazioniFoglio.RecuperoConWarnings;
-
-
-                        return Constants_Excel.EsitoRecuperoInformazioniFoglio.RecuperoCorretto;
+                        riconoscimentoHeaderCorrente = true;
+                        break;
                     }
 
                 }
-                while (_currentRowIndex <= indexRow_Max);
+                while (_currentRowIndex <= _foglioExcelCorrente.Dimension.End.Row);
+
+                // se ho riconosciuto gli headers agli steps precedenti esco dal ciclo
+                if (riconoscimentoHeaderCorrente)
+                    break;
+            }
+            while (_currentColIndex <= _foglioExcelCorrente.Dimension.End.Column);
+
+            #endregion
+
+
+            #region RIEMPIMENTO OGGETTI CON PROPRIETA
+
+            if(riconoscimentoHeaderCorrente)
+            {
+                // istanza di tutte le proprieta di lega riconosciute per il foglio corrente 
+                List<Excel_PropertyWrapper> allPropertiesLeghe = new List<Excel_PropertyWrapper>();
+
+                _currentRowIndex++;
+
+                while(_currentRowIndex <= _foglioExcelCorrente.Dimension.End.Row)
+                {
+                    // istanza proprieta di lega per la riga corrente 
+                    List<Excel_PropertyWrapper> allPropertiesLega_currentRow;
+
+                    InsertNewRowPossibleValue(out allPropertiesLega_currentRow);
+
+                    // aggiunta alle proprieta globali di tutto il foglio corrente 
+                    if (allPropertiesLega_currentRow.Count() > 0)
+                        allPropertiesLeghe.AddRange(allPropertiesLega_currentRow);
+
+                    _currentRowIndex++;
+                }
+
+                // aggiunta dell'eventuale messaggio di errore per il fatto di non aver riconosciuto correttamente tutte le proprieta di lega 
+                if (allPropertiesLeghe.Count() == 0)
+                {
+                    _error_Messages_ReadExcel += String.Format("non ho riconosciuto nessuna proprieta di lega per il foglio '{0}' in posizione {1}", _foglioExcelCorrente.Name, _foglioExcelCorrente.Index);
+                    recognizedInfo.Validation_OK = false;
+                }
+                    
+                // altrimenti imposto la proprieta per il foglio in uscita e le leghe lette 
+                else
+                {
+                    // costruzione dell'oggetto relativo alle proprieta riconosciute
+                    List<Excel_PropertiesContainer> groupedProperties = BuildPropertiesContainerForRecognition_Format1Sheet1_Leghe(allPropertiesLeghe);
+
+                    // inserimento nel foglio custom in restituzione
+                    recognizedInfo.AlloyPropertiesInstances = groupedProperties;
+
+
+                    // attribuzione delle 2 stinghe per i messaggi di errore e warnings finali
+                    recognizedInfo.ErrorMessageSheet = _error_Messages_ReadExcel;
+                    recognizedInfo.WarningMessageSheet = _warning_Messages_ReadExcel;
+
+                    // se ho dei warnings ritorno con warnings 
+                    if (recognizedInfo.WarningMessageSheet != String.Empty)
+                        return Constants_Excel.EsitoRecuperoInformazioniFoglio.RecuperoConWarnings;
+
+                    return Constants_Excel.EsitoRecuperoInformazioniFoglio.RecuperoCorretto;
+
+                }
 
             }
-            while (_currentColIndex <= intexCol_Max);
 
+            #endregion
 
             // attribuzione delle 2 stinghe per i messaggi di errore e warnings finali
-            possibleErrorMessages = _error_Messages_ReadExcel;
-            possibleWarningMessages = _warning_Messages_ReadExcel;
+            recognizedInfo.ErrorMessageSheet = _error_Messages_ReadExcel;
+            recognizedInfo.WarningMessageSheet = _warning_Messages_ReadExcel;
 
             return Constants_Excel.EsitoRecuperoInformazioniFoglio.RecuperoConErrori;
         }
-
-
-        /// <summary>
-        /// Mi dice se ho riconosciuto l'header relativo alle informazioni per le leghe sul primo foglio per il primo 
-        /// formato excel
-        /// se viene riconosciuto correttamente per l'header delle leghe viene anche restituito come output l'indice per la colonna corrente 
-        /// </summary>
-        /// <param name="nextColIndex"></param>
-        /// <returns></returns>
-        private static bool HoRiconosciutoHeader_Format1_Leghe(out int nextColIndex)
-        {
-            // lista di tutte le proprieta obbligatorie riconosciute per le proprieta correnti
-            List<string> recognizedMandatoryProperties = new List<string>();
-
-            // lista di tutte le proprieta che vengono riconosciute per l'iterazione corrente 
-            List<string> allRecognizedProperties = new List<string>();
-
-            // tiene traccia delle proprieta che sto leggendo
-            nextColIndex = _currentColIndex;
-           
-
-            while (!(_foglioExcelCorrente.Cells[_currentRowIndex, nextColIndex].Value == null))
-            {
-                if (_mandatoryInfo_format1_sheet1.Contains(_foglioExcelCorrente.Cells[_currentRowIndex, nextColIndex].Value.ToString().ToUpper()) && !(recognizedMandatoryProperties.Contains(_foglioExcelCorrente.Cells[_currentRowIndex, nextColIndex].Value.ToString().ToUpper())))
-                    recognizedMandatoryProperties.Add(_foglioExcelCorrente.Cells[_currentRowIndex, nextColIndex].Value.ToString());
-
-                // inserimento in tutte le proprieta di header in riconoscimento corrente per eventualmente andare a calcolare i warnings per il caso corrente 
-                allRecognizedProperties.Add(_foglioExcelCorrente.Cells[_currentRowIndex, nextColIndex].Value.ToString());
-
-                nextColIndex++;
-            }
-
-            // calcolo della stringa relativa ai possibili warnings (le proprieta non obbligatorie che eventualmente non vengono riconosciute sul foglio in lettura corrente)
-            CompleteListWarnings_ReadLegheInfo_Format1(allRecognizedProperties);
-
-
-            if (recognizedMandatoryProperties.Count() == _mandatoryInfo_format1_sheet1.Count())
-            {
-                return true;
-            }
-
-            // completamento della lista degli errori per le possibili proprieta di header di cui è mancata la lettura
-            CompleteListError_ReadLegheInfo_Format1(recognizedMandatoryProperties);
-
-
-            nextColIndex = 0;
-            return false;
-        }
-
-
-        /// <summary>
-        /// Permette di completare la stringa di errori relativa alla lettura degli headers per il riconoscimento delle proprieta di lega per 
-        /// il foglio relativo alle leghe per il primo formato excel disponibile
-        /// </summary>
-        /// <param name="partialProperties"></param>
-        private static void CompleteListError_ReadLegheInfo_Format1(List<string> partialProperties)
-        {
-            foreach(string mandatoryProperty in _mandatoryInfo_format1_sheet1)
-            {
-                // se la proprieta non è stata letta per l'header la aggiungo alla lista di tutte le proprieta mancate per il foglio excel correntemente in analisi dal tool
-                if (!partialProperties.Contains(mandatoryProperty))
-                    _error_Messages_ReadExcel += String.Format(Excel_ErrorMessages.Formato1_Foglio1_Leghe.ERRORE_MANCATORICONOSCIMENTOPROPRIETAHEADERLEGHE, mandatoryProperty, _foglioExcelCorrente.Name);
-            }
-        }
-
-
-        /// <summary>
-        /// Permette il completamento con la segnalazione di tutti gli headers non obbligatori che non sono comunque riuscito a riconoscere all'interno 
-        /// del foglio corrente per le leghe sul primo formato excel disponibile
-        /// </summary>
-        /// <param name="partialProperties"></param>
-        private static void CompleteListWarnings_ReadLegheInfo_Format1(List<string> partialProperties)
-        {
-            // inserimento della proprieta opzionale di cui è mancata la lettura per gli headers correnti
-            foreach (string optionalProperty in _optionalInfo_format1_sheet1)
-                _warning_Messages_ReadExcel += String.Format(Excel_WarningMessages.Formato1_Foglio1_Leghe.WARNING_MANCATORICONOSCIMENTOPROPRIETAHEADER_LEGA, optionalProperty, _foglioExcelCorrente.Name);
-        }
-
-
+        
+        
         /// <summary>
         /// Mi permette di riconoscere se il foglio corrente appartiene alla categoria relativa alle informazioni per le concentrazioni
         /// per il primo formato di foglio excel disponibile
@@ -368,24 +257,10 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
         /// <returns></returns>
         public static Constants_Excel.EsitoRecuperoInformazioniFoglio Recognize_Format1_InfoConcentrations(
             ref ExcelWorksheet currentWorksheet, 
-            out List<Excel_Format1_Sheet2_ConcQuadrant> listaQuadrantiConcentrazioni,
-            out string errorRecognizingConcentrationsSheet,
-            out string warningsRecognizingConcentrationsSheet)
+            out Excel_AlloyInfo_Sheet recognizedInfoConcentrations)
         {
-            // validazioni di partenza 
-            if (currentWorksheet == null)
-                throw new Exception(ExceptionMessages.EXCEL_FILENOTINMEMORY);
-
-            // ritorno eccezione anche se incontro una colonna definita per il ricoscimento degli elementi ma che non appartiene 
-            // alle definizioni per le proprieta obbligatorie di riconoscimento delle concentrazioni
-            if (!_mandatoryInfo_format1_sheet2.Contains(COLCRITERI_HEADER))
-                throw new Exception(ExceptionMessages.EXCEL_COLCRITERINONPRESENTE);
-
 
             _foglioExcelCorrente = currentWorksheet;
-
-            _listaQuadrantiConcentrazioni = new List<Excel_Format1_Sheet2_ConcQuadrant>();
-            
             _currentRowIndex= 0;
             _currentColIndex = 0;
 
@@ -393,358 +268,65 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
             // inizializzazione delle stringhe relative ai messaggi di errori warnings per la lettura del foglio corrente 
             _error_Messages_ReadExcel = String.Empty;
             _warning_Messages_ReadExcel = String.Empty;
-            
-            
+
+
+            // inizializzazione per la lettura di tutti i possibili quadranti concentrazioni
+            recognizedInfoConcentrations = new Excel_AlloyInfo_Sheet(_foglioExcelCorrente.Name, _foglioExcelCorrente.Index);
+
+            // inizializzazione wrapper per le proprieta di concentrazione
+            recognizedInfoConcentrations.ConcentrationsPropertiesInstances = new List<Excel_PropertiesContainer>();
+
+
             do
             {
                 _currentColIndex++;
+
+                int _maxColPrev = _maxColIndexPreviousQuadrantsRecognition;
 
                 do
                 {
                     _currentRowIndex++;
 
+                    Excel_PropertiesContainer possibleQuadrant;
+
                     // se ci sono eventuali parti da accodare per il mancato riconosciemento di un quadrante lo vado a fare in questa fase
-                    if(!HoRiconosciutoFormat1_Concentrazioni())
+                    if(RecognizeQuadrantConcentration_Format1(out possibleQuadrant))
                     {
-                        _error_Messages_ReadExcel += _finalError_Message_ConcentrationQuadrant;
-                        _warning_Messages_ReadExcel += _finalWarning_Message_ConcentrationQuadrant;
-
-                        // azzeramento stringhe di errori warnings per la lettura di quadrante
-                        // passaggio a quadrante successivo
-                        _finalError_Message_ConcentrationQuadrant = String.Empty;
-                        _finalWarning_Message_ConcentrationQuadrant = String.Empty;
+                        // aggiunta del quadrante riconosciuto alla lista di tutti i quadranti per il foglio corrente 
+                        recognizedInfoConcentrations.ConcentrationsPropertiesInstances.Add(possibleQuadrant);
                     } 
-
 
                 }
                 while (_currentRowIndex <= currentWorksheet.Dimension.End.Row);
 
-                int _colIndexIterazionePrecedente = _currentColIndex;
+                // attribuzione indice di colonna rispetto al quadrante con indice piu grande di colonna rispetto al quale andare a leggere successivamente 
+                if (_maxColPrev != _maxColIndexPreviousQuadrantsRecognition)
+                {
+                    _currentColIndex = _maxColIndexPreviousQuadrantsRecognition;
+                }
 
-
-                // ricalcolo eventuale indice colonna 
-                _currentColIndex = RicalcolaIndiceColonna();
-
-                if (_currentColIndex == 0)
-                    break;
-
-
-                // riazzero indice di riga 
                 _currentRowIndex = 0;
+                    
             }
             while (_currentColIndex <= currentWorksheet.Dimension.End.Column);
 
-            // attribuzione con gli eventuali quadranti di concentrazione letti
-            listaQuadrantiConcentrazioni = _listaQuadrantiConcentrazioni;
-
-
             // attribuzione dei valori in uscita per i messaggi di warnings e di errore
-            errorRecognizingConcentrationsSheet = _error_Messages_ReadExcel;
-            warningsRecognizingConcentrationsSheet = _warning_Messages_ReadExcel;
+            recognizedInfoConcentrations.ErrorMessageSheet = _error_Messages_ReadExcel;
+            recognizedInfoConcentrations.WarningMessageSheet = _warning_Messages_ReadExcel;
 
-            // ritorno true solo se ho riconosciuto almeno un quadrante di concentrazioni per il foglio excel corrente 
-            if (listaQuadrantiConcentrazioni.Count() > 0)
+            // verifico quanti quadranti ho letto 
+            if (recognizedInfoConcentrations.ConcentrationsPropertiesInstances.Count() == 0)
             {
-                // se la lista dei warnings per il riconoscimento corrente è comunque maggiore di 0, devo ritornare il riconoscimento per warnings 
-                if (warningsRecognizingConcentrationsSheet != String.Empty)
-                    return Constants_Excel.EsitoRecuperoInformazioniFoglio.RecuperoConWarnings;
+                _error_Messages_ReadExcel += String.Format("per il foglio '{0}' in posizione {1} non sono riuscito a riconoscere nessun quadrante di concentrazione", _foglioExcelCorrente.Name, _foglioExcelCorrente.Index);
 
-                return Constants_Excel.EsitoRecuperoInformazioniFoglio.RecuperoCorretto;
-            }
-            // inserisco un messaggio di errore indicante che la tipologia per il foglio è stata letta correttamente ma che non sono riuscito a leggere nessun quadrante per una analisi
-            else
-                errorRecognizingConcentrationsSheet += Excel_ErrorMessages.Formato1_Foglio2_Concentrazioni.ERRORE_NESSUNQUADRANTECONCENTRAZIONIUTILEPERANALISI;
-
-            return Constants_Excel.EsitoRecuperoInformazioniFoglio.RecuperoConErrori;
-
-        }
-
-
-        /// <summary>
-        /// Riconoscimento vero e proprio per l'eventuale quadrante delle concentrazioni per il foglio corrente 
-        /// vengono anche ricalcolati gli indici di spostamento per riga e colonna correnti
-        /// </summary>
-        /// <returns></returns>
-        private static bool HoRiconosciutoFormat1_Concentrazioni()
-        {
-            Excel_Format1_Sheet2_ConcQuadrant riconoscimentoQuadranteCorrente = new Excel_Format1_Sheet2_ConcQuadrant();
-            
-
-            #region VERIFICA ESISTENZA TITOLO DI LEGA
-
-            // verifico esistenza del titolo
-            if (_foglioExcelCorrente.Cells[_currentRowIndex, _currentColIndex].Value == null)
-            {
-                // inserisco nel messaggio di errori il mancato riconoscimento del title per il quadrante corrente 
-                _error_Messages_ReadExcel += String.Format(Excel_ErrorMessages.Formato1_Foglio2_Concentrazioni.ERRORE_MANCATOTITLEQUADRANTE, _currentRowIndex);
-
-                return false;
-            }
-                
-
-            riconoscimentoQuadranteCorrente.NomeMateriale = _foglioExcelCorrente.Cells[_currentRowIndex, _currentColIndex].Value.ToString();
-            riconoscimentoQuadranteCorrente.StartingRow_Title = _currentRowIndex;
-            riconoscimentoQuadranteCorrente.StartigCol = _currentColIndex;
-
-            #endregion
-
-            // riconoscimento header dopo iterazione corrente 
-            bool riconoscimentoHeader = false;
-
-            // incremento posizione riga 
-            _currentRowIndex++;
-
-            // attribuzione riga massima per il riconoscimento dell'header delle concentrazioni
-            int maxHeader_rowIndex = _currentRowIndex + LIMIT_ROW_HEADERCONCENTRATION_RECOGNITION;
-
-            // indice di colonna massimo per il quadrante di concentrazioni corrente (corrispondente a ultima lettura header)
-            int maxColIndex = 0;
-
-            while((!riconoscimentoHeader))
-            {
-                riconoscimentoHeader = RecognizeHeaderConcentrations(out maxColIndex, out _finalError_Message_ConcentrationQuadrant, out _finalWarning_Message_ConcentrationQuadrant);
-                if (riconoscimentoHeader)
-                {
-                    riconoscimentoQuadranteCorrente.StartingRow_Headers = _currentRowIndex;
-                    riconoscimentoQuadranteCorrente.EndingCol = maxColIndex;
-                    break;
-                }
-                    
-
-                // incremento per questa iterazione solamente nel caso in cui non abbia ancora riconosciuto l'header corrente di concentrazioni
-                _currentRowIndex++;
-
-                if (_currentRowIndex > maxHeader_rowIndex)
-                    break;
+                return Constants_Excel.EsitoRecuperoInformazioniFoglio.RecuperoConErrori;
             }
 
-            // se non ho riconosciuto l'header allora esco senza aver riconosciuto il quadrante 
-            if (!riconoscimentoHeader)
-            {
-                // ricalcolo eventuale indice prima di coontinuare a leggere altro quadrante 
-                while (_foglioExcelCorrente.Cells[_currentRowIndex, _currentColIndex].Value != null)
-                {
+            if (recognizedInfoConcentrations.WarningMessageSheet != String.Empty)
+                return Constants_Excel.EsitoRecuperoInformazioniFoglio.RecuperoConWarnings;
 
-                    if (_foglioExcelCorrente.Cells[_currentRowIndex, _currentColIndex].Merge == true)
-                    {
-                        _currentRowIndex--;
-                        break;
-                    }
+            return Constants_Excel.EsitoRecuperoInformazioniFoglio.RecuperoCorretto;
 
-                    _currentRowIndex++;
-                }
-
-                return false;
-            }
-                
-
-            #region RICONOSCIMENTO HEADERS CONCENTRAZIONI
-
-            // riconoscimento del set di concentrazioni per il quadrante corrente 
-            bool riconoscimentoConcentrationi = false;
-
-            // incremento posizione riga 
-            _currentRowIndex++;
-            // inserimento della eventuale posizione di partenza per la lettura delle concentrazioni
-            int startingPosConc = _currentRowIndex;
-
-            int maxConc_RowIndex = _currentRowIndex + LIMIT_ROW_HEADERCONCENTRATION_RECOGNITION;
-
-            while((!riconoscimentoConcentrationi) || _currentRowIndex <= maxConc_RowIndex)
-            {
-                riconoscimentoConcentrationi = RecognizeContentConcentrations();
-                if (riconoscimentoConcentrationi)
-                {
-                    riconoscimentoQuadranteCorrente.StartingRow_Concentrations = startingPosConc;
-                    riconoscimentoQuadranteCorrente.EndingRow_Concentrations = _currentRowIndex - 1;
-                    break;
-                }
-                    
-
-                // incremento perché non sono ancora riuscito a trovare le concentrazioni per questa iterazione
-                _currentRowIndex++;
-                startingPosConc = _currentRowIndex;
-            }
-
-            #endregion
-
-
-            #region AGGIUNTA NEL NUOVO QUADRANTE NELLE DEFINIZIONI E RIITORNO VERO
-
-            if(riconoscimentoHeader && riconoscimentoConcentrationi)
-            {
-                _listaQuadrantiConcentrazioni.Add(riconoscimentoQuadranteCorrente);
-                return true;
-            }
-
-            #endregion
-
-
-            return false;
-        }
-
-
-        /// <summary>
-        /// Permette il riconoscimento per l'header delle proprieta di concentrazioni corrente 
-        /// viene restituito il set di tutte le proprieta riconosciute
-        /// In questa fase viene anche calcolato il massimo indice di colonna per il quadrante corrente 
-        /// (corrispondente all'ultima colonna per la lettura dell'header)
-        /// </summary>
-        /// <param name="maxColIndex"></param>
-        /// <param name="errorHeaderMessage"></param>
-        /// <param name="warningHeaderMessage"></param>
-        /// <returns></returns>
-        private static bool RecognizeHeaderConcentrations(out int maxColIndex, out string errorHeaderMessage, out string warningHeaderMessage)
-        {
-            // lista di tutte le proprieta riconosciute
-            List<string> recognizedMandatoryProperties = new List<string>();
-
-            // lista di tutti gli elementi not null riconosciuti
-            List<string> allRecognizedHeaders = new List<string>();
-            
-
-            int currentRowIndexCopy = _currentRowIndex;
-            int currentColIndexCopy = _currentColIndex;
-
-            maxColIndex = _currentColIndex;
-
-            if (_foglioExcelCorrente.Cells[currentRowIndexCopy, currentColIndexCopy].Value == null)
-            {
-                // per questo caso nel quale non si riesce neanche a distinguere una possibile proprieta, non viene calcolato nessun messaggio relativo a errori e warnings 
-                errorHeaderMessage = String.Empty;
-                warningHeaderMessage = String.Empty;
-
-                return false;
-            }
-                
-
-            while(_foglioExcelCorrente.Cells[currentRowIndexCopy, currentColIndexCopy].Value != null)
-            {
-                if(_mandatoryInfo_format1_sheet2.Contains(_foglioExcelCorrente.Cells[currentRowIndexCopy, currentColIndexCopy].Value.ToString().ToUpper()))
-                    recognizedMandatoryProperties.Add(_foglioExcelCorrente.Cells[currentRowIndexCopy, currentColIndexCopy].Value.ToString().ToUpper());
-
-                // tengo traccia dell'indice di colonna dei CRITERI per la successiva eventuale lettura degli elementi sottostanti
-                if (_foglioExcelCorrente.Cells[currentRowIndexCopy, currentColIndexCopy].Value.ToString().ToUpper() == COLCRITERI_HEADER)
-                    _colCriteriIndex = currentColIndexCopy;
-
-                // aggiungo al set di tutti gli headers letti per eventualmente calcolare i messaggi di warnings per il caso corrente 
-                allRecognizedHeaders.Add(_foglioExcelCorrente.Cells[currentRowIndexCopy, currentColIndexCopy].Value.ToString().ToUpper());
-
-                // incremento indice di colonna relativo agli headers
-                maxColIndex++;
-                currentColIndexCopy++;
-            }
-
-            // calcolo del messaggio di warning per l'iterazione corrente 
-            warningHeaderMessage = CheckHeaderConcentrationsOptionalPropertiesForQuadrant(allRecognizedHeaders);
-
-            if (recognizedMandatoryProperties.Count() == _mandatoryInfo_format1_sheet2.Count())
-            {
-                errorHeaderMessage = String.Empty;
-                return true;
-            }
-
-            // calcolo del messaggio di errore per l'iterazione corrente 
-            errorHeaderMessage = CheckHeaderConcentrationsMandatoryPropertiesForQuadrant(recognizedMandatoryProperties);
-            
-            return false;
-        }
-
-
-        /// <summary>
-        /// Permette di stabilire e inserire all'interno del messaggio di errore per il quadrante corrente quali siano state le proprieta non riconosciute 
-        /// per il quadrante concentrazioni corrente 
-        /// </summary>
-        /// <param name="partialProperties"></param>
-        private static string CheckHeaderConcentrationsMandatoryPropertiesForQuadrant(List<string> partialProperties)
-        {
-            // messaggio finale di errore dato per la lettura delle proprieta per le concentrazioni e sulla riga corrente 
-            string finalEventualErrors = String.Empty;
-
-            foreach (string mandatoryProperty in Constants_Excel.PROPRIETAOBBLIGATORIE_FORMAT1_SHEET2)
-                if (!partialProperties.Contains(mandatoryProperty))
-                    finalEventualErrors = String.Format(Excel_ErrorMessages.Formato1_Foglio2_Concentrazioni.ERRORE_MANCATORICONOSCIMENTOPROPRIETAHEADEROBBLIGATORIA, _currentRowIndex, mandatoryProperty);
-
-            return finalEventualErrors;
-        }
-
-
-        /// <summary>
-        /// Permette di stabilire e inserire all'interno del messaggio di warnings per il quadrante corrente quali siano state le proprieta non obbligatorie non riconosciute 
-        /// per il quadrante concentrazioni corrente 
-        /// </summary>
-        /// <param name="readProperties"></param>
-        private static string CheckHeaderConcentrationsOptionalPropertiesForQuadrant(List<string> readProperties)
-        {
-            // messaggio finale di warning dato per la lettura delle proprieta opzionali per le concentrazioni e sulla riga corrente 
-            string finalEventualWarnings = String.Empty;
-
-            foreach (string optionalProperty in Constants_Excel.PROPRIETAOPZIONALI_FORMAT1_SHEET2)
-                if (!readProperties.Contains(optionalProperty))
-                    finalEventualWarnings += String.Format(Excel_WarningMessages.Formato1_Foglio2_Concentrazioni.WARNING_MANCATORICONOSCIMENTOPROPRIETAOPZIONALIQUADRANTE, _currentRowIndex, optionalProperty);
-
-            return finalEventualWarnings;
-
-        }
-
-
-        /// <summary>
-        /// Riconoscimento posizione per gli elementi correnti all'interno del foglio 
-        /// mi fermo solamente quando non riconosco piu un elemento 
-        /// </summary>
-        /// <returns></returns>
-        private static bool RecognizeContentConcentrations()
-        {
-            bool hoLettoAlmenoUnPossibileValoreElemento = false;
-
-            while(_foglioExcelCorrente.Cells[_currentRowIndex, _colCriteriIndex].Value != null)
-            {
-                if (!_foglioExcelCorrente.Cells[_currentRowIndex, _colCriteriIndex + 1].Merge == true)
-                {
-                    hoLettoAlmenoUnPossibileValoreElemento = true;
-                    _currentRowIndex++;
-                }
-                else
-                {
-                    if (hoLettoAlmenoUnPossibileValoreElemento)
-                    {
-                        _currentRowIndex--;
-                        return true;
-                    }
-                        
-                }
-                   
-            }
-
-            if (hoLettoAlmenoUnPossibileValoreElemento)
-                return true;
-
-            // segnalo che non sono riuscito a riconoscere nessun elemento per il quadrante delle concentrazioni corrente 
-            _error_Messages_ReadExcel += String.Format(Excel_ErrorMessages.Formato1_Foglio2_Concentrazioni.ERRORE_NESSUNRICONOSCIMENTOPERELEMENTO, _currentRowIndex);
-            return false;
-        }
-
-
-        /// <summary>
-        /// Permette di calcolare l'indice per il riposizionamento eventuale della colonna per il riconoscimento
-        /// di altri quadranti all'interno del foglio excel delle concentrazioni
-        /// </summary>
-        /// <returns></returns>
-        private static int RicalcolaIndiceColonna()
-        {
-            int newColIndex = _currentColIndex;
-
-            if (_listaQuadrantiConcentrazioni != null)
-                if (_listaQuadrantiConcentrazioni.Count() > 0)
-                {
-                    newColIndex = _listaQuadrantiConcentrazioni.Select(x => x.EndingCol).Max();
-                    if (newColIndex == _currentColIndex - 1)
-                        return 0;
-                }
-                    
-            
-
-            return newColIndex;
         }
 
         
@@ -752,394 +334,748 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
         /// 
         /// </summary>
         /// <param name="currentWorksheet"></param>
-        /// <param name="startingRow"></param>
-        /// <param name="leghe_start_col"></param>
-        /// <param name="proprietaLeghePerRiga"></param>
+        /// <param name="recognizedInfoFormat2"></param>
         /// <param name="errorMessages"></param>
         /// <param name="warningMessages"></param>
         /// <returns></returns>
         public static Constants_Excel.EsitoRecuperoInformazioniFoglio Recognize_Format2_InfoLegheConcentrazioni(
             ref ExcelWorksheet currentWorksheet, 
-            out int startingRow, 
-            out int leghe_start_col, 
-            out List<Excel_Format2_Row_LegaProperties> proprietaLeghePerRiga,
-            out string errorMessages,
-            out string warningMessages)
+            out Excel_AlloyInfo_Sheet recognizedInfoFormat2)
         {
-            // inizializzazione per tutte le proprieta sulle diverse righe in lettura corrente
-            proprietaLeghePerRiga = new List<Excel_Format2_Row_LegaProperties>();
-
-            // validazioni di partenza 
-            if (currentWorksheet == null)
-                throw new Exception(ExceptionMessages.EXCEL_FILENOTINMEMORY);
-
+            // foglio excel corrente 
             _foglioExcelCorrente = currentWorksheet;
-            
+
+
+            // inizializzazione del foglio in restituzione per il foglio excel corrente 
+            recognizedInfoFormat2 = new Excel_AlloyInfo_Sheet(_foglioExcelCorrente.Name, _foglioExcelCorrente.Index);
+
+
+            // informazioni relative alla valorizzazione dei diversi elementi per le concentrazioni
+            List<Excel_ConcColumns_Definition> informazioniColonneConcentrazioniCorrenti = new List<Excel_ConcColumns_Definition>();
+
+
+            // indici massimo e minimo di iterazione
             int indexRow_Max = 1;
             int intexCol_Max = 1;
 
+            // indici di colonna e di riga su iterazione corrente 
             _currentRowIndex = 0;
             _currentColIndex = 0;
-
-            startingRow = 0;
-            leghe_start_col = 0;
-
-            // inserimento dei valori per il limite massimo di riga / colonna entro il quale devo riconoscere l'informazione 
-            indexRow_Max = (currentWorksheet.Dimension.End.Row <= LIMIT_ROW) ? currentWorksheet.Dimension.End.Row : LIMIT_ROW;
-            intexCol_Max = (currentWorksheet.Dimension.End.Column <= LIMIT_COL) ? currentWorksheet.Dimension.End.Column : LIMIT_COL;
-
+            
 
             // inizializzazione per le stringhe di messaggi errori / warnings in uscita 
             _error_Messages_ReadExcel = String.Empty;
             _warning_Messages_ReadExcel = String.Empty;
 
-            do
+            // riconoscimento header principale
+            bool hoRiconosciutoHeaderLeghe = false;
+            bool hoRiconosciutoHeaderConcentrazioni = false;
+
+
+            #region RICONOSCIMENTO HEADERS 
+
+            while (_currentRowIndex <= indexRow_Max) 
             {
-                _currentColIndex++;
 
-                do
+                _currentRowIndex++;
+
+                while (_currentColIndex <= intexCol_Max) 
                 {
-                    _currentRowIndex++;
 
-                    // inizializzazione di un nuovo oggetto per la lettura delle proprieta leghe / concentrazioni per il secondo formato e per la riga corrente 
-                    Excel_Format2_Row_LegaProperties propertiesCurrentRow = new Excel_Format2_Row_LegaProperties();
+                    int maxIndexConcentrations = 0;
 
-                    // applicazione dell'indice di riga per le proprieta in lettura corrente 
-                    propertiesCurrentRow.RowIndexLegaProperties = _currentRowIndex;
-
-                    // riconoscimento delle prime informazioni di lega 
-                    if (RiconosciQuadrante_SecondoFormato())
+                    // riconoscimento proprieta per header leghe - riconoscimento della colonna dalla quale iniziare a leggere per le concentrazioni
+                    if (RecognizeHeaderOnRow(Constants_Excel.PROPRIETAOBBLIGATORIE_FORMAT2_LEGHE.ToList(), Constants_Excel.PROPRIETAOPZIONALI_FORMAT2_LEGHE.ToList(), out maxIndexConcentrations))
                     {
-                        // attribuzione dei primi parametri conosciuti
-                        startingRow = _startReadingProperties_row;
-                        leghe_start_col = _startReadingLegheProperties_col;
-
-                        // primo riconoscimento per le colonne relative ai diversi elementi e alle proprieta di concentrazione
-                        if (_currentConcentrations == null)
-                        {
-                            // provo a riconoscere per la prima volta i diversi elementi per le concentrazioni, se non li riconosco, non ho riconosciuto correttamente il foglio per il secondo formato
-                            if(RiconoscimentoColonneConcentrazioni_SecondoFormato())
-                            {
-                                // attribuzione delle colonne per la primissima iterazione
-                                propertiesCurrentRow.ColonneConcentrazioni = _currentConcentrations;
-                            }
-                            // posso ritornare il formato non riconosciuto perché la validazione non è andata a buon fine 
-                            else
-                            {
-                                // attribuzione dei messaggi errore / warnings per iterazione corrente 
-                                errorMessages = _error_Messages_ReadExcel;
-                                warningMessages = _warning_Messages_ReadExcel;
-
-                                return Constants_Excel.EsitoRecuperoInformazioniFoglio.RecuperoConErrori;
-                            }
-                        }
-                        // altrimenti significa che ho riconosciuto correttamente le colonne per gli elementi, utili per tutti i valori di riga per le leghe 
-                        else
-                            propertiesCurrentRow.ColonneConcentrazioni = _currentConcentrations;
-
-                        // inserimento proprieta di riga correntemente lette per la riga finale delle proprita excel
-                        proprietaLeghePerRiga.Add(propertiesCurrentRow);
-
+                        _currentColIndex = maxIndexConcentrations;
+                        hoRiconosciutoHeaderLeghe = true;
                     }
+                    else
+                        continue;
+
+                    if (hoRiconosciutoHeaderLeghe && RecognizeColumnsConcentrationsFormat2())
+                    {
+                        hoRiconosciutoHeaderConcentrazioni = true;
+                        break;
+                    }
+                        
 
                 }
-                while (_currentRowIndex <= indexRow_Max);
+
+                _currentColIndex = 0;
 
             }
-            while (_currentColIndex <= intexCol_Max);
+
+            #endregion
+
+
+
 
             // attribuzione messaggi errori / warnings in uscita 
-            errorMessages = _error_Messages_ReadExcel;
-            warningMessages = _warning_Messages_ReadExcel;
+            recognizedInfoFormat2.ErrorMessageSheet = _error_Messages_ReadExcel;
+            recognizedInfoFormat2.WarningMessageSheet = _warning_Messages_ReadExcel;
 
 
-            // verifica che sia stato letto almeno un elemento per le leghe in analisi corrente 
-            if (proprietaLeghePerRiga.Count() > 0)
+            // inizializzazione dei valori per la lettura di tutte le proprieta di riga 
+            if (hoRiconosciutoHeaderLeghe && hoRiconosciutoHeaderConcentrazioni)
             {
-                if (warningMessages != String.Empty)
+                int _contentRowIndex = _currentRowIndex + 2;
+                
+                // inizializzazione dei contenitori finali per tutte le proprieta di lega - concentrazioni
+                recognizedInfoFormat2.AlloyPropertiesInstances = new List<Excel_PropertiesContainer>();
+                recognizedInfoFormat2.ConcentrationsPropertiesInstances = new List<Excel_PropertiesContainer>();
+
+                // inizializzazione del contenitore che associa leghe e concentrazioni per i fogli
+                recognizedInfoFormat2.AlloyInstances = new List<AlloyConcentrations_Association>();
+
+                while (_contentRowIndex <= _foglioExcelCorrente.Dimension.End.Row)
+                {
+                    #region INIZIALIZZAZIONE CON PROPRIETA DI LEGA
+
+                    // recupero degli spazi di proprieta per la lega su riga corrente 
+                    Excel_PropertiesContainer currentPropertiesAlloy = BuildPropertiesContainerForRecognition_Format2Sheet_Leghe(_contentRowIndex);
+
+                    // recupero degli spazi di proprieta per ogni elemento disponibile per la lega corrente 
+                    List<Excel_PropertiesContainer> currentPropertiesConcentrations = BuildPropertiesContainerForRecognition_Format2Sheet_ConcentrationsOnRow(_contentRowIndex);
+
+                    // aggiunta delle possibili proprieta di lega per tutti i contenitori relativi alle leghe 
+                    recognizedInfoFormat2.AlloyPropertiesInstances.Add(currentPropertiesAlloy);
+
+                    // aggiunta di tutti i contenitori relativi alle concentrazioni per tutti i raccoglitori di concentrazione presi
+                    recognizedInfoFormat2.ConcentrationsPropertiesInstances.AddRange(currentPropertiesConcentrations);
+
+                    // creazione e aggiunta dell'associazione 
+                    AlloyConcentrations_Association currentAssociationLegheConcentrazioni = new AlloyConcentrations_Association();
+                    currentAssociationLegheConcentrazioni.RifProprietaLega = currentPropertiesAlloy;
+                    currentAssociationLegheConcentrazioni.RifConcentrationsCurrentLega = currentPropertiesConcentrations;
+
+                    recognizedInfoFormat2.AlloyInstances.Add(currentAssociationLegheConcentrazioni);
+                    
+                    #endregion
+                }
+
+                if (recognizedInfoFormat2.WarningMessageSheet != String.Empty)
                     return Constants_Excel.EsitoRecuperoInformazioniFoglio.RecuperoConWarnings;
 
                 return Constants_Excel.EsitoRecuperoInformazioniFoglio.RecuperoCorretto;
             }
             // inserimento per i messaggi di errore di nessuna proprieta di riga letta 
             else
-                errorMessages += String.Format(Excel_ErrorMessages.Formato2_Foglio1_LegheConcentrazioni.ERRORE_NESSUNAINFORMAZIONEDIRIGALETTA, _foglioExcelCorrente.Name);
+                recognizedInfoFormat2.ErrorMessageSheet += String.Format(Excel_ErrorMessages.Formato2_Foglio1_LegheConcentrazioni.ERRORE_NESSUNAINFORMAZIONEDIRIGALETTA, _foglioExcelCorrente.Name);
             
 
             return Constants_Excel.EsitoRecuperoInformazioniFoglio.RecuperoConErrori;
         }
+        
+
+        #region NUOVI METODI
+
+        /// <summary>
+        /// Riconoscimento di un quadrante di concentratiozi per il primo formato 
+        /// questo riconoscimento avviene a partire dagli indici di riga e colonna correnti tracciano i nuovi indici di riga e colonna nel caso in cui sia 
+        /// effettivamente riconosciuto il quadrante 
+        ///</summary>
+        ///<param name="recognizedConcQuadrant"></param>
+        /// <returns></returns>
+        private static bool RecognizeQuadrantConcentration_Format1(out Excel_PropertiesContainer recognizedConcQuadrant)
+        {
+            // inizializzazione del quadrante corrente 
+            recognizedConcQuadrant = new Excel_PropertiesContainer();
+
+            // inizializzazione lista delle concentrazioni lette per il quadrante corrente 
+            recognizedConcQuadrant.PropertiesDefinition = new List<Excel_PropertyWrapper>();
+
+            // backup indici di riga e colonna corrente, la riga di backup è incrementata di 1
+            int backRowIndex = _currentRowIndex;
+            int backColIndex = _currentColIndex;
+
+            // indice di colonna massimo da imporre per il quadrante corrente
+            int maxColValueCurrentQuadrant = 0;
+
+            // riconoscimenti disponibili
+            bool titleRecognized = false;
+            bool headerRecognized = false;
+            bool filledConcentrations = false;
+
+            // parametri da riempire per il corretto riconoscimento del quadrante 
+            string titleMateriale = String.Empty;
+
+
+            // riconoscimento title 
+            if (_foglioExcelCorrente.Cells[_currentRowIndex, _currentColIndex].Value != null)
+            {
+                titleMateriale = _foglioExcelCorrente.Cells[_currentRowIndex, _currentColIndex].Value.ToString();
+                titleRecognized = true;
+                _currentRowIndex++;
+            }
+            // non è avvenuto il corretto riconoscimento per il title
+            else
+                titleRecognized = false;
+
+            // set limite massimo di righe consentite fino al riconoscimento dell'header per il quadrante delle concentrazioni
+            int limitOnHeaderRecognition = _currentRowIndex + _LIMITHEADERCONCENTRATIONRECOGNITION;
+
+            headerRecognized = false;
+
+            // incremento posizione row index
+            _currentRowIndex++;
+
+            // riconoscimento header
+            while (_currentRowIndex <= limitOnHeaderRecognition)
+            {
+                if(RecognizeHeaderOnRow(Constants_Excel.PROPRIETAOBBLIGATORIE_FORMAT1_SHEET2.ToList(), Constants_Excel.PROPRIETAOPZIONALI_FORMAT1_SHEET2.ToList(), _currentColIndex, out maxColValueCurrentQuadrant))
+                {
+                    headerRecognized = true;
+                    _currentRowIndex++;
+                    break;
+                }
+
+                _currentRowIndex++;
+            }
+
+            filledConcentrations = false;
+
+            // tutte le proprieta per gli elementi in lettura corrente 
+            List<Excel_PropertyWrapper> allElementProperties = new List<Excel_PropertyWrapper>();
+
+
+            // riconoscimento elementi concentrazioni
+            while (_foglioExcelCorrente.Cells[_currentRowIndex, _currentColIndex].Value != null && _foglioExcelCorrente.Cells[_currentRowIndex, _currentColIndex].Merge == false)
+            {
+                // riempimento per i singoli elementi di concentrazione
+                List<Excel_PropertyWrapper> readPropertiesCurrentElement;
+
+                if (InsertNewRowPossibleValue(out readPropertiesCurrentElement))
+                    allElementProperties.AddRange(readPropertiesCurrentElement);
+
+                _currentRowIndex++;
+            }
+
+            // vedo se ho trovato la definizione di almeno un elemento con le sue proprietà
+            if (allElementProperties.Count() > 0)
+                filledConcentrations = true;
+            
+            // se tutti i valori da riconoscere hanno esito negativo significa che non sono in prossimità di un quadrante, ritorno al primo stato
+            if(titleRecognized == false && headerRecognized == false && filledConcentrations == false)
+            {
+                _currentRowIndex = backRowIndex;
+                _currentColIndex = backColIndex;
+
+                return false;
+            }
+
+
+            // inserimento dei diversi messaggi di errore per quadrante, nel caso in cui non sia avvenuto anche solo uno dei riconoscimenti
+            if (titleRecognized == false)
+                _error_Messages_ReadExcel += String.Format("non sono riuscito a trovare il TITLE per il quadrante concentrazioni a partire dalla posizione ({0}, {1})", backRowIndex, backColIndex);
+
+            if (headerRecognized == false)
+                _error_Messages_ReadExcel += String.Format("non sono riuscito a trovare HEADER per il quadrante concentrazioni a partire dalla posizione ({0}, {1})", backRowIndex, backColIndex);
+
+            if (filledConcentrations == false)
+                _error_Messages_ReadExcel += String.Format("non sono riuscito a riconoscere informazioni di ELEMENTI per il quadrante concentrazioni dalla posizione ({0}, {1})", backRowIndex, backColIndex);
+
+            // se ho riconosciuto tutti gli elementi vado a riempire il contenitore corrente per gli elementi di concentrazione
+            if(titleRecognized == true && headerRecognized == true && filledConcentrations == true)
+            {
+                // attribuzione title
+                recognizedConcQuadrant.NameInstance = titleMateriale;
+
+                // attribuzione degli indici perimetro quadrante 
+                recognizedConcQuadrant.StartingRowIndex = backRowIndex;
+                recognizedConcQuadrant.EndingRowIndex = _currentRowIndex;
+                recognizedConcQuadrant.StartColIndex = _currentColIndex;
+                recognizedConcQuadrant.EndingColIndex = maxColValueCurrentQuadrant;
+
+                // attribuzione possibili proprieta da leggere per gli elementi e le concentrazioni
+                recognizedConcQuadrant.PropertiesDefinition = allElementProperties;
+
+                // calcolo dell'indice corrente massimo di colonna (mi serve per stabilire quale sarà il prossimo indice di colonna per la lettura dei quadranti 
+                // in via orizzontale
+                if (maxColValueCurrentQuadrant >= _maxColIndexPreviousQuadrantsRecognition)
+                    _maxColIndexPreviousQuadrantsRecognition = maxColValueCurrentQuadrant;
+
+                return true;
+
+            }
+
+            _currentRowIndex = backRowIndex;
+            _currentColIndex = backColIndex;
+
+            return false;
+        }
 
 
         /// <summary>
-        /// Check presenza delle proprieta direttamente collegate alla lega per l'iterazione su riga corrente 
-        /// nessuna necessita di riempimento oggetto restituito di riga se non per gli indici iniziali di riga colonna sui quali inizierà la lettura stessa 
-        /// per il foglio corrente 
+        /// Utilizzo dei 2 metodi successivi con l'accorgimento di avere come valore iniziale per la colonna di riconoscimento header proprio quella relativa al title 
+        /// che è stato riconosciuto nello step precedente all'intero del metodo per il riconoscimento di tutti i quadranti
         /// </summary>
+        /// <param name="headerMandatoryTitles"></param>
+        /// <param name="headerOptionalTitles"></param>
+        /// <param name="usedCol"></param>
+        /// <param name="currentValueColMax"></param>
         /// <returns></returns>
-        private static bool RiconosciQuadrante_SecondoFormato()
+        private static bool RecognizeHeaderOnRow(List<string> headerMandatoryTitles, List<string> headerOptionalTitles, int usedCol, out int currentValueColMax)
         {
-            // tutte le proprieta obbligatorie per l'header correntemente in analisi sulla colonna delle concentrazioni
-            List<string> readMandatoryProperties_Leghe = new List<string>();
+            currentValueColMax = usedCol;
 
-            // tutte le proprieta riconosciute per l'header corrente per le proprieta di lega 
-            List<string> allReadProperties_Leghe = new List<string>();
+            // discriminazione su indice di colonna utilizzato per questa iterazione
+            if (usedCol != _currentColIndex || _foglioExcelCorrente.Cells[_currentRowIndex, usedCol].Value == null)
+                return false;
 
-            int currentColCopy = _currentColIndex;
+            return RecognizeHeaderOnRow(headerMandatoryTitles, headerOptionalTitles, out currentValueColMax);
 
-            while(readMandatoryProperties_Leghe.Count() < _mandatoryInfo_Leghe_Format2.Count())
+        }
+
+
+
+        /// <summary>
+        /// Riferimento al metodo precedente con il calcolo dell'indice massimo di colonna per il riconoscimento delle proprieta correnti
+        /// in questo modo posso calcolare l'indice massimo di colonna da cui riprendere la lettura per i quadranti orizzontali di concentrazione
+        /// successivi
+        /// </summary>
+        /// <param name="headerMandatoryTitles"></param>
+        /// <param name="headerOptionalTitles"></param>
+        /// <param name="currentValueColMax"></param>
+        /// <returns></returns>
+        private static bool RecognizeHeaderOnRow(List<string> headerMandatoryTitles, List<string> headerOptionalTitles, out int currentValueColMax)
+        {
+            if(RecognizeHeaderOnRow(headerMandatoryTitles, headerOptionalTitles))
             {
 
-                if (_foglioExcelCorrente.Cells[_currentRowIndex, _currentColIndex].Value != null)
-                {
-                    // valorizzazione della sola lista per le proprieta obbligatorie
-                    if (_mandatoryInfo_Leghe_Format2.Contains(_foglioExcelCorrente.Cells[_currentRowIndex, _currentColIndex].Value.ToString().ToUpper()) && _foglioExcelCorrente.Cells[_currentRowIndex, _colCriteriIndex + 1].Merge == true)
-                        readMandatoryProperties_Leghe.Add(_foglioExcelCorrente.Cells[_currentRowIndex, _currentColIndex].Value.ToString().ToUpper());
+                // calcolo dell'indice massimo relativo alle proprieta obbligatorie
+                int maxColMandatoryProperties = _mandatoryTitlesColumnMapper.Select(x => x.Key).Max();
+                int maxColOptionalProperties = _optionalTitlesColumnMapper.Select(x => x.Key).Max();
 
-                    // valorizzazione della lista di tutte le proprieta in lettura 
-                    allReadProperties_Leghe.Add(_foglioExcelCorrente.Cells[_currentRowIndex, _currentColIndex].Value.ToString().ToUpper());
-
-                    _currentColIndex++;
-                }
+                if (maxColMandatoryProperties > maxColOptionalProperties)
+                    currentValueColMax = maxColMandatoryProperties;
                 else
-                    break;
-            }
+                    currentValueColMax = maxColOptionalProperties;
 
-            // verifica dei warnings per la iterazione corrente -> accodamento alla stringa di warnings globale
-            CheckMancanzaProprietaOpzionaliLega_SecondoFormato(allReadProperties_Leghe);
-
-            if(readMandatoryProperties_Leghe.Count() == _mandatoryInfo_Leghe_Format2.Count())
-            {
-                _startReadingProperties_row = _currentRowIndex;
-                _startReadingLegheProperties_col = currentColCopy;
-                
                 return true;
             }
 
-            // verifica degli errori per l'iterazione corrente -> accodamento alla lista di errori globale
-            CheckMancanzaProprietaObbligatorieLega_SecondoFormato(readMandatoryProperties_Leghe);
-            
+            currentValueColMax = 0;
+
+
             return false;
-        }
 
+        } 
 
-        /// <summary>
-        /// Permette di capire se per una certa riga e quindi una certa lega c'è stata la mancanza nel riconoscimento di una qualche proprieta obbligatoria
-        /// se cosi fosse viene restituito un errore relativo al mancato riconoscimento di queste proprieta e quindi di una non possibile iterazione successiva 
-        /// per la lega corrente 
-        /// </summary>
-        /// <param name="proprietaObbligatorieRiconosciute"></param>
-        private static void CheckMancanzaProprietaObbligatorieLega_SecondoFormato(List<string> proprietaObbligatorieRiconosciute)
-        {
-            foreach (string mandatoryProperty in Constants_Excel.PROPRIETAOBBLIGATORIE_FORMAT2_LEGHE)
-                if (!proprietaObbligatorieRiconosciute.Contains(mandatoryProperty))
-                    _error_Messages_ReadExcel += String.Format(Excel_ErrorMessages.Formato2_Foglio1_LegheConcentrazioni.ERRORE_MANCATORICONOSCIMENTOPROPRIETAOBBLIGATORIALEGA, _currentRowIndex, mandatoryProperty);
-        }
-
-        
-        /// <summary>
-        /// Permette di capire se c'è stato il mancato riconoscimento di qualche proprieta opzionale per la lega corrente, se cosi fosse la continuazione 
-        /// per i controlli successivi è comunque possibile a meno di warnings lanciato per la mancanza di queste proprieta 
-        /// </summary>
-        /// <param name="tutteLeProprietaRiconosciute"></param>
-        private static void CheckMancanzaProprietaOpzionaliLega_SecondoFormato(List<string> tutteLeProprietaRiconosciute)
-        {
-            foreach (string optionalProperty in Constants_Excel.PROPRIETAOPZIONALI_FORMAT2_LEGHE)
-                if (!tutteLeProprietaRiconosciute.Contains(optionalProperty))
-                    _warning_Messages_ReadExcel += String.Format(Excel_WarningMessages.Formato2_Foglio1_LegheConcentrazioni.WARNING_MANCATORICONOSCIMENTOPROPRIETAOPZIONALE_LEGA, _currentRowIndex, optionalProperty);
-        }
 
 
         /// <summary>
-        /// Permette di riconoscere le colonne di concentrazioni per la lega e la lettura corrente 
-        /// In questo caso viene restituito in output l'oggetto contenente le diverse colonne sulle quali andrà eseguita l'iterazione per ogni elemento 
-        /// in riconoscimento attuale e per la lega per la riga corrente 
-        /// NB: questo metodo deve essere utilizzato una sola volta in quanto per ogni istanza di riga gli indici di colonna per il riconoscimento delle proprieta di concentrazioni 
-        /// riferite al singolo elemento saranno uguali per ogni elemento che verrà riconosciuto
+        /// Mi dice se il riconoscimento degli header per gli elementi che vengono passati in input avviene correttamente per l'istanza corrente 
+        /// durante questa fase c'è anche la compilazione dei messaggi di errori / warnings in uscita per il caso corrente 
         /// </summary>
+        /// <param name="headerMandatoryTitles"></param>
+        /// <param name="headerOptionalTitles"></param>
         /// <returns></returns>
-        private static bool RiconoscimentoColonneConcentrazioni_SecondoFormato()
+        private static bool RecognizeHeaderOnRow(List<string> headerMandatoryTitles, List<string> headerOptionalTitles)
         {
+            // inizializzazione del mapper di colonne per la lettura dei titoli di header correnti
+            // header relativi alle proprieta opzionali e obbligatorie in lettura corrente 
+            _mandatoryTitlesColumnMapper = new Dictionary<int, string>();
+            _optionalTitlesColumnMapper = new Dictionary<int, string>();
 
-            // header nel quale si trovano le eventuali proprieta in lettura per gli elementi
-            int rowHeadersProperty = _currentRowIndex + 1;
+            // indicazione del riconoscimento finale per gli elementi obbligatori / opzionali
+            bool mandatoryRecognition = false;
+            bool optionalRecognition = false;
 
-            // istanza del quadrante di concentrazioni sul quale andare a inserire le proprieta lette 
-            Excel_Format2_ConcColumns currentColumnsConcentrations = new Excel_Format2_ConcColumns();
+            // iterazione per la colonna corrente a partire dall'indice di colonna correntemente in lettura
+            // questo mi permette di non andare a toccare l'indice di colonna effettivo
+            int colIndex = _currentColIndex;
+            
 
-            // non posso continuare l'analisi
-            if (_foglioExcelCorrente.Cells[_currentRowIndex, _currentColIndex].Value == null)
+            // iterazione fino ad eventualmente raggiungere l'indice finale di colonna 
+            while(colIndex <= _foglioExcelCorrente.Dimension.End.Column)
+            {
+                if(_foglioExcelCorrente.Cells[_currentRowIndex, colIndex].Value != null)
+                {
+                    string currentValue = _foglioExcelCorrente.Cells[_currentRowIndex, colIndex].Value.ToString().ToUpper();
+
+                    // verifica di contenimento per una proprieta obbligatoria
+                    if (headerMandatoryTitles.Contains(currentValue) && !_mandatoryTitlesColumnMapper.ContainsValue(currentValue))
+                        _mandatoryTitlesColumnMapper.Add(colIndex, currentValue);
+                    // verifica di contenimento per la proprieta opzionale
+                    else if (headerOptionalTitles.Contains(currentValue))
+                        _optionalTitlesColumnMapper.Add(colIndex, currentValue);
+
+                    // controllo di aver letto correttamente tutti gli headers -> proprieta obbligatorie
+                    if (_mandatoryTitlesColumnMapper.Count() == headerMandatoryTitles.Count())
+                        mandatoryRecognition = true;
+
+                    if (_optionalTitlesColumnMapper.Count() == headerOptionalTitles.Count())
+                        optionalRecognition = true;
+
+                }
+
+
+                // se ho letto tutte le proprieta disponibili allora esco dal ciclo corrente
+                if (mandatoryRecognition && optionalRecognition)
+                    break;
+
+                colIndex++;
+            }
+
+
+            // se non ho letto correttamente tutte le proprieta vado a comporre il messaggio di errore / warnings
+            // NB il riconoscimento avviene solamente se ho letto almeno una per queste proprietà
+            if (!mandatoryRecognition && _mandatoryTitlesColumnMapper.Count() > 0)
+                CompileErrorMessage(headerMandatoryTitles, _mandatoryTitlesColumnMapper);
+
+            if (!optionalRecognition && _optionalTitlesColumnMapper.Count() > 0)
+                CompileWarningMessage(headerOptionalTitles, _optionalTitlesColumnMapper);
+            
+            // l'header viene riconosciuto solamente per gli elementi obbligatori che vengono prelevati
+            return mandatoryRecognition;
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="startingColIndex"></param>
+        /// <returns></returns>
+        private static bool RecognizeColumnsConcentrationsFormat2()
+        {
+            // lista dei mappers per le concentrazioni correnti
+            _mapperElementsFormat2Sheet3 = new List<MapperElementFormat2>();
+
+            // indice per la lettura dell'intestazione elemento
+            int _rowElemento = _currentRowIndex;
+
+            // indice per la lettura delle proprieta 
+            int _rowProperties = _currentRowIndex + 1;
+
+            // attributi per la lettura delle proprieta degli elementi
+            string elementoCorrente = String.Empty;
+            Dictionary<int, string> columnsMandatoryProperties = new Dictionary<int, string>();
+            Dictionary<int, string> columnsOptionalProperties = new Dictionary<int, string>();
+            
+
+            // tutte le proprieta per l'elemento corrente 
+            MapperElementFormat2 propertiesElementoCorrente;
+
+            // non lettura corretta per anche solo un elemento di tutte le proprieta obbligatorie
+            bool missedMandatoryProperties = false;
+
+            while (_currentColIndex <= _foglioExcelCorrente.Dimension.End.Column)
+            {
+
+                // prima iterazione
+                if(elementoCorrente == String.Empty)
+                {
+                    // elemento corrente 
+                    if (_foglioExcelCorrente.Cells[_rowElemento, _currentColIndex].Value != null)
+                        elementoCorrente = _foglioExcelCorrente.Cells[_rowElemento, _currentColIndex].Value.ToString();
+
+                    // inizializzazione dizionari lettura colonne proprieta opzionali obbligatorie
+                    columnsMandatoryProperties = new Dictionary<int, string>();
+                    columnsOptionalProperties = new Dictionary<int, string>();
+                   
+                }
+                // devo cambiare elemento prima di continuare con iterazione corrente 
+                else if(_foglioExcelCorrente.Cells[_rowElemento, _currentColIndex].Value != null)
+                {
+                    propertiesElementoCorrente = new MapperElementFormat2();
+
+                    propertiesElementoCorrente.NameElement = elementoCorrente;
+                    propertiesElementoCorrente.CurrentRowIndex = _rowElemento;
+
+                    // verifica lettura di tutte le proprieta obbligatorie per l'elemento corrente 
+                    if (!CompileErrorMessage(Constants_Excel.PROPRIETAOBBLIGATORIE_ELEM_FORMAT2.ToList(), columnsMandatoryProperties))
+                        missedMandatoryProperties = true;
+
+                    // compilazione eventuale messaggio warning verifica lettura di tutte le proprieta opzionali
+                    CompileWarningMessage(Constants_Excel.PROPRIETAOPZIONALI_ELEM_FORMAT2.ToList(), columnsOptionalProperties);
+
+                    propertiesElementoCorrente.MandatoryProperties = columnsMandatoryProperties;
+                    propertiesElementoCorrente.OptionalProperties = columnsOptionalProperties;
+
+                    // inizializzazione per continuare iterazione corrente 
+                    elementoCorrente = _foglioExcelCorrente.Cells[_rowElemento, _currentColIndex].Value.ToString();
+
+                    columnsMandatoryProperties = new Dictionary<int, string>();
+                    columnsOptionalProperties = new Dictionary<int, string>();
+                }
+
+                // lettura proprieta iterazione corrente 
+                if(_foglioExcelCorrente.Cells[_rowProperties, _currentColIndex].Value != null)
+                {
+                    string proprietaLettura = _foglioExcelCorrente.Cells[_rowProperties, _currentColIndex].Value.ToString();
+
+                    if (Constants_Excel.PROPRIETAOBBLIGATORIE_ELEM_FORMAT2.Contains(proprietaLettura.ToUpper()))
+                        columnsMandatoryProperties.Add(_currentColIndex, proprietaLettura.ToUpper());
+
+                    else if (Constants_Excel.PROPRIETAOPZIONALI_ELEM_FORMAT2.Contains(proprietaLettura.ToUpper()))
+                        columnsOptionalProperties.Add(_currentColIndex, proprietaLettura.ToUpper());
+                }
+
+                _currentColIndex++;
+            }
+
+
+            // ritorno false se anche per uno solo degli elementi non ho letto correttamente tutte le definizioni per le proprieta obbligatorie
+            if (missedMandatoryProperties)
                 return false;
 
-            // definizione per il primo elemento
-            string currentElem = _foglioExcelCorrente.Cells[_currentRowIndex, _currentColIndex].Value.ToString();
+            return true;
 
-            string nextElem = String.Empty;
+        }
 
-            if (_foglioExcelCorrente.Cells[_currentRowIndex, _currentColIndex + 1].Value != null)
-                nextElem = _foglioExcelCorrente.Cells[_currentRowIndex, _currentColIndex + 1].Value.ToString();
 
-            // lista che alla fine conterrà tutte le proprieta obbligatorie per l'elemento
-            List<string> readMandatoryProperties = new List<string>();
-            // lista che alla fine conterrà tutte le proprieta opzionali per l'elemento
-            List<string> readOptionalProperties = new List<string>();
 
-            // indice di colonna di inizio per il primo elemento in lettura eventuale corrente
-            int startingColIndex = _currentColIndex;
-
-            // indice di colonna di fine iterazione per il primo elemento in lettura 
-            int endingColIndex = _currentColIndex;
+        /// <summary>
+        /// Recupero dei valori per tutte le definizioni ricorrenti di riga per gli headers letti nello step precedente 
+        /// l'unico motivo per il quale una riga non viene aggiunta all'interno del set è se tutte le proprieta sono individuate a null
+        /// per la riga corrente 
+        /// </summary>
+        /// <param name="recognizedValues"></param>
+        /// <returns></returns>
+        private static bool InsertNewRowPossibleValue(out List<Excel_PropertyWrapper> recognizedValues)
+        {
+            // inizializzazione dell'oggetto con tutte le proprieta correnti
+            recognizedValues = new List<Excel_PropertyWrapper>();
             
-            // significa che per questo caso mi trovo ancora nella lettura delle proprieta per l'elemento precedente
-            while(_currentColIndex <= _foglioExcelCorrente.Dimension.End.Column)
+            // iterazione per le proprieta obbligatorie
+            foreach(KeyValuePair<int, string> currentHeaderCol in _mandatoryTitlesColumnMapper)
             {
-                if (_foglioExcelCorrente.Cells[_currentRowIndex + 1, _currentColIndex].Value != null)
+                if(_foglioExcelCorrente.Cells[_currentRowIndex, currentHeaderCol.Key].Value != null)
                 {
-                    // riconoscimento della proprieta corrente
-                    if (
-                        _mandatoryInfo_Concentrations_Format2.Contains(_foglioExcelCorrente.Cells[_currentRowIndex + 1, _currentColIndex].Value.ToString().ToUpper()) ||
-                        _mandatoryInfo_Concentrations_Format2.Contains(_foglioExcelCorrente.Cells[_currentRowIndex + 1, _currentColIndex].Value.ToString().ToUpper() + "."))
-                    {
-                        readMandatoryProperties.Add(_foglioExcelCorrente.Cells[_currentRowIndex + 1, _currentColIndex].Value.ToString().ToUpper());
-                    }
-                    else if (_optionalInfo_Concentrations_Format2.Contains(_foglioExcelCorrente.Cells[_currentRowIndex + 1, _currentColIndex].Value.ToString().ToUpper()))
-                    {
-                        readOptionalProperties.Add(_foglioExcelCorrente.Cells[_currentRowIndex + 1, _currentColIndex].Value.ToString().ToUpper());
-                    }
-
-                
-
-                    // incremenento indice di colonna per iterazione corrente
-                    _currentColIndex++;
-
-                    // prendo la posizione per l'indice di colonna letto in modo finale per l'elemento corrente e le sue proprieta 
-                    endingColIndex = _currentColIndex - 1;
-
-                    // verifico che la prossima colonna contiene ancora la definizione per l'elemento corrente 
-                    // (deve corrispondere ad un valore NULL per l'elemento corrente)
-                    if (_foglioExcelCorrente.Cells[_currentRowIndex, _currentColIndex].Value != null)
-                        nextElem = _foglioExcelCorrente.Cells[_currentRowIndex, _currentColIndex].Value.ToString();
-
-                    // finisco di leggere l'elemento corrente solo se ho trovato l'elemento successivos
-                    if(nextElem != String.Empty)
-                    {
-                        if (nextElem != currentElem)
-                        {
-
-                            // validazione delle proprieta lette fino ad ora per l'elemento corrente
-                            if (readMandatoryProperties.Count() < _mandatoryInfo_Concentrations_Format2.Count())
-                                return false;
-
-                            // verifica che l'elemento corrente non sia nelle definizioni già date per gli elementi già inseriti
-                            if (_currentConcentrations != null)
-                            {
-                                if (_currentConcentrations.Where(x => x.NomeElemento == currentElem).Count() > 0)
-                                    return false;
-
-                                // inserimento degli indici per il riconoscimento dell'elemento corrente
-                                _currentConcentrations.Add(new Excel_Format2_ConcColumns()
-                                {
-                                    startingCol_Header = startingColIndex,
-                                    endingCol_Header = endingColIndex,
-                                    startingRow_Elemento = _currentRowIndex,
-                                }
-
-
-                                    );
-
-
-                                // calcolo eventualmente i nuovi indici di inzio e fine colonna di lettura
-                                startingColIndex = endingColIndex;
-                                endingColIndex = _currentColIndex;
-                            }
-                            else
-                            {
-                                _currentConcentrations = new List<Excel_Format2_ConcColumns>();
-
-                                // inserimento degli indici per il riconoscimento dell'elemento corrente
-                                _currentConcentrations.Add(new Excel_Format2_ConcColumns()
-                                {
-                                    startingCol_Header = startingColIndex,
-                                    endingCol_Header = endingColIndex,
-                                    startingRow_Elemento = _currentRowIndex,
-                                }
-
-
-                                    );
-
-
-                                // calcolo eventualmente i nuovi indici di inzio e fine colonna di lettura
-                                startingColIndex = endingColIndex;
-                                endingColIndex = _currentColIndex;
-                            }
-
-                            // imposto il prossimo elemento come l'elemento corrente di analisi
-                            currentElem = nextElem;
-                        }
-                    }
-
+                    recognizedValues.Add(
+                        new Excel_PropertyWrapper(_currentRowIndex, currentHeaderCol.Key, currentHeaderCol.Value, false)
+                        );
                 }
-                else
-                {
-                    _currentColIndex++;
-                    endingColIndex = _currentColIndex;
-                }
-
-                // capisco se sono comunque arrivato a fine lettura per l'elemento corrente
-                // facendo la differenza tra la colonna massima di lettura e quella minima per le proprieta questo valore deve essere al massimo uguale al conteggio delle proprieta sulle 2 liste
-                int differenzaProprietaLette = endingColIndex - startingColIndex;
-                if (differenzaProprietaLette > (_mandatoryInfo_Concentrations_Format2.Count() + _optionalInfo_Concentrations_Format2.Count()))
-                    break;
-                
             }
 
-            // verifica e costruzione messaggi errori / warnings 
-            CheckMandatoryPropertiesConcentrations_Format2(readMandatoryProperties);
-            CheckOptionalPropertiesConcentrations_Format2(readOptionalProperties);
-
-
-            // verifica / eventuale accodamento per la lista dei messaggi di errore di nessun riconoscimento per le concentrazioni avvenuto
-            if (_currentConcentrations != null)
+            // iterazione per le proprieta opzionali
+            foreach(KeyValuePair<int, string> currentHeaderCol in _optionalTitlesColumnMapper)
             {
-                if (_currentConcentrations.Count() > 0)
+                if(_foglioExcelCorrente.Cells[_currentRowIndex, currentHeaderCol.Key].Value != null)
                 {
-                    return true;
+                    recognizedValues.Add(
+                        new Excel_PropertyWrapper(_currentRowIndex, currentHeaderCol.Key, currentHeaderCol.Value, true)
+                        );
                 }
-                // ritorno messaggio di errore mancato riconosciento di colonne concentrazioni correnti
-                else
-                    _error_Messages_ReadExcel += String.Format(Excel_ErrorMessages.Formato2_Foglio1_LegheConcentrazioni.ERRORE_NESSUNACONCENTRAZIONERICONOSCIUTAPERHEADER, _foglioExcelCorrente.Name);
             }
-            // ritorno messaggio di errore mancato riconoscimento di colonne concentrazioni correnti
-            else 
-                _error_Messages_ReadExcel += String.Format(Excel_ErrorMessages.Formato2_Foglio1_LegheConcentrazioni.ERRORE_NESSUNACONCENTRAZIONERICONOSCIUTAPERHEADER, _foglioExcelCorrente.Name);
+            
+            if(recognizedValues.Count() == 0)
+            {
+                _warning_Messages_ReadExcel += "nessuna proprieta riconosciuta per la riga {0}" + _currentRowIndex;
+                return false;
+            }
 
+            return true;
+        }
+
+
+        /// <summary>
+        /// Permette di costruire i containers delle proprieta suddividi per indici di riga o di colonna in base all'iterazione foglio corrente 
+        /// </summary>
+        /// <param name="recognizedProperties"></param>
+        /// <returns></returns>
+        private static List<Excel_PropertiesContainer> BuildPropertiesContainerForRecognition_Format1Sheet1_Leghe(List<Excel_PropertyWrapper> recognizedProperties)
+        {
+            // ordimento della lista di partenza delle proprieta di riga in base all'indice di riga corrente 
+            recognizedProperties = recognizedProperties.OrderBy(x => x.Row_Position).ToList();
+
+            // indice di riga corrente in iterazione
+            int rowIndexForProperty = 0;
+
+            // definizione di tutti i contenitori definiti
+            List<Excel_PropertiesContainer> allDefinedPropertiesContainer = new List<Excel_PropertiesContainer>();
+            // definizione contenitore corrente 
+            Excel_PropertiesContainer currentPropertyContainer = new Excel_PropertiesContainer();
+            currentPropertyContainer.PropertiesDefinition = new List<Excel_PropertyWrapper>();
+
+            // iterazione e inserimento nello stesso properties container in base alla definizione di proprieta di lega per il primo foglio e la tipologia di excel 1
+            foreach(Excel_PropertyWrapper currentPropertyInstance in recognizedProperties)
+            {
+                // primo oggetto iterato
+                if(currentPropertyInstance == recognizedProperties.First())
+                {
+                    // prima riga di iterazione
+                    rowIndexForProperty = currentPropertyInstance.Row_Position;
+
+                    currentPropertyContainer.PropertiesDefinition.Add(
+                        currentPropertyInstance
+                        );
+                }
+
+
+                // definizione di nuovo oggetto
+                else if(rowIndexForProperty != currentPropertyInstance.Row_Position)
+                {
+                    // se il contenitore nella versione precedente contiene la definizione di proprieta lo aggiungo a tutti i contenitori definiti
+                    if (currentPropertyContainer.PropertiesDefinition.Count() > 0)
+                        allDefinedPropertiesContainer.Add(currentPropertyContainer);
+
+                    currentPropertyContainer = new Excel_PropertiesContainer();
+                    currentPropertyContainer.PropertiesDefinition = new List<Excel_PropertyWrapper>();
+
+                    // aggiunta per la riga corrente (per questa tipologia è la stessa di inizio e fine 
+                    currentPropertyContainer.StartingRowIndex = currentPropertyInstance.Row_Position;
+                    currentPropertyContainer.EndingRowIndex = currentPropertyInstance.Row_Position;
+
+
+                    // aggiunta della proprieta per la riga corrente 
+                    currentPropertyContainer.PropertiesDefinition.Add(
+                        currentPropertyInstance
+                        );
+
+
+                    // nuova riga iterazione 
+                    rowIndexForProperty = currentPropertyInstance.Row_Position;
+                }
+                // aggiungo la proprieta di riga al contenitore già istanziato
+                else
+                    currentPropertyContainer.PropertiesDefinition.Add(
+                        currentPropertyInstance
+                        );
+
+                // aggiungo anche l'ultimo elemento al container finale
+                if(currentPropertyInstance == recognizedProperties.Last() && currentPropertyContainer.PropertiesDefinition.Count() > 0)
+                    allDefinedPropertiesContainer.Add(currentPropertyContainer);
+
+
+            }
+
+            return allDefinedPropertiesContainer;
+        }
+
+
+        /// <summary>
+        /// Adempimento di tutte le proprieta obbligatorie e opzionali per la lega sulla riga corrente 
+        /// (foglio di tipo 2)
+        /// </summary>
+        /// <param name="currentRowIndex"></param>
+        /// <returns></returns>
+        private static Excel_PropertiesContainer BuildPropertiesContainerForRecognition_Format2Sheet_Leghe(int currentRowIndex)
+        {
+
+            #region ADEMPIMENTO DELLE PROPRIETA DI LEGA 
+
+            // contenitore per le proprieta correnti di lega 
+            Excel_PropertiesContainer currentPropertiesAlloy = new Excel_PropertiesContainer();
+            currentPropertiesAlloy.PropertiesDefinition = new List<Excel_PropertyWrapper>();
+
+            // riempimento delle proprieta obbligatorie
+            foreach (KeyValuePair<int, string> currentMandatoryProperty in _mandatoryTitlesColumnMapper)
+            {
+                // creazione del contenitore per la proprieta obbligatoria attuale
+                Excel_PropertyWrapper currentProperty = new Excel_PropertyWrapper(currentRowIndex,
+                    currentMandatoryProperty.Key,
+                    currentMandatoryProperty.Value,
+                    false);
+
+                // aggiunta della proprieta obbligatoria al contenitore
+                currentPropertiesAlloy.PropertiesDefinition.Add(currentProperty);
+            }
+
+            // riempimento delle proprieta opzionali
+            foreach(KeyValuePair<int, string> currentOptionalAlloy in _mandatoryTitlesColumnMapper)
+            {
+                // creazione del contenitore per la proprieta opzionale attuale
+                Excel_PropertyWrapper currentProperty = new Excel_PropertyWrapper(currentRowIndex,
+                    currentOptionalAlloy.Key,
+                    currentOptionalAlloy.Value,
+                    true);
+
+                // aggiunta della proprieta opzionale al contenitore
+                currentPropertiesAlloy.PropertiesDefinition.Add(currentProperty);
+            }
+
+            #endregion
+            
+            return currentPropertiesAlloy;
+        }
+
+
+        /// <summary>
+        /// Recupero di tutti i possibili valori per le proprieta degli elementi per la riga (e quindi la lega) che viene passata in input
+        /// per l'iterazione corrente 
+        /// </summary>
+        /// <param name="currentRowIndex"></param>
+        /// <returns></returns>
+        private static List<Excel_PropertiesContainer> BuildPropertiesContainerForRecognition_Format2Sheet_ConcentrationsOnRow(int currentRowIndex)
+        {
+            // inizializzazione del contenitore per tutte le proprieta di concentrazioni correntemente in lettura 
+            List<Excel_PropertiesContainer> currentPropertiesConcentrations = new List<Excel_PropertiesContainer>();
+
+            // selezione di tutte le proprieta relative alle concentrazioni per la riga corrente 
+            List<MapperElementFormat2> propertiesObjConcentrationsCurrentRow = _mapperElementsFormat2Sheet3.Where(x => x.CurrentRowIndex == currentRowIndex).ToList();
+
+            // iterazione e valorizzazione per l'oggetto corrente
+            Excel_PropertiesContainer propertiesForCurrentAlloy = new Excel_PropertiesContainer();
+            propertiesForCurrentAlloy.PropertiesDefinition = new List<Excel_PropertyWrapper>();
+
+            foreach(MapperElementFormat2 propertiesElements in propertiesObjConcentrationsCurrentRow)
+            {
+                // proprieta obbligatorie
+                foreach(KeyValuePair<int, string> mandatoryProperyInstance in propertiesElements.MandatoryProperties)
+                {
+                    Excel_PropertyWrapper currentProperty = new Excel_PropertyWrapper(currentRowIndex,
+                        mandatoryProperyInstance.Key,
+                        mandatoryProperyInstance.Value,
+                        false);
+
+                    // aggiunta della proprieta obbligatoria al set di tutte le proprieta per l'elemento corrente 
+                    propertiesForCurrentAlloy.PropertiesDefinition.Add(currentProperty);
+                }
+
+
+                // proprieta opzionali
+                foreach(KeyValuePair<int, string> optionalPropertyInstance in propertiesElements.OptionalProperties)
+                {
+                    Excel_PropertyWrapper currentProperty = new Excel_PropertyWrapper(
+                        currentRowIndex,
+                        optionalPropertyInstance.Key,
+                        optionalPropertyInstance.Value,
+                        true
+                        );
+
+                    // aggiunta della proprieta opzionale al set di tutte le proprieta per l'elemento corrente 
+                    propertiesForCurrentAlloy.PropertiesDefinition.Add(currentProperty);
+                }
+
+                // aggiunta del set di tutte le proprieta individuate per l'elemento corrente all'interno dell'insieme finale
+                currentPropertiesConcentrations.Add(propertiesForCurrentAlloy);
+            }
+
+            // ritorno del set finale per le proprieta 
+            return currentPropertiesConcentrations;
+        }
+
+
+
+
+        /// <summary>
+        /// Permette la compilazione dell'eventuale messaggio di errore da inserire per l'elemento correntemente in analisi 
+        /// viene ritornato false se per il dizionario individuato non sono state lette correttamente tutte le proprieta in analisi
+        /// </summary>
+        /// <param name="mandatoryTitles"></param>
+        /// <param name="propertiesToVerify"></param>
+        /// <returns></returns>
+        private static bool CompileErrorMessage(List<string> mandatoryTitles, Dictionary<int, string> propertiesToVerify)
+        {
+            // TODO : implementazione partendo dai metodi gia definiti per questo caso 
             return false;
         }
 
 
         /// <summary>
-        /// Permette di stabilire se siano state lette o meno tutte le informazioni inerenti una certa colonna concentrazioni per l'iterazione attuale 
-        /// per ogni proprieta non riconosciuta viene accodato il messaggio nella lista dei messaggi di errore e questa opzione è invalidante rispetto 
-        /// al riconoscimento di tutto il secondo formato
+        /// Permette la compilazione dell'eventuale messaggio di warning da inserire per l'elemeneto correntemente in analisi
+        /// in questo caso non è necessario un valore di ritorno in quanto le proprieta opzionali non sono discriminanti per una
+        /// eventuale corretta lettura dell'oggetto finale
         /// </summary>
-        /// <param name="recognizedMandatoryProperties"></param>
-        private static void CheckMandatoryPropertiesConcentrations_Format2(List<string> recognizedMandatoryProperties)
+        /// <param name="optionalTitles"></param>
+        /// <param name="propertiesToVerify"></param>
+        private static void CompileWarningMessage(List<string> optionalTitles, Dictionary<int, string> propertiesToVerify)
         {
-            foreach (string mandatoryProperty in Constants_Excel.PROPRIETAOBBLIGATORIE_ELEM_FORMAT2)
-                if (!recognizedMandatoryProperties.Contains(mandatoryProperty))
-                    _error_Messages_ReadExcel += String.Format(Excel_ErrorMessages.Formato2_Foglio1_LegheConcentrazioni.ERRORE_MANCATORICONOSCIMENTOPROPRIETAOBBLIGATORIACONCENTRAZIONI, _currentRowIndex, mandatoryProperty);
+            // TODO : implementazione partendo dai metodi definiti per questo caso
         }
 
-
-        /// <summary>
-        /// Permette di stabilire se c'è stata mancanza riconoscimento di alcune proprieta opzionali per le colonne concentrazioni e il foglio in iterazione corrente 
-        /// se cosi è allora devo restituire il nel messaggio di warnings l'accodamento della stringa che mi dice il mancato riconoscimento per questa proprieta 
-        /// </summary>
-        /// <param name="optionalProperties"></param>
-        private static void CheckOptionalPropertiesConcentrations_Format2(List<string> optionalProperties)
-        {
-            foreach (string optionalProperty in Constants_Excel.PROPRIETAOPZIONALI_ELEM_FORMAT2)
-                if (!optionalProperties.Contains(optionalProperty))
-                    _warning_Messages_ReadExcel += String.Format(Excel_WarningMessages.Formato2_Foglio1_LegheConcentrazioni.WARNING_MANCATORICONOSCIMENTOPROPRIETAOPZIONALE_CONCENTRAZIONI, _currentRowIndex, optionalProperty);
-        }
+        #endregion
     }
 }

@@ -295,7 +295,7 @@ namespace ToolImportazioneLeghe_Console.Messaging_Console
         /// <param name="foglioLettura"></param>
         /// <param name="posizioneFoglio"></param>
         /// <param name="tipologiaFoglioFormato1"></param>
-        public void ExcelReaders_Message_LetturaFoglioTipoFormato1AvvenutaCorrettamente(string foglioLettura, int posizioneFoglio, Constants_Excel.TipologiaFoglio_Format1 tipologiaFoglioFormato1)
+        public void ExcelReaders_Message_LetturaFoglioTipoFormato1AvvenutaCorrettamente(string foglioLettura, int posizioneFoglio, Constants_Excel.TipologiaFoglio_Format tipologiaFoglioFormato1)
         {
             string currentMessage = String.Format(excelService_Marker + readerExcel_Marker + "PRIMO FORMATO: ho letto correttamente le informazioni per tipologia '{0}' per il foglio '{1}' in posizione {2}", tipologiaFoglioFormato1, foglioLettura, posizioneFoglio);
             ConsoleService.FormatMessageConsole(currentMessage, true);
@@ -321,7 +321,7 @@ namespace ToolImportazioneLeghe_Console.Messaging_Console
         /// <param name="foglioLetturaCorrente"></param>
         /// <param name="posizioneFoglio"></param>
         /// <param name="tipologiaFoglioFOrmato1"></param>
-        public void ExcelReaders_Message_LetturaFoglioFormato1AvvenutaConErrori(string foglioLetturaCorrente, int posizioneFoglio, Constants_Excel.TipologiaFoglio_Format1 tipologiaFoglioFormato1)
+        public void ExcelReaders_Message_LetturaFoglioFormato1AvvenutaConErrori(string foglioLetturaCorrente, int posizioneFoglio, Constants_Excel.TipologiaFoglio_Format tipologiaFoglioFormato1)
         {
             string currentMessage = String.Format(excelService_Marker + readerExcel_Marker + "PRIMO FORMATO: ERRORE nella lettura delle informazioni del foglio '{0}' in posizione {1} e per il formato '{2}', non potrò proseguire con l'analisi di questo foglio", foglioLetturaCorrente, posizioneFoglio, tipologiaFoglioFormato1);
             ConsoleService.FormatMessageConsole(currentMessage, true);

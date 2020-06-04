@@ -10,7 +10,7 @@ namespace ToolImportazioneLeghe_Console.Excel.Model_Excel
     /// Oggetto che identifica le colonne nelle quali andare a leggere le diverse proprieta legate alle concentrazioni
     /// per la seconda tipologia di foglio excel in lettura corrente 
     /// </summary>
-    public class Excel_Format2_ConcColumns
+    public class Excel_ConcColumns_Definition
     {
         /// <summary>
         /// Nome per l'elemento corrente, letto nell'intestazione di colonna 

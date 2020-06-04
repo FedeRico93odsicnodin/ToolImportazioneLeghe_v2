@@ -35,11 +35,12 @@ namespace ToolImportazioneLeghe_Console.Excel
         /// Indica se il foglio correntemente in analisi è relativo alla lettura delle informazioni di lega 
         /// piuttosto che dei quadranti per le diverse concentrazioni
         /// </summary>
-        public enum TipologiaFoglio_Format1
+        public enum TipologiaFoglio_Format
         {
             NotDefined = 0,
             FoglioLeghe = 1,
-            FoglioConcentrazioni = 2
+            FoglioConcentrazioni = 2,
+            FoglioLegheConcentrazioni = 3
         }
 
 

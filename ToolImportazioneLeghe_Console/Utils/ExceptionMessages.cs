@@ -80,13 +80,7 @@ namespace ToolImportazioneLeghe_Console.Utils
         /// Eccezione mancata apertura corretta per il foglio excel passato in input
         /// </summary>
         public static string EXCEL_PROBLEMAAPERTURAFILE = "si è verificato il seguente problema durante l'apertura del file excel '{0}':\n\n{1}";
-
-
-        /// <summary>
-        /// Eccezione relativa al fatto che il file excel corrente non è stato correttamente predisposto in memoria per l'analisi
-        /// </summary>
-        public static string EXCEL_FILENOTINMEMORY = "il file excel per l'analisi non è stato correttamente caricato in memoria";
-
+        
 
         /// <summary>
         /// Eccezione utilizzata a livello di creazione e inserimento proprietà excel in lettura all'interno del wrapper

@@ -12,159 +12,97 @@ namespace ToolImportazioneLeghe_Console.Excel.Model_Excel
     /// </summary>
     public class Excel_PropertyWrapper
     {
-        #region DIZIONARIO DI PROPRIETA PER L'ISTANZA DEL WRAPPER
-
-        /// <summary>
-        /// Contiene le proprieta in base all'istanza che si decide in fase di costruzione 
-        /// del contenitore di proprieta (proprieta obbligatorie)
-        /// </summary>
-        private Dictionary<string, string> _propertiesSet_Mandatory;
-
-
-        /// <summary>
-        /// Contiene il set delle eventuali proprieta opzionali presenti per l'istanza corrente 
-        /// </summary>
-        private Dictionary<string, string> _propertiesSet_Optional;
-        
-        #endregion
-
 
         #region COSTRUTTORE
 
         /// <summary>
-        /// Inizializzazione del dizionario delle proprieta in base alla tipologia di foglio corrente 
+        /// Valorizzazione della proprieta correntemente in analisi per il caso excel, tutti i parametri sono per l'identificazione 
+        /// della proprieta in maniera primaria sono inseriti nel momento in cui la proprieta viene effettivamente creata per il caso corrente 
         /// </summary>
-        /// <param name="mandatoryProperties"></param>
-        /// <param name="optionalProperties"></param>
-        /// <param name="sheetTipology"></param>
-        public Excel_PropertyWrapper(string[] mandatoryProperties, string[] optionalProperties, Constants_Excel.TipologiaPropertiesFoglio sheetTipology)
+        /// <param name="rowPosition"></param>
+        /// <param name="colPosition"></param>
+        /// <param name="propertyName"></param>
+        /// <param name="isOptional"></param>
+        public Excel_PropertyWrapper(int rowPosition, int colPosition, string propertyName, bool isOptional)
         {
-
-            if (mandatoryProperties == null)
-                throw new Exception(ExceptionMessages.EXCEL_READINGPROPERTIES);
-
-            if (mandatoryProperties.Count() == 0)
-                throw new Exception(ExceptionMessages.EXCEL_READINGPROPERTIES);
-
-            _propertiesSet_Mandatory = new Dictionary<string, string>();
-
-            foreach (string mandatoryProperty in mandatoryProperties)
-                _propertiesSet_Mandatory.Add(mandatoryProperty, String.Empty);
-
-            if (optionalProperties == null)
-                throw new Exception(ExceptionMessages.EXCEL_READINGPROPERTIES);
-
-            if (optionalProperties.Count() == 0)
-                throw new Exception(ExceptionMessages.EXCEL_READINGPROPERTIES);
-
-            _propertiesSet_Optional = new Dictionary<string, string>();
-
-            foreach (string optionalProperty in optionalProperties)
-                _propertiesSet_Optional.Add(optionalProperty, String.Empty);
-
-
-            TipologyPropertiesWrapper = sheetTipology;
+            Row_Position = rowPosition;
+            Col_Position = colPosition;
+            PropertyName = propertyName;
+            IsOptional = isOptional;
         }
 
         #endregion
 
 
-        #region GETTERS - SETTERS DI PROPRIETA E TIPOLOGIA WRAPPER
+        #region INDICI PER LA LETTURA DELLA PROPRIETA CORRENTE 
 
         /// <summary>
-        /// Indica la tipologia di proprieta per il wrapper corrente tra quelle per cui il wrapper 
-        /// puo essere effettivamente istanziato
+        /// Riga posizione per la proprieta corrente nel file excel in lettura 
         /// </summary>
-        public Constants_Excel.TipologiaPropertiesFoglio TipologyPropertiesWrapper { get; }
-
-
-        /// <summary>
-        /// Permette di ritornare il counter per le proprieta obbligatorie correnti, questo valoreè eventualmente da confrontare con 
-        /// la dimensionalita delle proprieta obbligatorie per capire se tutti gli inserimenti sono stati effettuati
-        /// </summary>
-        public int CounterMandatoryProperties
-        {
-            get
-            {
-                // ritorno il counter sulle proprieta che sono state effettivamente valorizzate durante un particolare inserimento per le proprieta obbligatorie
-                return _propertiesSet_Mandatory.Where(x => x.Value != String.Empty).Select(x => x.Key).ToList().Count();
-            }
-        }
+        public int Row_Position { get; set; }
 
 
         /// <summary>
-        /// Permette di ottenere il counter rispetto alle proprieta opzionali correntemente valorizzate in base alla natura per l'oggetto corrente 
-        /// se queste proprieta sono tutte non valorizzate cosi come le proprieta relative al caso obbligatorio, significa che sono in presenza di una riga nulla che viene unicamente segnalata come warning
-        /// per il recupero delle informazioni correnti
+        /// Colonna posizione per la proprieta corrente nel file excel in lettura  
         /// </summary>
-        public int CounterOptionalProperties
-        {
-            get
-            {
-                // ritorno il counter sulle proprieta che sono state effettivamente valorizzate in via opzionale durante un particolare inserimento per le proprieta opzionali
-                return _propertiesSet_Optional.Where(x => x.Value != String.Empty).Select(x => x.Key).Count();
-            }
-        }
+        public int Col_Position { get; set; }
 
 
         /// <summary>
-        /// Permette di ottenere il valore per una proprieta obbligatoria inserita 
-        /// all'interno del wrapper corrente 
+        /// Valore di stringa per il nome della proprieta letta, questa proprieta viene presa dalle definizioni di proprieta 
+        /// obbligatoria o opzionale per i 2 formati disponibili di foglio 
         /// </summary>
-        /// <param name="property"></param>
-        /// <returns></returns>
-        public string GetMandatoryProperty(string property)
-        {
-            if (!_propertiesSet_Mandatory.ContainsKey(property))
-                throw new Exception(String.Format(ExceptionMessages.EXCEL_PROPERTYNOTDEFINED, TipologyPropertiesWrapper));
-
-            return _propertiesSet_Mandatory[property];
-        }
+        public string PropertyName { get; set; }
 
 
         /// <summary>
-        /// Permette di ottenere il valore per la proprieta opzionale inserita 
-        /// all'interno del wrapper corrente 
+        /// Indicazione di proprieta opzionale per istanza corrente di proprieta
         /// </summary>
-        /// <param name="property"></param>
-        /// <returns></returns>
-        public string GetOptionalProperty(string property)
-        {
-            if(!_propertiesSet_Optional.ContainsKey(property))
-                throw new Exception(String.Format(ExceptionMessages.EXCEL_PROPERTYNOTDEFINED, TipologyPropertiesWrapper));
-
-            return _propertiesSet_Optional[property];
-        }
+        public bool IsOptional { get; set; }
 
 
         /// <summary>
-        /// Permette di inserire un nuovo valore per la proprieta qualora questo sia nella definizione
-        /// delle proprieta obbligatorie
+        /// Valore di stringa per la proprieta corrente, questo valore puo corrispondere alla definizione di stringa 
+        /// che ne verrà già data oppure alla definizione di un qualche valore numerico di cui dovrà essere corretta 
+        /// la trasformazione
         /// </summary>
-        /// <param name="property"></param>
-        /// <param name="value"></param>
-        public void InsertMandatoryValue(string property, string value)
-        {
-            if(!_propertiesSet_Mandatory.ContainsKey(property))
-                throw new Exception(String.Format(ExceptionMessages.EXCEL_PROPERTYNOTDEFINED, TipologyPropertiesWrapper));
+        public string StringValue { get; set; }
 
-            _propertiesSet_Mandatory[property] = value;
-        }
+        #endregion
+
+
+        #region VALIDAZIONI SU PROPRIETA CORRENTE - MI SERVONO PER LA STAMPA DEL RELATIVO LOG
+
+        /// <summary>
+        /// Indica se l'instanza corrente passa la validazione 1: questa validazione corrisponde 
+        /// alla lettura corretta di un qualche valore presente nella cella
+        /// </summary>
+        public bool Validation1_OK { get; set; }
 
 
         /// <summary>
-        /// Permette di inserire un nuovo valore per la proprieta qualora questa sia nella definizione 
-        /// delle proprieta opzionali
+        /// Indica se l'instanza corrente passa la validazione 2: questa validazione corrisponde 
+        /// all'associazione con un valore netto per l'instanza corrente (per esempio le stringhe 
+        /// convertite correttamente in valori numerici)
         /// </summary>
-        /// <param name="property"></param>
-        /// <param name="value"></param>
-        public void InsertOptionalValue(string property, string value)
-        {
-            if(!_propertiesSet_Optional.ContainsKey(property))
-                throw new Exception(String.Format(ExceptionMessages.EXCEL_PROPERTYNOTDEFINED, TipologyPropertiesWrapper));
+        public bool Validation2_OK { get; set; }
 
-            _propertiesSet_Optional[property] = value;
-        }
+
+        /// <summary>
+        /// Indica se l'istanza corrente passa la validazione 3: questa validazione corrisponde 
+        /// all'associazione fatta SULLO STESSO EXCEL rispetto alle informazioni recuperate 
+        /// (per esempio trovo che tutte le definizioni per una particolare concentrazione sono associate correttamente 
+        /// alle informazioni di lega e viceversa)
+        /// </summary>
+        public bool Validation3_OK { get; set; }
+
+
+        /// <summary>
+        /// Passaggio per la validazione 4: questa validazione è fatta rispetto alle definizioni della destinazione 
+        /// rispetto alla quale si va a persistere l'informazione (per esempio nella destinazione esiste già la definizione 
+        /// per l'istanza corrente, quindi non ha senso persisterla)
+        /// </summary>
+        public bool Validation4_OK { get; set; }
 
         #endregion
 
