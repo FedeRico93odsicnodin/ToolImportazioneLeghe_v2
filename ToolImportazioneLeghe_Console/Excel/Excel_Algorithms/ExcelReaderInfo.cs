@@ -200,7 +200,7 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
             _currentEmptyPropertiesSheetInstance.ErrorMessageSheet += _errorMessages_CurrentInstance;
             _currentEmptyPropertiesSheetInstance.WarningMessageSheet += _warningMessages_CurrentInstance;
 
-
+            //
             bool validationOnLegheConcentrations = false;
 
 
