@@ -214,8 +214,7 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
                     {
 
                         if (_currentEmptyPropertiesSheetInstance.ConcentrationsPropertiesInstances.Where(x => x.StartingRowIndex == currentPropertiesLeghe.StartingRowIndex
-                        && x.ValidatedElem == true
-                        ).Count() > 0
+                        ).Count() > 0 && currentPropertiesLeghe.ValidatedElem 
                             )
                         {
                             currentPropertiesLeghe.ValidatedAssociation = true;

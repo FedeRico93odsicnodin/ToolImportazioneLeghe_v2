@@ -40,7 +40,7 @@ namespace ToolImportazioneLeghe_Console.Utils
         /// <summary>
         /// Fomrat per il file excel utilizzato come eventuale sorgente 
         /// </summary>
-        public static FormatFileExcel format_foglio_origin = FormatFileExcel.DatabaseLeghe;
+        public static FormatFileExcel format_foglio_origin = FormatFileExcel.Cliente;
 
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace ToolImportazioneLeghe_Console.Utils
         /// Path per l'eventuale file excel di origine 
         /// </summary>
         //public static string ExcelSourcePath = "C:\\Users\\Fede\\Desktop\\Alloy_test.xlsx";
-        public static string ExcelSourcePath = "E:\\GNR_Data\\Nickel_Alloys.xlsx";
+        public static string ExcelSourcePath = "E:\\GNR_Data\\Alloy_test.xlsx";
 
 
         /// <summary>

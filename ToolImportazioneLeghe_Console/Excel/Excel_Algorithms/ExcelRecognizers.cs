@@ -75,7 +75,7 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
         /// Limite sul numero di righe consentite in lettura vuota prima del riconoscimento dell'header per il quadrante delle concentrazioni
         /// in analisi corrente (lettura concentrazioni per il primo formato disponibile)
         /// </summary>
-        private const int _LIMITHEADERCONCENTRATIONRECOGNITION = 5;
+        private const int _LIMITHEADERCONCENTRATIONRECOGNITION = 2;
         
         
         /// <summary>
@@ -353,10 +353,7 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
             // informazioni relative alla valorizzazione dei diversi elementi per le concentrazioni
             List<Excel_ConcColumns_Definition> informazioniColonneConcentrazioniCorrenti = new List<Excel_ConcColumns_Definition>();
 
-
-            // indici massimo e minimo di iterazione
-            int indexRow_Max = 1;
-            int intexCol_Max = 1;
+            
 
             // indici di colonna e di riga su iterazione corrente 
             _currentRowIndex = 0;
@@ -374,20 +371,22 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
 
             #region RICONOSCIMENTO HEADERS 
 
-            while (_currentRowIndex <= indexRow_Max) 
+            while (_currentRowIndex <= _foglioExcelCorrente.Dimension.End.Row) 
             {
 
                 _currentRowIndex++;
 
-                while (_currentColIndex <= intexCol_Max) 
+                while (_currentColIndex <= _foglioExcelCorrente.Dimension.End.Column) 
                 {
+                    _currentColIndex++;
 
                     int maxIndexConcentrations = 0;
 
                     // riconoscimento proprieta per header leghe - riconoscimento della colonna dalla quale iniziare a leggere per le concentrazioni
                     if (RecognizeHeaderOnRow(Constants_Excel.PROPRIETAOBBLIGATORIE_FORMAT2_LEGHE.ToList(), Constants_Excel.PROPRIETAOPZIONALI_FORMAT2_LEGHE.ToList(), out maxIndexConcentrations))
                     {
-                        _currentColIndex = maxIndexConcentrations;
+                        // incremento di uno per iniziare la successiva lettura delle proprieta degli elementi
+                        _currentColIndex = maxIndexConcentrations + 1;
                         hoRiconosciutoHeaderLeghe = true;
                     }
                     else
@@ -401,6 +400,10 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
                         
 
                 }
+
+                // esco se ho riconosciuto entrambi gli headers
+                if (hoRiconosciutoHeaderLeghe && hoRiconosciutoHeaderConcentrazioni)
+                    break;
 
                 _currentColIndex = 0;
 
@@ -450,6 +453,8 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
                     currentAssociationLegheConcentrazioni.RifConcentrationsCurrentLega = currentPropertiesConcentrations;
 
                     recognizedInfoFormat2.AlloyInstances.Add(currentAssociationLegheConcentrazioni);
+
+                    _contentRowIndex++;
                     
                     #endregion
                 }
@@ -506,7 +511,6 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
             {
                 titleMateriale = _foglioExcelCorrente.Cells[_currentRowIndex, _currentColIndex].Value.ToString();
                 titleRecognized = true;
-                _currentRowIndex++;
             }
             // non è avvenuto il corretto riconoscimento per il title
             else
@@ -595,6 +599,8 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
                 if (maxColValueCurrentQuadrant >= _maxColIndexPreviousQuadrantsRecognition)
                     _maxColIndexPreviousQuadrantsRecognition = maxColValueCurrentQuadrant;
 
+                _currentRowIndex--;
+
                 return true;
 
             }
@@ -645,7 +651,11 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
 
                 // calcolo dell'indice massimo relativo alle proprieta obbligatorie
                 int maxColMandatoryProperties = _mandatoryTitlesColumnMapper.Select(x => x.Key).Max();
-                int maxColOptionalProperties = _optionalTitlesColumnMapper.Select(x => x.Key).Max();
+
+                int maxColOptionalProperties = 0;
+
+                if (_optionalTitlesColumnMapper.Count() > 0)
+                    maxColOptionalProperties = _optionalTitlesColumnMapper.Select(x => x.Key).Max();
 
                 if (maxColMandatoryProperties > maxColOptionalProperties)
                     currentValueColMax = maxColMandatoryProperties;
@@ -755,7 +765,7 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
             
 
             // tutte le proprieta per l'elemento corrente 
-            MapperElementFormat2 propertiesElementoCorrente;
+            MapperElementFormat2 propertiesElementoCorrente = new MapperElementFormat2();
 
             // non lettura corretta per anche solo un elemento di tutte le proprieta obbligatorie
             bool missedMandatoryProperties = false;
@@ -770,18 +780,32 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
                     if (_foglioExcelCorrente.Cells[_rowElemento, _currentColIndex].Value != null)
                         elementoCorrente = _foglioExcelCorrente.Cells[_rowElemento, _currentColIndex].Value.ToString();
 
+
+                    // tutte le proprieta per l'elemento corrente 
+                    propertiesElementoCorrente = new MapperElementFormat2();
+
                     // inizializzazione dizionari lettura colonne proprieta opzionali obbligatorie
                     columnsMandatoryProperties = new Dictionary<int, string>();
                     columnsOptionalProperties = new Dictionary<int, string>();
-                   
+
+                    propertiesElementoCorrente.NameElement = elementoCorrente;
+                    propertiesElementoCorrente.CurrentRowIndex = _rowElemento;
+
+
                 }
                 // devo cambiare elemento prima di continuare con iterazione corrente 
                 else if(_foglioExcelCorrente.Cells[_rowElemento, _currentColIndex].Value != null)
                 {
-                    propertiesElementoCorrente = new MapperElementFormat2();
 
-                    propertiesElementoCorrente.NameElement = elementoCorrente;
-                    propertiesElementoCorrente.CurrentRowIndex = _rowElemento;
+
+                    propertiesElementoCorrente.MandatoryProperties = columnsMandatoryProperties;
+                    propertiesElementoCorrente.OptionalProperties = columnsOptionalProperties;
+
+                    // aggiunta elemento precedente 
+                    _mapperElementsFormat2Sheet3.Add(propertiesElementoCorrente);
+
+
+                    propertiesElementoCorrente = new MapperElementFormat2();
 
                     // verifica lettura di tutte le proprieta obbligatorie per l'elemento corrente 
                     if (!CompileErrorMessage(Constants_Excel.PROPRIETAOBBLIGATORIE_ELEM_FORMAT2.ToList(), columnsMandatoryProperties))
@@ -790,11 +814,11 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
                     // compilazione eventuale messaggio warning verifica lettura di tutte le proprieta opzionali
                     CompileWarningMessage(Constants_Excel.PROPRIETAOPZIONALI_ELEM_FORMAT2.ToList(), columnsOptionalProperties);
 
-                    propertiesElementoCorrente.MandatoryProperties = columnsMandatoryProperties;
-                    propertiesElementoCorrente.OptionalProperties = columnsOptionalProperties;
-
                     // inizializzazione per continuare iterazione corrente 
                     elementoCorrente = _foglioExcelCorrente.Cells[_rowElemento, _currentColIndex].Value.ToString();
+
+                    propertiesElementoCorrente.NameElement = elementoCorrente;
+                    propertiesElementoCorrente.CurrentRowIndex = _rowElemento;
 
                     columnsMandatoryProperties = new Dictionary<int, string>();
                     columnsOptionalProperties = new Dictionary<int, string>();
@@ -841,23 +865,19 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
             // iterazione per le proprieta obbligatorie
             foreach(KeyValuePair<int, string> currentHeaderCol in _mandatoryTitlesColumnMapper)
             {
-                if(_foglioExcelCorrente.Cells[_currentRowIndex, currentHeaderCol.Key].Value != null)
-                {
                     recognizedValues.Add(
                         new Excel_PropertyWrapper(_currentRowIndex, currentHeaderCol.Key, currentHeaderCol.Value, false)
                         );
-                }
+                
             }
 
             // iterazione per le proprieta opzionali
             foreach(KeyValuePair<int, string> currentHeaderCol in _optionalTitlesColumnMapper)
             {
-                if(_foglioExcelCorrente.Cells[_currentRowIndex, currentHeaderCol.Key].Value != null)
-                {
                     recognizedValues.Add(
                         new Excel_PropertyWrapper(_currentRowIndex, currentHeaderCol.Key, currentHeaderCol.Value, true)
                         );
-                }
+                
             }
             
             if(recognizedValues.Count() == 0)
@@ -960,6 +980,12 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
             Excel_PropertiesContainer currentPropertiesAlloy = new Excel_PropertiesContainer();
             currentPropertiesAlloy.PropertiesDefinition = new List<Excel_PropertyWrapper>();
 
+
+            // indicazione di riga per il container attuale 
+            currentPropertiesAlloy.StartingRowIndex = currentRowIndex;
+            currentPropertiesAlloy.EndingRowIndex = currentRowIndex;
+
+
             // riempimento delle proprieta obbligatorie
             foreach (KeyValuePair<int, string> currentMandatoryProperty in _mandatoryTitlesColumnMapper)
             {
@@ -974,13 +1000,14 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
             }
 
             // riempimento delle proprieta opzionali
-            foreach(KeyValuePair<int, string> currentOptionalAlloy in _mandatoryTitlesColumnMapper)
+            foreach(KeyValuePair<int, string> currentOptionalAlloy in _optionalTitlesColumnMapper)
             {
                 // creazione del contenitore per la proprieta opzionale attuale
                 Excel_PropertyWrapper currentProperty = new Excel_PropertyWrapper(currentRowIndex,
                     currentOptionalAlloy.Key,
                     currentOptionalAlloy.Value,
                     true);
+
 
                 // aggiunta della proprieta opzionale al contenitore
                 currentPropertiesAlloy.PropertiesDefinition.Add(currentProperty);
@@ -1002,15 +1029,18 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
         {
             // inizializzazione del contenitore per tutte le proprieta di concentrazioni correntemente in lettura 
             List<Excel_PropertiesContainer> currentPropertiesConcentrations = new List<Excel_PropertiesContainer>();
-
-            // selezione di tutte le proprieta relative alle concentrazioni per la riga corrente 
-            List<MapperElementFormat2> propertiesObjConcentrationsCurrentRow = _mapperElementsFormat2Sheet3.Where(x => x.CurrentRowIndex == currentRowIndex).ToList();
-
+            
             // iterazione e valorizzazione per l'oggetto corrente
             Excel_PropertiesContainer propertiesForCurrentAlloy = new Excel_PropertiesContainer();
             propertiesForCurrentAlloy.PropertiesDefinition = new List<Excel_PropertyWrapper>();
 
-            foreach(MapperElementFormat2 propertiesElements in propertiesObjConcentrationsCurrentRow)
+
+            // indicazione di riga per il container attuale 
+            propertiesForCurrentAlloy.StartingRowIndex = currentRowIndex;
+            propertiesForCurrentAlloy.EndingRowIndex = currentRowIndex;
+
+
+            foreach (MapperElementFormat2 propertiesElements in _mapperElementsFormat2Sheet3)
             {
                 // proprieta obbligatorie
                 foreach(KeyValuePair<int, string> mandatoryProperyInstance in propertiesElements.MandatoryProperties)
@@ -1060,7 +1090,7 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
         private static bool CompileErrorMessage(List<string> mandatoryTitles, Dictionary<int, string> propertiesToVerify)
         {
             // TODO : implementazione partendo dai metodi gia definiti per questo caso 
-            return false;
+            return true;
         }
 
 
