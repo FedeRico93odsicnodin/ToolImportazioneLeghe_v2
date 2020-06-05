@@ -67,6 +67,7 @@
     <Compile Include="Excel\ExcelService.cs" />
     <Compile Include="Excel\Excel_Algorithms\ExcelReaderInfo.cs" />
     <Compile Include="Excel\Excel_Algorithms\ExcelRecognizers.cs" />
+    <Compile Include="Excel\Excel_Algorithms\ExcelValidations.cs" />
     <Compile Include="Excel\Messages\Excel_ErrorMessages.cs" />
     <Compile Include="Excel\Messages\Excel_WarningMessages.cs" />
     <Compile Include="Excel\Model_Excel\Excel_Format2_ConcColumns.cs" />
