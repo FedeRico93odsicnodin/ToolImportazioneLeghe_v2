@@ -46,6 +46,25 @@ namespace ToolImportazioneLeghe_Console.Utils
 
 
         /// <summary>
+        /// Permette di stabilire il contenimento del primo nome passato in input nel secondo o viceversa 
+        /// </summary>
+        /// <param name="name_1"></param>
+        /// <param name="name_2"></param>
+        /// <returns></returns>
+        public bool CheckDoubleNamesContainement(string name_1, string name_2)
+        {
+            if (name_1.Contains(name_2))
+                return true;
+
+            if (name_2.Contains(name_1))
+                return true;
+
+
+            return false;
+        }
+
+
+        /// <summary>
         /// Permette di capile se il path passato è valido e nel caso viene validato creando le giuste directory
         /// e poi il file 
         /// </summary>

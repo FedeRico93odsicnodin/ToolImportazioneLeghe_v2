@@ -86,6 +86,12 @@ namespace ToolImportazioneLeghe_Console.Excel.Model_Excel
         /// </summary>
         public string WarningMessageSheet { get; set; }
 
+
+        #region PROPRIETA DI TRANSIZIONE PER FOGLIO CORRENTE 
+        
+
+        #endregion
+
         #endregion
     }
 

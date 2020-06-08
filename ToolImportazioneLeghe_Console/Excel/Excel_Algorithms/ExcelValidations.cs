@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ToolImportazioneLeghe_Console.Excel.Model_Excel;
+using ToolImportazioneLeghe_Console.Utils;
 
 namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
 {
@@ -13,6 +14,51 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
     /// </summary>
     public static class ExcelValidations
     {
+        /// <summary>
+        /// Messaggio di errori relativo alla validazione eseguita in questo step
+        /// </summary>
+        private static string _error_Message_Validation = String.Empty;
+
+
+        /// <summary>
+        /// Messaggio di warning relativo alla validazione eseguita in questo step
+        /// </summary>
+        private static string _warning_Message_Validation = String.Empty;
+
+
+        /// <summary>
+        /// Lista dei fogli di lega in analisi corrente 
+        /// </summary>
+        private static List<Excel_AlloyInfo_Sheet> _fogliLegheAnalisiCorrente;
+
+
+        /// <summary>
+        /// Lista dei fogli di concentrazione in analisi corrente 
+        /// </summary>
+        private static List<Excel_AlloyInfo_Sheet> _fogliConcentrazioniAnalisiCorrente;
+
+
+        /// <summary>
+        /// Nome del foglio di lega in analisi corrente e rispetto al quale si sta eseguendo 
+        /// il match delle informazioni
+        /// </summary>
+        private static string _nomeFoglioLegheAnalisiCorrente = String.Empty;
+
+
+        /// <summary>
+        /// Lista dei fogli di concentrazioni in analisi temporanea sui quali riconoscere rispetto alle proprieta di lega 
+        /// contenute nel foglio di leghe in iterazione corrente 
+        /// </summary>
+        private static List<Excel_AlloyInfo_Sheet> _fogliConcentrazioniTEMPAnalysis;
+
+
+        /// <summary>
+        /// Foglio di leghe sul quale si basa l'analisi corrente 
+        /// </summary>
+        private static Excel_AlloyInfo_Sheet _foglioLegheTEMPAnalysis;
+
+
+
         /// <summary>
         /// Validazione per il primo formato excel individuato
         /// </summary>
@@ -33,8 +79,60 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
             /// </summary>
             /// <param name="alreadyReadSheets"></param>
             /// <param name="orderedByCategorySheets"></param>
-            public static Constants_Excel.EsitoRecuperoInformazioniFoglio GroupSheetsByNameAssociation(List<Excel_AlloyInfo_Sheet> alreadyReadSheets, out List<Excel_AlloyInfo_Sheet> orderedByCategorySheets)
+            /// <param name="generalErrorMessage"></param>
+            /// <param name="generalWarningMessage"></param>
+            public static Constants_Excel.EsitoRecuperoInformazioniFoglio GroupSheetsByNameAssociation(
+                List<Excel_AlloyInfo_Sheet> alreadyReadSheets, 
+                out List<Excel_AlloyInfo_Sheet> orderedByCategorySheets, 
+                out string generalErrorMessage, 
+                out string generalWarningMessage)
             {
+                // lista ordinata dei fogli 
+                orderedByCategorySheets = new List<Excel_AlloyInfo_Sheet>();
+
+                // inizializzazione possibili errori warnings per il caso corrente 
+                _error_Message_Validation = String.Empty;
+                _warning_Message_Validation = String.Empty;
+                generalErrorMessage = String.Empty;
+                generalWarningMessage = String.Empty;
+
+
+                // nome per il foglio delle proprieta di lega in analisi corrente 
+                _nomeFoglioLegheAnalisiCorrente = String.Empty;
+
+                // counter per nessuna corrispondenza rispetto ai fogli di concentrazione a disposizione
+                int counterMissedAlloyCorrenspondance = 0;
+
+
+                // suddivisione delle 2 categorie di fogli in analisi
+                if(alreadyReadSheets.Where(x => x.GetTipologiaFoglio == Constants_Excel.TipologiaFoglio_Format.FoglioLeghe).Count() > 0 &&
+                    alreadyReadSheets.Where(x => x.GetTipologiaFoglio == Constants_Excel.TipologiaFoglio_Format.FoglioConcentrazioni).Count() > 0)
+                {
+                    _fogliLegheAnalisiCorrente = alreadyReadSheets.Where(x => x.GetTipologiaFoglio == Constants_Excel.TipologiaFoglio_Format.FoglioLeghe).ToList();
+                    _fogliConcentrazioniAnalisiCorrente = alreadyReadSheets.Where(x => x.GetTipologiaFoglio == Constants_Excel.TipologiaFoglio_Format.FoglioConcentrazioni).ToList();
+
+                }
+                else
+                {
+                    // TODO : sollevamento eccezione mancanta di uno o altro set
+                }
+
+                // iterazione fogli correnti
+                foreach (Excel_AlloyInfo_Sheet currentSheet in alreadyReadSheets)
+                {
+                    // verifica presenza fogli concentrazioni per il caso corrente 
+                    if (VerifyFogliConcentrazioniPresence(currentSheet.GetSheetName))
+                    {
+
+                    }
+                    else
+                    {
+                        counterMissedAlloyCorrenspondance++;
+                    }
+                        
+                }
+
+
                 orderedByCategorySheets = alreadyReadSheets;
 
                 return Constants_Excel.EsitoRecuperoInformazioniFoglio.RecuperoConErrori;
@@ -69,7 +167,40 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
                 preAssociatedValuesOnSheets = alreadyReadAlloyPropertiesSheets;
 
                 return Constants_Excel.EsitoRecuperoInformazioniFoglio.RecuperoConErrori;
-            } 
+            }
+
+
+            #region PROPRIETA PRIVATE
+
+            /// <summary>
+            /// Permette di stabilire come prima validazione se esiste o meno un certo numero di fogli di concentrazioni per il foglio di leghe 
+            /// in analisi corrente 
+            /// </summary>
+            /// <param name="currentSheetAlloyName"></param>
+            /// <returns></returns>
+            private static bool VerifyFogliConcentrazioniPresence(string currentSheetAlloyName)
+            {
+                // inizializzazione delle 2 liste relative ai diversi fogli in analisi per le concentrazioni
+                _fogliConcentrazioniTEMPAnalysis = new List<Excel_AlloyInfo_Sheet>();
+
+                // variabile che mi dice di aver individuato almeno un foglio di concentrazioni valido per le leghe in analisi corrente 
+                bool hoTrovatoAlmenoUnFoglioConcentrazioni = false;
+
+                foreach (Excel_AlloyInfo_Sheet foglioConcentrazioni in _fogliConcentrazioniAnalisiCorrente)
+                {
+                    // verifica presenza di un foglio di concentrazioni che abbia corrispondenza per il foglio leghe corrente
+                    if(ServiceLocator.GetUtilityFunctions.CheckDoubleNamesContainement(currentSheetAlloyName, foglioConcentrazioni.GetSheetName))
+                    {
+                        _fogliConcentrazioniTEMPAnalysis.Add(foglioConcentrazioni);
+                        hoTrovatoAlmenoUnFoglioConcentrazioni = true;
+                    }
+                }
+
+
+                return hoTrovatoAlmenoUnFoglioConcentrazioni;
+            }
+
+            #endregion
         }
 
 
