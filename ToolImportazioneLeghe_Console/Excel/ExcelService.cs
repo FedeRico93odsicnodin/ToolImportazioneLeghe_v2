@@ -68,7 +68,7 @@ namespace ToolImportazioneLeghe_Console.Excel
                 if (formatoExcel == Constants.FormatFileExcel.NotDefined)
                     throw new Exception(ExceptionMessages.EXCEL_FORMATNOTDEFINED);
 
-                if (modalitaApertura == Constants.ModalitaAperturaExcel.Lettura && !File.Exists(excelPath))
+                if (modalitaApertura == Constants.ModalitaAperturaExcel.READ && !File.Exists(excelPath))
                     throw new Exception(ExceptionMessages.EXCEL_SOURCENOTEXISTING);
                 else
                 {
@@ -92,9 +92,9 @@ namespace ToolImportazioneLeghe_Console.Excel
                 _openedExcel = new ExcelPackage(currentFileExcel);
 
                 // decisione su cosa viene istanziato in base alla modalità su cui agire sul file excel 
-                if (modalitaApertura == Constants.ModalitaAperturaExcel.Lettura)
+                if (modalitaApertura == Constants.ModalitaAperturaExcel.READ)
                     _excelReaders = new ExcelReaders(ref _openedExcel, formatoExcel);
-                else if (modalitaApertura == Constants.ModalitaAperturaExcel.Scrittura)
+                else if (modalitaApertura == Constants.ModalitaAperturaExcel.WRITE)
                     _excelWriters = new ExcelWriters(ref _openedExcel, formatoExcel);
 
                 return true;
@@ -143,12 +143,6 @@ namespace ToolImportazioneLeghe_Console.Excel
         /// Formato excel in apertura corrente 
         /// </summary>
         private Constants.FormatFileExcel _formatoExcel;
-
-
-        /// <summary>
-        /// Set di tutti i fogli in lettura corrente per il file excel aperto
-        /// </summary>
-        private List<Excel_AlloyInfo_Sheet> _fogliLetturaCorrente;
         
         #endregion
 
@@ -180,7 +174,7 @@ namespace ToolImportazioneLeghe_Console.Excel
         public bool RecognizeSheetsOnExcel()
         {
             // inizializzazione lista di tutti i fogli letti
-            _fogliLetturaCorrente = new List<Excel_AlloyInfo_Sheet>();
+            CommonMemList.InformazioniFoglioExcelOrigine = new List<Excel_AlloyInfo_Sheet>();
 
 
             #region RICONOSCIMENTO TIPOLOGIA PER DATABASE LEGHE 
@@ -205,8 +199,8 @@ namespace ToolImportazioneLeghe_Console.Excel
                 }
 
                 // se ho riconosciuto almeno un foglio per materiali e almeno uno per concentrazioni ritorno true, altrimenti false
-                if (_fogliLetturaCorrente.Where(x => x.GetTipologiaFoglio == Constants_Excel.TipologiaFoglio_Format.FoglioLeghe).Count() > 0 &&
-                    _fogliLetturaCorrente.Where(x => x.GetTipologiaFoglio == Constants_Excel.TipologiaFoglio_Format.FoglioConcentrazioni).Count() > 0)
+                if (CommonMemList.InformazioniFoglioExcelOrigine.Where(x => x.GetTipologiaFoglio == Constants_Excel.TipologiaFoglio_Format.FoglioLeghe).Count() > 0 &&
+                    CommonMemList.InformazioniFoglioExcelOrigine.Where(x => x.GetTipologiaFoglio == Constants_Excel.TipologiaFoglio_Format.FoglioConcentrazioni).Count() > 0)
                     return true;
 
 
@@ -237,7 +231,7 @@ namespace ToolImportazioneLeghe_Console.Excel
             #endregion
 
             // come il caso precedente 
-            if (_fogliLetturaCorrente.Where(x => x.GetTipologiaFoglio == Constants_Excel.TipologiaFoglio_Format.FoglioLegheConcentrazioni).Count() == 0)
+            if (CommonMemList.InformazioniFoglioExcelOrigine.Where(x => x.GetTipologiaFoglio == Constants_Excel.TipologiaFoglio_Format.FoglioLegheConcentrazioni).Count() == 0)
                 return false;
 
             return true;
@@ -262,7 +256,7 @@ namespace ToolImportazioneLeghe_Console.Excel
             // caso in cui il file è di primo formato
             if (_formatoExcel == Constants.FormatFileExcel.DatabaseLeghe)
             {
-                foreach (Excel_AlloyInfo_Sheet currentFoglioExcel in _fogliLetturaCorrente)
+                foreach (Excel_AlloyInfo_Sheet currentFoglioExcel in CommonMemList.InformazioniFoglioExcelOrigine)
                 {
 
                     // recupero del foglio corrente contenuto nel file di riferimento e dal quale continuare la lettura delle informazioni
@@ -356,7 +350,7 @@ namespace ToolImportazioneLeghe_Console.Excel
                 }
 
                 // attribuzione del nuovo valore per i files recuperati per il formato corrente 
-                _fogliLetturaCorrente = newFilledSheets;
+                CommonMemList.InformazioniFoglioExcelOrigine = newFilledSheets;
 
                 // per gli altri casi ritorno true in quanto il recupero si è concluso correttamente 
                 return true;
@@ -374,7 +368,7 @@ namespace ToolImportazioneLeghe_Console.Excel
                 // introduzione della variabile per inserire i fogli 2 con le informazioni correntemente recuperate per questo step
                 List<Excel_AlloyInfo_Sheet> newValuesFormat2 = new List<Excel_AlloyInfo_Sheet>();
 
-                foreach (Excel_AlloyInfo_Sheet currentFoglioExcel in _fogliLetturaCorrente)
+                foreach (Excel_AlloyInfo_Sheet currentFoglioExcel in CommonMemList.InformazioniFoglioExcelOrigine)
                 {
                     
                     // dichiarazione delle possibili stringhe di errore / warnings per il caso corrente per la seconda tipologia in analisi
@@ -420,7 +414,7 @@ namespace ToolImportazioneLeghe_Console.Excel
                 if (newValuesFormat2.Count() == 0)
                     return false;
 
-                _fogliLetturaCorrente = newValuesFormat2;
+                CommonMemList.InformazioniFoglioExcelOrigine = newValuesFormat2;
 
                 return true;
             }
@@ -476,8 +470,8 @@ namespace ToolImportazioneLeghe_Console.Excel
             {
                 // attribuzione tipologia lega 
                 recognizedInfoOnSheet.GetTipologiaFoglio = Constants_Excel.TipologiaFoglio_Format.FoglioLeghe;
-                
-                _fogliLetturaCorrente.Add(recognizedInfoOnSheet);
+
+                CommonMemList.InformazioniFoglioExcelOrigine.Add(recognizedInfoOnSheet);
                 
                 return Constants_Excel.TipologiaFoglio_Format.FoglioLeghe;
             }
@@ -491,7 +485,7 @@ namespace ToolImportazioneLeghe_Console.Excel
             {
                 // attribuzione tipologia concentrazioni
                 recognizedInfoOnSheet.GetTipologiaFoglio = Constants_Excel.TipologiaFoglio_Format.FoglioConcentrazioni;
-                _fogliLetturaCorrente.Add(recognizedInfoOnSheet);
+                CommonMemList.InformazioniFoglioExcelOrigine.Add(recognizedInfoOnSheet);
 
                 return Constants_Excel.TipologiaFoglio_Format.FoglioConcentrazioni;
             }
@@ -530,45 +524,11 @@ namespace ToolImportazioneLeghe_Console.Excel
                 RecognizedInfo.GetTipologiaFoglio = Constants_Excel.TipologiaFoglio_Format.FoglioLegheConcentrazioni;
 
                 // aggiunta del foglio corrente 
-                _fogliLetturaCorrente.Add(RecognizedInfo);
+                CommonMemList.InformazioniFoglioExcelOrigine.Add(RecognizedInfo);
 
                 return true;
             }
             
-            return false;
-        }
-
-        #endregion
-
-
-        #region METODI PRIVATI - RECUPERO DI TUTTE LE INFORMAZIONI PRESENTI SUL FILE IN BASE ALLA TIPOLOGIA
-
-        /// <summary>
-        /// Recupero di tutte le informazioni dal file excel di FORMATO 1 per un foglio relativo alle leghe
-        /// </summary>
-        /// <returns></returns>
-        private static bool ReadInfoFromExcelFormat_1_Leghe()
-        {
-            return false;
-        }
-
-
-        /// <summary>
-        /// Recupero di tutte le informazioni del file excel di FORMATO1 per un foglio relativo alle concentrazioni
-        /// </summary>
-        /// <returns></returns>
-        private static bool ReadInfoFromExcelFormat_1_Concentrations()
-        {
-            return false;
-        }
-
-
-        /// <summary>
-        /// Recupero di tutte le informazioni del file excel di FORMATO2 per un foglio relativo sia a leghe che concentrazioni
-        /// </summary>
-        /// <returns></returns>
-        private static bool ReadInfoFromExcelFormat_2()
-        {
             return false;
         }
 

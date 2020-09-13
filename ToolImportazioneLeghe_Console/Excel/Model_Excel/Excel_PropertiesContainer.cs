@@ -59,11 +59,20 @@ namespace ToolImportazioneLeghe_Console.Excel.Model_Excel
 
         #region VALIDAZIONI SU PROPRIETA CORRENTE - MI SERVONO PER LA STAMPA DEL RELATIVO LOG
         
+        /// <summary>
+        /// Proprieta che mi dice se il contenuto corrente è stato riconosciuto correttamente in funzione del log 
+        /// che dovrò eventualmente scrivere con l'incorrettezza trovata per lo step 1 di riconoscimento del foglio e relativo 
+        /// recupero delle informazioni
+        /// </summary>
+        public bool ValidationContent_STEP1_Recognition { get; set; }
 
-        public bool ValidatedElem { get; set; }
 
-
-        public bool ValidatedAssociation { get; set; }
+        /// <summary>
+        /// Proprieta che mi dice se il contenuto è stato associato correttamente in funzione del log 
+        /// che dovrò eventualmente scrivere con l'incorrettezza trovata per lo step 1 di riconoscimento del foglio e relativo 
+        /// recupero delle informazioni
+        /// </summary>
+        public bool ValidatedAssociation_STEP1_Recognition { get; set; }
 
         #endregion
     }

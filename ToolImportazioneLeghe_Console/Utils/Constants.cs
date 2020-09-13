@@ -11,7 +11,7 @@ namespace ToolImportazioneLeghe_Console.Utils
     /// </summary>
     public static class Constants
     {
-        #region EXCEL PARAMS
+        #region COMMON PARAMS
 
         /// <summary>
         /// Indicazione del fatto che il file excel in apertura venga utilizzato in modalità di lettura o 
@@ -19,8 +19,8 @@ namespace ToolImportazioneLeghe_Console.Utils
         /// </summary>
         public enum ModalitaAperturaExcel
         {
-            Lettura = 1,
-            Scrittura = 2
+            READ = 1,
+            WRITE = 2
         }
 
 
@@ -93,6 +93,41 @@ namespace ToolImportazioneLeghe_Console.Utils
         /// Modalita di inserimento delle informazioni letta dalle configurazioni 
         /// </summary>
         public static ModalitaInserimentoInformazioni CurrentModalitaInserimentoInformazioni = ModalitaInserimentoInformazioni.Stop;
+
+
+        /// <summary>
+        /// Tipi di risorsa disponibili sui quali si potranno avere l'effettuazioni delle diverse operazioni
+        /// </summary>
+        public enum ResourceTypes
+        {
+            DATABASE = 1,
+            EXCEL = 2,
+            XML = 3
+        }
+
+
+        /// <summary>
+        /// Enumeratore relativo alla lingua selezionata per l'avviamento applicazione corrente 
+        /// </summary>
+        public enum LinguaSelezionata
+        {
+            ITA = 1,
+            ENG = 2
+        }
+
+
+        /// <summary>
+        /// Scelta della lingua selezionata sul quale eseguire lo switch per i diversi messaggi utilizzati da 
+        /// segnalazione all'interno del tool
+        /// </summary>
+        public static LinguaSelezionata LinguaCorrenteTool = LinguaSelezionata.ITA;
+
+
+        /// <summary>
+        /// Segnalazione del fatto che l'esecuzione di tutta la procedura debba essere o meno cronometrata 
+        /// durante lo svolgersi delle diverse operazioni
+        /// </summary>
+        public static bool IsToBeChronometred = true;
 
         #endregion
     }

@@ -25,7 +25,7 @@ namespace ToolImportazioneLeghe_Console.Steps
             // segnalazione inizio STEP 1 di apertura excel 
             ConsoleService.STEPS_FromExcelToDatabase.STEP1_InizioAperturaFoglioExcelSorgente(ServiceLocator.GetUtilityFunctions.GetFileName(Constants.ExcelSourcePath));
 
-            if (ServiceLocator.GetExcelService.OpenFileExcel(Constants.ExcelSourcePath, Constants.format_foglio_origin, Constants.ModalitaAperturaExcel.Lettura))
+            if (ServiceLocator.GetExcelService.OpenFileExcel(Constants.ExcelSourcePath, Constants.format_foglio_origin, Constants.ModalitaAperturaExcel.READ))
             {
                 ConsoleService.STEPS_FromExcelToDatabase.STEP1_FileExcelSorgenteApertoCorrettamente();
                 return true;

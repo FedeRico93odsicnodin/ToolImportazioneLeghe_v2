@@ -208,21 +208,21 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
             if (atLeastAValidationOnLeghe && atLeastAValidationOnConcentrations)
             {
                 // se per ogni proprieta di lega non c'è validazione, allora non posso continuare 
-                if(_currentEmptyPropertiesSheetInstance.AlloyPropertiesInstances.Where(x => x.ValidatedElem == true).Count() > 0)
+                if(_currentEmptyPropertiesSheetInstance.AlloyPropertiesInstances.Where(x => x.ValidationContent_STEP1_Recognition == true).Count() > 0)
                 {
                     foreach (Excel_PropertiesContainer currentPropertiesLeghe in _currentEmptyPropertiesSheetInstance.AlloyPropertiesInstances)
                     {
 
                         if (_currentEmptyPropertiesSheetInstance.ConcentrationsPropertiesInstances.Where(x => x.StartingRowIndex == currentPropertiesLeghe.StartingRowIndex
-                        ).Count() > 0 && currentPropertiesLeghe.ValidatedElem 
+                        ).Count() > 0 && currentPropertiesLeghe.ValidationContent_STEP1_Recognition 
                             )
                         {
-                            currentPropertiesLeghe.ValidatedAssociation = true;
+                            currentPropertiesLeghe.ValidatedAssociation_STEP1_Recognition = true;
                         }
                     }
 
                     // controllo se ho avuto una associazione almeno per un elemento di lega 
-                    if (_currentEmptyPropertiesSheetInstance.AlloyPropertiesInstances.Where(x => x.ValidatedAssociation == true).Count() > 0)
+                    if (_currentEmptyPropertiesSheetInstance.AlloyPropertiesInstances.Where(x => x.ValidatedAssociation_STEP1_Recognition == true).Count() > 0)
                         validationOnLegheConcentrations = true;
                 }
             }
@@ -262,7 +262,7 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
             riconiscimnetoProperties = ReadPropertiesInfo(propertiesInstances);
 
             // inserimento della validazione per il singono container
-            propertiesInstances.ValidatedElem = (riconoscimentoTitle || riconiscimnetoProperties);
+            propertiesInstances.ValidationContent_STEP1_Recognition = (riconoscimentoTitle || riconiscimnetoProperties);
             
             // entrambi i valori devono essere stati riconosciuti correttamente 
             return (riconoscimentoTitle || riconiscimnetoProperties);
@@ -302,7 +302,7 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
                 }
             }
 
-            propertiesInstances.ValidatedElem = currentValidazione;
+            propertiesInstances.ValidationContent_STEP1_Recognition = currentValidazione;
 
             return currentValidazione;
         }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ToolImportazioneLeghe_Console.Messaging_Console;
 using ToolImportazioneLeghe_Console.Steps;
 using ToolImportazioneLeghe_Console.Utils;
 
@@ -39,6 +40,11 @@ namespace ToolImportazioneLeghe_Console
         {
             try
             {
+                // avviamento del tempo complessivo su tutta la procedura corrente 
+                MsgLocatorService.GetCommonMainService.MAIN_InizializzazioneTempoProcedura();
+                ServiceLocator.GetConfigurationService.StartTimeOnProcedure();
+
+
                 // STEP 1: apertura del file excel corrente per la successiva validazione 
                 _conclusioneSTEP1_ExcelToDatabase = FromExcelToDatabase.STEP1_OpenSourceExcel();
 

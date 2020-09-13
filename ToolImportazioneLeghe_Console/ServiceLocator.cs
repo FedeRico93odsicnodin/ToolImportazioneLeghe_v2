@@ -33,6 +33,12 @@ namespace ToolImportazioneLeghe_Console
         /// </summary>
         private static ExcelService _excelService;
 
+
+        /// <summary>
+        /// Configurazioni relative a tutto il tool per l'istanza corrente 
+        /// </summary>
+        private static Configurations _configurations;
+
         #endregion
 
 
@@ -76,6 +82,21 @@ namespace ToolImportazioneLeghe_Console
                     _excelService = new ExcelService();
 
                 return _excelService;
+            }
+        }
+
+
+        /// <summary>
+        /// Getter per l'ottenimento di tutte le configurazioni utilizzate dal tool
+        /// </summary>
+        public static Configurations GetConfigurationService
+        {
+            get
+            {
+                if (_configurations == null)
+                    _configurations = new Configurations();
+
+                return _configurations;
             }
         }
 

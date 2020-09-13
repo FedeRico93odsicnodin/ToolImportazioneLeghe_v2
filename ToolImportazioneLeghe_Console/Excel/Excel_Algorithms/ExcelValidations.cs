@@ -50,14 +50,7 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
         /// contenute nel foglio di leghe in iterazione corrente 
         /// </summary>
         private static List<Excel_AlloyInfo_Sheet> _fogliConcentrazioniTEMPAnalysis;
-
-
-        /// <summary>
-        /// Foglio di leghe sul quale si basa l'analisi corrente 
-        /// </summary>
-        private static Excel_AlloyInfo_Sheet _foglioLegheTEMPAnalysis;
-
-
+        
 
         /// <summary>
         /// Validazione per il primo formato excel individuato
@@ -210,31 +203,29 @@ namespace ToolImportazioneLeghe_Console.Excel.Excel_Algorithms
         public static class ValidateFormat2
         {
             /// <summary>
-            /// Permette la validazione delle informazioni di elemento per il foglio del secondo formato in lettura
-            /// questo metodo puo essere tenuto separato dalla definizione di eventuali altri fogli in quanto le informazioni rimarrebbero comunque separate dai 2 casi
-            /// vengono controllati rispettivamente i diversi elementi definiti e i valori numerici attribuiti alle diverse concentrazioni
+            /// Metodo relativo alla validazione di tutte le informazioni presenti sul foglio excel e che riguardano gli elementi 
+            /// la validazione avviene in merito ai seguenti aspetti:
+            /// 1) la corrispondenza con il nome di un elemento che deve essere netta rispetto all'identificativo dell'elemento stesso
+            /// 2) la conversione corretta in un double numerico per ogni valore di concentrazione applicato alla cella 
+            /// 3) il fatto che il valore confrontato per l'elemento corrente debba essere maggiore per il valore MAX di concentrazione rispetto al valore MIN 
             /// </summary>
-            /// <param name="alreadyReadInformationSheet"></param>
-            /// <param name="validatedOnElementsInfoSheet"></param>
             /// <returns></returns>
-            public static Constants_Excel.EsitoRecuperoInformazioniFoglio ValidateElementsInfo(Excel_AlloyInfo_Sheet alreadyReadInformationSheet, out Excel_AlloyInfo_Sheet validatedOnElementsInfoSheet) 
+            public static Constants_Excel.EsitoRecuperoInformazioniFoglio ValidateElementsInfo() 
             {
-                validatedOnElementsInfoSheet = alreadyReadInformationSheet;
+
+
 
                 return Constants_Excel.EsitoRecuperoInformazioniFoglio.RecuperoConErrori;
             }
 
 
             /// <summary>
-            /// Permette la popolazione di alcune informazioni che caratterizzano la lega in considerazione, queste informazioni riguardano principalmente categoria e lega che si andranno ad utilizzare di riferimento
-            /// all'interno del database 
+            /// Permette di capire in base alle informazioni gia presenti per lega base e nome della lega quali valori nuovi dovranno essere o meno inseriti nel database 
+            /// prima dell'inserimento delle informazioni effettive per avere una corrispondenza finale corretta e coerente con tutte le informazioni date
             /// </summary>
-            /// <param name="alreadyReadInformationSheet"></param>
-            /// <param name="preAssociatedInfoOnSheet"></param>
             /// <returns></returns>
-            public static Constants_Excel.EsitoRecuperoInformazioniFoglio PreAssociationsAlloyProperties(Excel_AlloyInfo_Sheet alreadyReadInformationSheet, out Excel_AlloyInfo_Sheet preAssociatedInfoOnSheet)
+            public static Constants_Excel.EsitoRecuperoInformazioniFoglio PreAssociationsAlloyProperties()
             {
-                preAssociatedInfoOnSheet = alreadyReadInformationSheet;
 
                 return Constants_Excel.EsitoRecuperoInformazioniFoglio.RecuperoConErrori;
             }

@@ -76,10 +76,33 @@
     <Compile Include="Excel\Model_Excel\Excel_PropertyWrapper.cs" />
     <Compile Include="Logging\LoggingService.cs" />
     <Compile Include="Messaging_Console\ConsoleService.cs" />
+    <Compile Include="Messaging_Console\MsgLocatorService.cs" />
+    <Compile Include="Messaging_Console\ResourceMsgString\CommonsEMain_ENG.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>CommonsEMain_ENG.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Messaging_Console\ResourceMsgString\CommonsEMain_ITA.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>CommonsEMain_ITA.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Messaging_Console\ResourceMsgString\Validators_ENG.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Validators_ENG.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Messaging_Console\ResourceMsgString\Validators_ITA.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Validators_ITA.resx</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServiceLocator.cs" />
     <Compile Include="Steps\FromExcelToDatabase.cs" />
+    <Compile Include="Utils\CommonMemList.cs" />
+    <Compile Include="Utils\Configurations.cs" />
     <Compile Include="Utils\Constants.cs" />
     <Compile Include="Utils\ExceptionMessages.cs" />
     <Compile Include="Utils\PeriodicTable.cs" />
@@ -93,5 +116,24 @@
     <Folder Include="Database\" />
     <Folder Include="XML\" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Messaging_Console\ResourceMsgString\CommonsEMain_ENG.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>CommonsEMain_ENG.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Messaging_Console\ResourceMsgString\CommonsEMain_ITA.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>CommonsEMain_ITA.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Messaging_Console\ResourceMsgString\Validators_ENG.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Validators_ENG.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Messaging_Console\ResourceMsgString\Validators_ITA.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Validators_ITA.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <Import Project="..\Common\Common.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
